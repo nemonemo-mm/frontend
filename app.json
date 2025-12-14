@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nemonemomm.frontend"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "72d511b4-3dcd-49eb-877d-a1225aa316d9"
+      }
+    },
+    "owner": "nemonemo-mm"
   }
 }
