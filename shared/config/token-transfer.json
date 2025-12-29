@@ -8,10 +8,10 @@
     "css": {
       "transformGroup": "tokens-studio",
       "transforms": ["name/kebab"],
-      "buildPath": "",
+      "buildPath": "shared/ui/",
       "files": [
         {
-          "destination": "variables.css",
+          "destination": "index.css",
           "format": "css/variables"
         }
       ]
