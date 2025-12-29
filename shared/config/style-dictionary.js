@@ -6,15 +6,12 @@ import StyleDictionary from "style-dictionary";
 register(StyleDictionary);
 
 const sd = new StyleDictionary({
-  source: ["studio.json"],
-  log: {
-    verbosity: "default",
-  },
-  preprocessors: ["tokens-studio"],
+  source: ["assets/tokens.json"],
+  preprocessors: ["tokens-studio"], // <-- since 0.16.0 this must be explicit
   platforms: {
     css: {
-      transformGroup: "tokens-studio",
-      transforms: ["name/kebab"],
+      transformGroup: "tokens-studio", // <-- apply the tokens-studio transformGroup to apply all transforms
+      transforms: ["name/kebab"], // <-- add a token name transform for generating token names, default is camel
       buildPath: "shared/ui/",
       files: [
         {
