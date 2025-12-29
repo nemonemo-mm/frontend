@@ -1,0 +1,20 @@
+{
+  "source": ["studio.json"],
+  "log": {
+    "verbosity": "default"
+  },
+  "preprocessors": ["tokens-studio"],
+  "platforms": {
+    "css": {
+      "transformGroup": "tokens-studio",
+      "transforms": ["name/kebab"],
+      "buildPath": "",
+      "files": [
+        {
+          "destination": "variables.css",
+          "format": "css/variables"
+        }
+      ]
+    }
+  }
+}
