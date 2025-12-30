@@ -6,10 +6,7 @@ import StyleDictionary from "style-dictionary";
 register(StyleDictionary);
 
 const sd = new StyleDictionary({
-  source: ["studio.json"],
-  log: {
-    verbosity: "default",
-  },
+  source: ["assets/tokens.json"],
   preprocessors: ["tokens-studio"],
   platforms: {
     css: {
