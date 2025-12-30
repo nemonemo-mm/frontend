@@ -11,12 +11,12 @@ const sd = new StyleDictionary({
   platforms: {
     css: {
       transformGroup: "tokens-studio",
-      transforms: ["name/kebab"],
+      transforms: ["name/camel"],
       buildPath: "shared/ui/",
       files: [
         {
-          destination: "index.css",
-          format: "css/variables",
+          destination: "index.ts",
+          format: "javascript/es6",
         },
       ],
     },
