@@ -12,7 +12,7 @@
     "storybook-generate": "sb-rn-get-stories",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "token": "node shared/config/style-dictionary.js"
+    "token": "node ./shared/config/style-dictionary.js"
   },
   "dependencies": {
     "@babel/core": "^7.28.5",
