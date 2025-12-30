@@ -1,9 +1,13 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 interface ButtonProps {}
 
 const Button = ({}: ButtonProps) => {
-  return <View></View>;
+  return (
+    <View>
+      <Text>테스트버튼</Text>
+    </View>
+  );
 };
 
 export default Button;
