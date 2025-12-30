@@ -12,5 +12,9 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
   ],
   framework: "@storybook/react-native-web-vite",
+  viteFinal: async (config) => {
+    config.base = "./";
+    return config;
+  },
 };
 export default config;
