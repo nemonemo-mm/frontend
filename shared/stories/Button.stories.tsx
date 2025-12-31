@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import Button from "../ui/atoms/Button";
 
 const meta: Meta<typeof Button> = {
-  title: "Example/Button",
+  title: "atoms/Button",
   component: Button,
 };
 
@@ -12,6 +12,7 @@ type Story = StoryObj<typeof Button>;
 
 export const Primary: Story = {
   args: {
-    children: "Primary Button",
+    label: "텍스트",
+    isActive: true,
   },
 };
