@@ -11,11 +11,15 @@ import {
 interface ChipProps {
   children: ReactNode;
   active: boolean;
+  onPress: () => void;
 }
 
-const Chip = ({ children, active }: ChipProps) => {
+const Chip = ({ children, active, onPress }: ChipProps) => {
   return (
-    <Text style={[active ? style.active : style.inactive, style.chip]}>
+    <Text
+      onPress={onPress}
+      style={[active ? style.active : style.inactive, style.chip]}
+    >
       {children}
     </Text>
   );
