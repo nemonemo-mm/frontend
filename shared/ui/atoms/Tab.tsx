@@ -3,10 +3,10 @@ import {
   GestureResponderEvent,
   Pressable,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { globalPrimaryMain, globalTextDisabled } from "..";
+import NemoText from "./NemoText";
 
 interface TabProps {
   isActive: boolean;
@@ -17,9 +17,13 @@ interface TabProps {
 const Tab = ({ isActive, onPress, children, ...props }: TabProps) => {
   return (
     <Pressable style={style.tab} onPress={onPress}>
-      <Text style={[isActive ? style.active : style.inactive]} {...props}>
+      <NemoText
+        level={isActive ? "h2" : "tabInActive"}
+        style={[isActive ? style.active : style.inactive]}
+        {...props}
+      >
         {children}
-      </Text>
+      </NemoText>
       <View
         style={[isActive ? style.activeBar : style.inactiveBar, style.bar]}
       />

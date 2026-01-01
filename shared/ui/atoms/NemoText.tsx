@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, TextProps } from "react-native";
 
-interface NemoTextProps {
-  level: "h1" | "h2" | "h3" | "body1" | "body2" | "body3";
+interface NemoTextProps extends TextProps {
+  level: "h1" | "h2" | "h3" | "body1" | "body2" | "body3" | "tabInActive";
   children: ReactNode;
 }
 //텍스트를 쓸 때 사용하는 텍스트 컴포넌트.
@@ -68,6 +68,13 @@ const style = StyleSheet.create({
     fontFamily: "Pretendard-Regular",
     fontSize: 12,
     lineHeight: 16,
+    letterSpacing: 0,
+  },
+  text_tabInActive: {
+    fontWeight: "400",
+    fontFamily: "Pretendard-Regular",
+    fontSize: 16,
+    lineHeight: 18,
     letterSpacing: 0,
   },
 });
