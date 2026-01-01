@@ -1,13 +1,47 @@
-import { Text, View } from "react-native";
+import {
+  Pressable,
+  PressableProps,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  ViewStyle,
+} from "react-native";
 
-interface ButtonProps {}
+interface ButtonProps extends PressableProps {
+  label: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+}
 
-const Button = ({}: ButtonProps) => {
+const Button = ({
+  label,
+  containerStyle,
+  labelStyle,
+  ...props
+}: ButtonProps) => {
   return (
-    <View>
-      <Text>테스트버튼</Text>
-    </View>
+    <Pressable
+      {...props}
+      accessibilityRole="button"
+      style={[styles.container, containerStyle]}
+    >
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
+    </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "stretch",
+  },
+  label: {
+    fontFamily: "Pretendard-Regular",
+    letterSpacing: 0,
+  },
+});
 
 export default Button;
