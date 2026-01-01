@@ -13,6 +13,5 @@ type Story = StoryObj<typeof Button>;
 export const Primary: Story = {
   args: {
     label: "텍스트",
-    isActive: true,
   },
 };

@@ -41,29 +41,29 @@ const Input = ({ label, isError = false, ...props }: InputProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 335,
-    height: 48,
+    alignSelf: "stretch",
+    minHeight: 48,
     borderRadius: 8,
     justifyContent: "center",
     borderWidth: 1,
     borderColor: globalCtaDisabledBackground,
+    paddingRight: 12,
   },
   label: {
     fontFamily: "Pretendard-Regular",
     lineHeight: 16,
     fontWeight: "500",
     fontSize: 14,
-    letterSpacing: 0,
     marginBottom: 12,
   },
   input: {
     fontFamily: "Pretendard-Regular",
     fontWeight: "400",
     fontSize: 14,
-    width: 280,
-    height: 16,
+    flex: 1, // 컨테이너의 남은 가로 공간을 다 사용
     marginLeft: 12,
     letterSpacing: 0,
+    paddingVertical: 0,
   },
   placeholder: {
     color: globalTextUnreadSubtle,
