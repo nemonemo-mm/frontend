@@ -1,5 +1,11 @@
 import { ReactNode } from "react";
-import { GestureResponderEvent, StyleSheet, Text, View } from "react-native";
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { globalPrimaryMain, globalTextDisabled } from "..";
 
 interface TabProps {
@@ -10,18 +16,14 @@ interface TabProps {
 
 const Tab = ({ isActive, onPress, children, ...props }: TabProps) => {
   return (
-    <View style={style.tab}>
-      <Text
-        style={[isActive ? style.active : style.inactive]}
-        onPress={onPress}
-        {...props}
-      >
+    <Pressable style={style.tab} onPress={onPress}>
+      <Text style={[isActive ? style.active : style.inactive]} {...props}>
         {children}
       </Text>
       <View
         style={[isActive ? style.activeBar : style.inactiveBar, style.bar]}
       />
-    </View>
+    </Pressable>
   );
 };
 
