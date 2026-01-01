@@ -39,7 +39,8 @@ const Button = ({ label, isActive = true, ...props }: ButtonProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 335,
+    alignSelf: "stretch",
+    marginHorizontal: 20,
     height: 46,
     borderRadius: 12,
     justifyContent: "center",
