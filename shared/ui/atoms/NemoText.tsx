@@ -7,9 +7,11 @@ interface NemoTextProps {
 }
 //텍스트를 쓸 때 사용하는 텍스트 컴포넌트.
 //인라인 블록 효과를 위한 텍스트 컴포넌트는 기본 컴포넌트로만 사용
-const NemoText = ({ level, children }: NemoTextProps) => {
+const NemoText = ({ level, children, ...props }: NemoTextProps) => {
   return (
-    <Text style={style[`text_${level}` as keyof typeof style]}>{children}</Text>
+    <Text style={style[`text_${level}` as keyof typeof style]} {...props}>
+      {children}
+    </Text>
   );
 };
 
