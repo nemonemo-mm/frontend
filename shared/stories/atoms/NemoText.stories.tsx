@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import NemoText from "../ui/atoms/NemoText";
+import NemoText from "../../ui/atoms/NemoText";
 
 const meta: Meta<typeof NemoText> = {
   title: "atoms/NemoText",
