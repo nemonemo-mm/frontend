@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text } from "react-native";
 import {
-  globalPrimaryChip,
-  globalPrimarySoft,
-  globalSurfaceDisabledstroke,
-  globalSurfaceSubtle,
-  globalTextDisabled,
+  globalGray0,
+  globalGray250,
+  globalGreen400,
+  globalGreen50,
+  globalGreen700,
 } from "..";
 
 interface ChipProps {
@@ -35,14 +35,14 @@ const style = StyleSheet.create({
     alignSelf: "flex-start",
   },
   inactive: {
-    borderColor: globalSurfaceDisabledstroke,
-    backgroundColor: globalSurfaceSubtle,
-    color: globalTextDisabled,
+    borderColor: globalGray250,
+    backgroundColor: globalGray0,
+    color: globalGreen400,
   },
   active: {
-    borderColor: globalPrimarySoft,
-    backgroundColor: globalPrimarySoft,
-    color: globalPrimaryChip,
+    borderColor: globalGreen50,
+    backgroundColor: globalGreen50,
+    color: globalGreen700,
   },
 });
 export default Chip;
