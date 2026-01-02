@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { globalSurfaceBackground } from "..";
+import { globalGray50 } from "..";
 import Segment from "../atoms/Segment";
 
 type SegmentsText = {
@@ -49,7 +49,7 @@ const Segments = ({ texts, handler }: SegmentsProps) => {
 const style = StyleSheet.create({
   segments: {
     flexDirection: "row",
-    backgroundColor: globalSurfaceBackground,
+    backgroundColor: globalGray50,
     borderRadius: 8,
     padding: 2,
   },
