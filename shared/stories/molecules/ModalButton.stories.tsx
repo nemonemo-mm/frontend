@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ModalButton from "../ui/atoms/ModalButton";
+import ModalButton from "../../ui/molecules/ModalButton";
 
 const meta: Meta<typeof ModalButton> = {
-  title: "atoms/ModalButton",
+  title: "molecules/ModalButton",
   component: ModalButton,
 };
 

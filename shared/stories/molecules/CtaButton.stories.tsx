@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import CtaButton from "../ui/atoms/CtaButton";
+import CtaButton from "../../ui/molecules/CtaButton";
 
 const meta: Meta<typeof CtaButton> = {
-  title: "atoms/CtaButton",
+  title: "molecules/CtaButton",
   component: CtaButton,
 };
 
