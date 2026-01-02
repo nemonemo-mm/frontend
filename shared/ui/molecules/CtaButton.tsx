@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
 import {
-  globalCtaDisabledBackground,
-  globalCtaDisabledText,
-  globalPrimaryMain,
-  globalSurfaceDefault,
+  globalGray0,
+  globalGray150,
+  globalGray400,
+  globalGreen300,
 } from "../index";
-import Button from "./Button";
+
+import Button from "../atoms/Button";
+import NemoText from "../atoms/NemoText";
 
 interface CtaButtonProps {
   label: string;
@@ -16,29 +18,29 @@ interface CtaButtonProps {
 const CtaButton = ({ label, onPress, isActive }: CtaButtonProps) => {
   return (
     <Button
-      label={label}
       containerStyle={[
         styles.container,
-        !isActive && { backgroundColor: globalCtaDisabledBackground },
+        isActive
+          ? { backgroundColor: globalGreen300 }
+          : { backgroundColor: globalGray150 },
       ]}
-      labelStyle={[styles.label, !isActive && { color: globalCtaDisabledText }]}
       onPress={onPress}
       disabled={!isActive}
-    />
+    >
+      <NemoText
+        level="h2"
+        style={isActive ? { color: globalGray0 } : { color: globalGray400 }}
+      >
+        {label}
+      </NemoText>
+    </Button>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: globalPrimaryMain,
     marginHorizontal: 20,
     minHeight: 46,
-  },
-  label: {
-    color: globalSurfaceDefault,
-    fontWeight: "500",
-    lineHeight: 18,
-    fontSize: 16,
   },
 });
 

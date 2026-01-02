@@ -1,9 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ModalButton from "../ui/atoms/ModalButton";
+import { View } from "react-native";
+import ModalButton from "../../ui/molecules/ModalButton";
 
 const meta: Meta<typeof ModalButton> = {
-  title: "atoms/ModalButton",
+  title: "molecules/ModalButton",
   component: ModalButton,
+  decorators: [
+    (Story) => (
+      <View style={{ width: "100%" }}>
+        <Story />
+      </View>
+    ),
+  ],
 };
 
 export default meta;

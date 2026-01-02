@@ -1,11 +1,13 @@
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import {
-  globalBorderSubtle,
-  globalPrimaryMain,
-  globalSurfaceDefault,
-  globalTextSecondary,
+  globalGray0,
+  globalGray150,
+  globalGray700,
+  globalGreen300,
 } from "../index";
-import Button from "./Button";
+
+import Button from "../atoms/Button";
+import NemoText from "../atoms/NemoText";
 
 interface ModalButtonProps {
   label: string;
@@ -22,35 +24,33 @@ const ModalButton = ({
 }: ModalButtonProps) => {
   return (
     <Button
-      label={label}
       containerStyle={[
         styles.container,
         containerStyle,
         {
           backgroundColor:
-            variant === "primary" ? globalPrimaryMain : globalBorderSubtle,
-        },
-      ]}
-      labelStyle={[
-        styles.label,
-        {
-          color:
-            variant === "primary" ? globalSurfaceDefault : globalTextSecondary,
+            variant === "primary" ? globalGreen300 : globalGray150,
         },
       ]}
       onPress={onPress}
-    />
+    >
+      <NemoText
+        level="body1"
+        style={
+          variant === "primary"
+            ? { color: globalGray0 }
+            : { color: globalGray700 }
+        }
+      >
+        {label}
+      </NemoText>
+    </Button>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     minHeight: 48,
-  },
-  label: {
-    fontWeight: "500",
-    lineHeight: 18,
-    fontSize: 16,
   },
 });
 
