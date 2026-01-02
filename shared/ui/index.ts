@@ -2,29 +2,6 @@
  * Do not edit directly, this file was auto-generated.
  */
 
-export const globalPrimaryMain = "#9bbf9b"; // 메인 cta, 활성토글, 선택된 탭 텍스트, 강조텍스트
-export const globalPrimarySoft = "#e6efe6";
-export const globalPrimaryMuted = "#a8c1ad";
-export const globalPrimaryCalendar = "#7fa982";
-export const globalPrimaryChip = "#6f8f6f";
-export const globalTextPrimary = "#2b2b2b";
-export const globalTextSecondary = "#666666";
-export const globalTextTertiary = "#9b9b9b";
-export const globalTextCalendar = "#d3d3d3";
-export const globalTextDisabled = "#b6b6b6";
-export const globalTextUnreadText = "#8a8a8a";
-export const globalTextUnreadSubtle = "#b0b0b0";
-export const globalSurfaceBackground = "#f7f7f7";
-export const globalSurfaceDefault = "#ffffff";
-export const globalSurfaceSubtle = "#f2f3f2";
-export const globalSurfaceDisabled = "#e5e5e5";
-export const globalSurfaceDisabledstroke = "#e3e5e3";
-export const globalBorderDefault = "#e6e6e6";
-export const globalBorderSubtle = "#e3e3e3";
-export const globalSemanticDanger = "#e06a5f";
-export const globalSemanticCaution = "#e89a92";
-export const globalCtaDisabledBackground = "#e5e7e5";
-export const globalCtaDisabledText = "#9e9e9e";
 export const globalColorCalendarLabelType1 = "#fe9689"; // 이번달 타입1
 export const globalColorCalendarLabelType1muted = "#f6b8ae"; // 지난달 타입1
 export const globalColorCalendarLabelType2 = "#ccaacb"; //  이번달 타입2
@@ -63,3 +40,42 @@ export const globalSpacingTitletoProfile = "36";
 export const globalSpacingTitle = "64";
 export const globalSpacingIcontoTypo = "4";
 export const globalBmRadius = 20;
+export const globalGray900 = "#2b2b2b"; // 메인텍스트
+export const globalGray700 = "#5f5f5f"; // 보조텍스트, 선택 전 입력 상태 텍스트
+export const globalGray600 = "#6f6f6f"; // 안내/ 가이드/ 플레이스홀더
+// 읽은 알림
+// 캘린더 저번달 / 다음달 날짜
+// 과거 일정
+export const globalGray500 = "#8a8a8a";
+// 비활성 탭
+// CTA 비활성
+// 조작 불가 상태 라벨
+export const globalGray400 = "#9b9b9b";
+export const globalGray50 = "#f7f7f7"; // 앱 기본배경
+export const globalGray0 = "#ffffff"; // 카드/ 모달배경
+// 모달 안 텍스트필드 배경
+// 카드 안 보조 영역
+//
+// - 규칙
+// 배경이 #FFFFFF일 때만 사용
+export const globalGray100 = "#f2f3f2";
+// CTA 비활성 배경
+// 입력 불가 영역 배경
+export const globalGray150 = "#e5e5e5";
+// 카드 구분선
+// 리스트 디바이더
+// 기본 텍스트필드 테두리
+export const globalGray200 = "#e6e6e6";
+// 비활성 입력 필드
+// 비활성 카드 테두리
+export const globalGray250 = "#e3e5e3";
+export const globalGreen50 = "#ddebdd"; // 활성화된 칩 배경
+export const globalGreen200 = "#a8c1ad"; // 서브아이콘, 보조포인트
+export const globalGreen300 = "#9bbf9b"; // 메인컬러
+export const globalGreen400 = "#8e9f8e"; // 비활성(미선택)칩 텍스트
+// 활성화된 칩 텍스트
+//
+export const globalGreen700 = "#4f6f4f";
+export const globalRed50 = "#fff5f5";
+export const globalRed400 = "#e89a92";
+export const globalRed600 = "#e06a5f";
