@@ -5,11 +5,7 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import {
-  globalCtaDisabledBackground,
-  globalSemanticDanger,
-  globalTextUnreadSubtle,
-} from "..";
+import { globalGray200, globalGray600, globalRed50, globalRed600 } from "..";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -24,13 +20,13 @@ const Input = ({ label, isError = false, ...props }: InputProps) => {
         style={[
           styles.container,
           isError && {
-            borderColor: globalSemanticDanger,
-            backgroundColor: "#fff5f5",
+            borderColor: globalRed600,
+            backgroundColor: globalRed50,
           },
         ]}
       >
         <TextInput
-          placeholderTextColor={globalTextUnreadSubtle}
+          placeholderTextColor={globalGray600}
           style={[styles.input]}
           {...props}
         />
@@ -46,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: globalCtaDisabledBackground,
+    borderColor: globalGray200,
     paddingRight: 12,
   },
   label: {
@@ -66,7 +62,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   placeholder: {
-    color: globalTextUnreadSubtle,
+    color: globalGray600,
     fontWeight: "400",
   },
 });

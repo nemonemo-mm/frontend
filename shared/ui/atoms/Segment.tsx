@@ -1,10 +1,6 @@
 import { ReactNode } from "react";
 import { GestureResponderEvent, Pressable, StyleSheet } from "react-native";
-import {
-  globalPrimaryChip,
-  globalSurfaceBackground,
-  globalTextDisabled,
-} from "..";
+import { globalGray400, globalGray50, globalGreen700 } from "..";
 import NemoText from "./NemoText";
 
 interface SegmentProps {
@@ -44,12 +40,12 @@ const style = StyleSheet.create({
   activeSegment: {
     backgroundColor: "#fff",
   },
-  inactiveSegment: { backgroundColor: globalSurfaceBackground },
+  inactiveSegment: { backgroundColor: globalGray50 },
   activeText: {
-    color: globalPrimaryChip,
+    color: globalGreen700,
   },
   inactiveText: {
-    color: globalTextDisabled,
+    color: globalGray400,
   },
 });
 

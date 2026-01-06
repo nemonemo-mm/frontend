@@ -5,11 +5,7 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
-import {
-  globalBorderSubtle,
-  globalPrimaryMain,
-  globalSurfaceDefault,
-} from "..";
+import { globalGray250, globalGray50, globalGreen300 } from "..";
 
 interface ToggleProps {
   value: boolean;
@@ -47,17 +43,17 @@ const style = StyleSheet.create({
   toggle: {
     width: 36,
     height: 20,
-    backgroundColor: globalBorderSubtle,
+    backgroundColor: globalGray250,
     borderRadius: 9999,
     padding: 2,
   },
   pressedToggle: {
-    backgroundColor: globalPrimaryMain,
+    backgroundColor: globalGreen300,
   },
   circle: {
     width: 16,
     height: 16,
-    backgroundColor: globalSurfaceDefault,
+    backgroundColor: globalGray50,
     borderRadius: 9999,
   },
 });

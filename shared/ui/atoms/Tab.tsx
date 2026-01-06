@@ -5,7 +5,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { globalPrimaryMain, globalTextDisabled } from "..";
+import { globalGray400, globalGreen300 } from "..";
 import NemoText from "./NemoText";
 
 interface TabProps {
@@ -37,10 +37,10 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   active: {
-    color: globalPrimaryMain,
+    color: globalGreen300,
   },
   inactive: {
-    color: globalTextDisabled,
+    color: globalGray400,
   },
   bar: {
     height: 2,
@@ -48,7 +48,7 @@ const style = StyleSheet.create({
     alignSelf: "stretch",
   },
   activeBar: {
-    backgroundColor: globalPrimaryMain,
+    backgroundColor: globalGreen300,
   },
   inactiveBar: {
     backgroundColor: "none",
