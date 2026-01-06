@@ -64,7 +64,9 @@ const style = StyleSheet.create({
     height: 5,
     width: 36,
     borderRadius: 3,
-    alignItems: "center",
+    alignSelf: "center",
+    backgroundColor: "#c8c8c8",
+    marginBottom: 3,
   },
   rightButton: {
     marginLeft: "auto",
