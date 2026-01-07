@@ -48,6 +48,15 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: "center",
     alignItems: "center",
+
+    // iOS shadow
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.168,
+    shadowRadius: 3,
+
+    // Android shadow
+    elevation: 2,
   },
   content: {
     flexDirection: "row",
