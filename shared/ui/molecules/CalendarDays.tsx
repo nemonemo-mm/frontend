@@ -17,7 +17,7 @@ const CalendarDays = ({}: CalendarDaysProps) => {
   return (
     <View style={style.container}>
       {weekdays.map((weekday) => (
-        <NemoDay weekday={weekday} />
+        <NemoDay key={weekday} weekday={weekday} />
       ))}
     </View>
   );

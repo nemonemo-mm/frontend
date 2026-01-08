@@ -1,10 +1,25 @@
-export type CalendarSchedule = {
+export interface APISchedule {
   id: number;
   title: string;
-  startAt: string;
-};
-export type CalendarDate = {
+  startAt: string; // ISO
+  endAt: string; // ISO
+  isAllDay: boolean;
+}
+
+export interface CalendarSchedule {
+  id: number;
+  title: string;
+  startDate: Date;
+  endDate: Date;
+}
+export interface WeekSchedule {
+  schedule: CalendarSchedule;
+  startIndex: number; // 0~6 (요일)
+  span: number; // 며칠짜리
+}
+
+export interface CalendarDate {
   date: number; // 1 ~ 31
   isCurrentMonth: boolean;
-  fullDate: string;
-};
+  fullDate: Date;
+}

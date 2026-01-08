@@ -2,7 +2,8 @@ import { CalendarDate } from "../types/Calendar";
 
 export const getCalendarDates = (
   year: number,
-  month: number
+  month: number,
+  week: number
 ): CalendarDate[] => {
   const firstDay = new Date(year, month, 1).getDay(); //1일의 요일
   const lastDate = new Date(year, month + 1, 0).getDate(); //해당 월의 마지막 날짜
@@ -17,7 +18,7 @@ export const getCalendarDates = (
     dates.push({
       date: prevLastDate - i,
       isCurrentMonth: false,
-      fullDate: `${year}-${month + 1}-${i}`,
+      fullDate: new Date(year, month - 1, prevLastDate - i + 1),
     });
   }
 
@@ -26,7 +27,7 @@ export const getCalendarDates = (
     dates.push({
       date: i,
       isCurrentMonth: true,
-      fullDate: `${year}-${month + 1}-${i}`,
+      fullDate: new Date(year, month, i),
     });
   }
 
@@ -35,9 +36,14 @@ export const getCalendarDates = (
     dates.push({
       date: i,
       isCurrentMonth: false,
-      fullDate: `${year}-${month + 1}-${i}`,
+      fullDate: new Date(year, month + 1, i),
     });
   }
 
-  return dates;
+  //최대 주차 방어
+  week = Math.min(dates.length / 7, week);
+  //최소 주차 방어
+  week = Math.max(0, week);
+
+  return dates.slice(week * 7, week * 7 + 7);
 };
