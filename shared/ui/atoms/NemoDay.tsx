@@ -2,14 +2,17 @@ import { StyleSheet, View } from "react-native";
 import { globalGreen700 } from "..";
 import NemoText from "./NemoText";
 
-interface WeekDayProps {
+interface NemoDayProps {
   weekday: "월" | "화" | "수" | "목" | "금" | "토" | "일";
 }
 
-const WeekDay = ({ weekday }: WeekDayProps) => {
+const NemoDay = ({ weekday }: NemoDayProps) => {
   return (
     <View style={style.container}>
-      <NemoText level="body2" style={{ color: globalGreen700 }}>
+      <NemoText
+        level="body2"
+        style={{ color: globalGreen700, textAlign: "center" }}
+      >
         {weekday}
       </NemoText>
     </View>
@@ -19,8 +22,8 @@ const WeekDay = ({ weekday }: WeekDayProps) => {
 const style = StyleSheet.create({
   container: {
     paddingVertical: 3,
-    paddingHorizontal: 17,
+    paddingHorizontal: 19,
   },
 });
 
-export default WeekDay;
+export default NemoDay;
