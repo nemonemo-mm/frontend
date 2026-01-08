@@ -36,7 +36,7 @@ const CalendarWeekSchedules = ({
 
   return (
     <View>
-      {thisWeekSchedules.map((schedule) => {
+      {thisWeekSchedules.splice(0, 4).map((schedule, i) => {
         return (
           <View
             key={`schedule-${schedule.schedule.id}`}
@@ -59,17 +59,23 @@ const CalendarWeekSchedules = ({
                 // todo: 배경색 지정
               ]}
             >
-              <View
-                style={{
-                  backgroundColor: globalGray400,
-                  width: 3,
-                  height: 12,
-                  borderRadius: 2,
-                }}
-              />
-              <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
-                {schedule.schedule.title}
-              </NemoText>
+              {i > 2 ? (
+                <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
+                  ...
+                </NemoText>
+              ) : (
+                <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
+                  <View
+                    style={{
+                      backgroundColor: globalGray400,
+                      width: 3,
+                      height: 12,
+                      borderRadius: 2,
+                    }}
+                  />{" "}
+                  {schedule.schedule.title}
+                </NemoText>
+              )}
             </View>
           </View>
         );
