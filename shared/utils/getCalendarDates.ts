@@ -1,8 +1,4 @@
-export interface CalendarDate {
-  date: number; // 1 ~ 31
-  isCurrentMonth: boolean;
-  fullDate: Date;
-}
+import { CalendarDate } from "../types/Calendar";
 
 export const getCalendarDates = (
   year: number,
@@ -21,7 +17,7 @@ export const getCalendarDates = (
     dates.push({
       date: prevLastDate - i,
       isCurrentMonth: false,
-      fullDate: new Date(year, month - 1, prevLastDate - i),
+      fullDate: `${year}-${month + 1}-${i}`,
     });
   }
 
@@ -30,7 +26,7 @@ export const getCalendarDates = (
     dates.push({
       date: i,
       isCurrentMonth: true,
-      fullDate: new Date(year, month, i),
+      fullDate: `${year}-${month + 1}-${i}`,
     });
   }
 
@@ -39,7 +35,7 @@ export const getCalendarDates = (
     dates.push({
       date: i,
       isCurrentMonth: false,
-      fullDate: new Date(year, month + 1, i),
+      fullDate: `${year}-${month + 1}-${i}`,
     });
   }
 
