@@ -90,14 +90,14 @@ const CalendarWeek = ({ dates, schedules }: CalendarSchedulesProps) => {
 const style = StyleSheet.create({
   container: {
     flexDirection: "row",
-    flexWrap: "wrap",
     maxWidth: 355,
   },
   week: {
     minHeight: 91,
+    width: "100%",
   },
   dates: {
-    flexBasis: `${100 / 7}%`,
+    flex: 1,
   },
 });
 export default CalendarWeek;
