@@ -1,9 +1,9 @@
-import WeekDay from "@/shared/ui/atoms/WeekDay";
+import NemoDay from "@/shared/ui/atoms/NemoDay";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof WeekDay> = {
-  title: "atoms/WeekDay",
-  component: WeekDay,
+const meta: Meta<typeof NemoDay> = {
+  title: "atoms/NemoDay",
+  component: NemoDay,
   argTypes: {
     weekday: {
       control: "select",
@@ -14,7 +14,7 @@ const meta: Meta<typeof WeekDay> = {
 
 export default meta;
 
-type Story = StoryObj<typeof WeekDay>;
+type Story = StoryObj<typeof NemoDay>;
 
 export const Primary: Story = {
   args: {
