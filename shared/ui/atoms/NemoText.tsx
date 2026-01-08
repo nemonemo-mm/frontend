@@ -1,8 +1,9 @@
+import { TextLevel } from "@/shared/types/TextLevel";
 import { ReactNode } from "react";
 import { StyleSheet, Text, TextProps } from "react-native";
 
 interface NemoTextProps extends TextProps {
-  level: "h1" | "h2" | "h3" | "body1" | "body2" | "body3" | "tabInActive";
+  level: TextLevel;
   children: ReactNode;
 }
 //텍스트를 쓸 때 사용하는 텍스트 컴포넌트.
