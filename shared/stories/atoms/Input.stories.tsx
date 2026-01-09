@@ -1,9 +1,18 @@
+import { globalGray50 } from "@/shared/ui";
 import type { Meta, StoryObj } from "@storybook/react";
+import { View } from "react-native";
 import Input from "../../ui/atoms/Input";
 
 const meta: Meta<typeof Input> = {
   title: "atoms/Input",
   component: Input,
+  decorators: [
+    (Story) => (
+      <View style={{ backgroundColor: globalGray50, padding: 20 }}>
+        <Story />
+      </View>
+    ),
+  ],
 };
 
 export default meta;
