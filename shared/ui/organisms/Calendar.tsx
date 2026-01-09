@@ -1,15 +1,17 @@
 import useCalendar from "@/shared/hooks/useCalendar";
+import { CalendarSchedule } from "@/shared/types/Calendar";
 import CalendarContainer from "../molecules/CalendarContainer";
-import CalendarDates from "../molecules/CalendarDates";
-import WeekDays from "../molecules/CalendarDays";
+import CalendarDays from "../molecules/CalendarDays";
 import CalendarHeader from "../molecules/CalendarHeader";
+import CalendarWeek from "../molecules/CalendarWeek";
 
 interface CalendarProps {
   year: number;
   month: number;
+  schedules: CalendarSchedule[];
 }
 
-const Calendar = ({ year, month }: CalendarProps) => {
+const Calendar = ({ year, month, schedules }: CalendarProps) => {
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
     month
@@ -26,19 +28,10 @@ const Calendar = ({ year, month }: CalendarProps) => {
         month={currentYearMonth.month + 1}
         goMonth={handleCalendarMonth}
       />
-      <WeekDays />
-      <CalendarDates
-        dates={days}
-        schedules={[
-          { id: 1, startAt: "2026-1-01T10:30:00Z", title: "Meeting with team" },
-          {
-            id: 2,
-            startAt: "2026-1-05T10:30:00Z",
-            title: "Doctor's appointment",
-          },
-          { id: 3, startAt: "2026-1-10T10:30:00Z", title: "Project deadline" },
-        ]}
-      />
+      <CalendarDays />
+      {days.map((day, i) => (
+        <CalendarWeek key={"calendar" + i} dates={day} schedules={schedules} />
+      ))}
     </CalendarContainer>
   );
 };

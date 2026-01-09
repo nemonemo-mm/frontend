@@ -26,7 +26,12 @@ const useCalendar = (year: number, month: number) => {
     }
   };
   const days = useMemo(
-    () => getCalendarDates(currentYearMonth.year, currentYearMonth.month),
+    () =>
+      Array(5)
+        .fill(0)
+        .map((_, i) =>
+          getCalendarDates(currentYearMonth.year, currentYearMonth.month, i)
+        ),
     [currentYearMonth]
   );
 
