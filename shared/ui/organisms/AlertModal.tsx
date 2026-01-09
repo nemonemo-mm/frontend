@@ -1,121 +1,96 @@
 import { StyleSheet, View } from "react-native";
-import NemoText from "../atoms/NemoText";
+import { globalGray0, globalSpacingLg, globalSpacingSm } from "../index";
+
 import ProfileImage from "../atoms/ProfileImage";
-import {
-  globalGray0,
-  globalGray700,
-  globalSpacingLg,
-  globalSpacingSm,
-  globalSpacingXs,
-} from "../index";
-import ModalButton from "../molecules/ModalButton";
+import AlertModalActions from "../molecules/AlertModalAction";
+import AlertModalInput from "../molecules/AlertModalInput";
+import AlertModalText from "../molecules/AlertModalText";
+import AlertModalTitle from "../molecules/AlertModalTitle";
 
 interface AlertModalProps {
-  children?: React.ReactNode;
-  title: string;
-  content?: string;
-  cancelLabel?: string;
-  confirmLabel: string;
-  onCancel?: () => void;
-  onConfirm: () => void;
+  children: React.ReactNode;
 }
 
 /**
- * AlertModal 컴포넌트
+ * AlertModal - Compound Component Pattern
+ *
+ * 각 하위 컴포넌트를 조합하여 다양한 형태의 모달 구성 가능
  *
  * @example
- * // 버튼 하나만
- * <AlertModal
- *   title="알림"
- *   content="작업이 완료되었습니다."
- *   confirmLabel="확인"
- *   onConfirm={() => {}}
- * />
- *
- * @example
- * // 버튼 두 개
- * <AlertModal
- *   title="알림"
- *   content="이 작업을 진행하시겠습니까?"
- *   cancelLabel="취소"
- *   confirmLabel="확인"
- *   onCancel={() => {}}
- *   onConfirm={() => {}}
- * />
- *
- * @example
- * // 프로필 이미지 포함 (기본 이미지)
- * <AlertModal
- *   title="모달 타이틀"
- *   content="모달 본문내용"
- *   confirmLabel="맞아요"
- *   onConfirm={() => {}}
- * >
- *   <AlertModal.ProfileImage />
+ * // 기본 확인 모달
+ * <AlertModal>
+ *   <AlertModal.Title>알림</AlertModal.Title>
+ *   <AlertModal.Text>작업이 완료되었습니다.</AlertModal.Text>
+ *   <AlertModal.Actions
+ *     type="single"
+ *     confirmLabel="확인"
+ *     onConfirm={() => {}}
+ *   />
  * </AlertModal>
  *
  * @example
- * // 프로필 이미지 포함 (커스텀 이미지)
- * <AlertModal
- *   title="모달 타이틀"
- *   content="모달 본문내용"
- *   cancelLabel="취소하기"
- *   confirmLabel="맞아요"
- *   onCancel={() => {}}
- *   onConfirm={() => {}}
- * >
- *   <AlertModal.ProfileImage uri={userData?.profileImage} size={56} />
+ * // 이미지 + 타이틀 + 설명
+ * <AlertModal>
+ *   <AlertModal.ProfileImage size={56} />
+ *   <AlertModal.Title>사용자 정보</AlertModal.Title>
+ *   <AlertModal.Text>정보를 수정하시겠습니까?</AlertModal.Text>
+ *   <AlertModal.Actions
+ *     type="double"
+ *     cancelLabel="취소"
+ *     confirmLabel="수정"
+ *     onCancel={() => {}}
+ *     onConfirm={() => {}}
+ *   />
+ * </AlertModal>
+ *
+ * @example
+ * // 타이틀 + 설명 + Input
+ * <AlertModal>
+ *   <AlertModal.Title>탈퇴하기</AlertModal.Title>
+ *   <AlertModal.Text>
+ *     계정을 삭제하려면 탈퇴하기를 입력해주세요
+ *   </AlertModal.Text>
+ *   <AlertModal.Input
+ *     placeholder="소개글"
+ *     value={value}
+ *     onChangeText={setValue}
+ *   />
+ *   <AlertModal.Actions
+ *     type="double"
+ *     cancelLabel="취소하기"
+ *     confirmLabel="탈퇴하기"
+ *     onCancel={() => {}}
+ *     onConfirm={() => {}}
+ *   />
+ * </AlertModal>
+ *
+ * @example
+ * // 타이틀 + Input만
+ * <AlertModal>
+ *   <AlertModal.Title>이름 변경</AlertModal.Title>
+ *   <AlertModal.Input
+ *     placeholder="새 이름 입력"
+ *     value={value}
+ *     onChangeText={setValue}
+ *   />
+ *   <AlertModal.Actions
+ *     type="double"
+ *     cancelLabel="취소"
+ *     confirmLabel="저장"
+ *     onCancel={() => {}}
+ *     onConfirm={() => {}}
+ *   />
  * </AlertModal>
  */
-
-const AlertModal = ({
-  title,
-  content,
-  cancelLabel,
-  confirmLabel,
-  onCancel,
-  onConfirm,
-  children,
-}: AlertModalProps) => {
-  return (
-    <View style={styles.container}>
-      {children && <View style={styles.image}>{children}</View>}
-
-      <View style={styles.title}>
-        <NemoText level="h3">{title}</NemoText>
-      </View>
-
-      {content && (
-        <View style={styles.content}>
-          <NemoText level="body2" style={{ color: globalGray700 }}>
-            {content}
-          </NemoText>
-        </View>
-      )}
-
-      <View style={styles.footer}>
-        {cancelLabel && onCancel && (
-          <View style={styles.buttonWrapper}>
-            <ModalButton
-              label={cancelLabel}
-              variant="secondary"
-              onPress={onCancel}
-            />
-          </View>
-        )}
-        <View style={styles.buttonWrapper}>
-          <ModalButton
-            label={confirmLabel}
-            variant="primary"
-            onPress={onConfirm}
-          />
-        </View>
-      </View>
-    </View>
-  );
+const AlertModal = ({ children }: AlertModalProps) => {
+  return <View style={styles.container}>{children}</View>;
 };
 
-// Composition을 위해 ProfileImage를 붙임
+// Compound Components
+AlertModal.Title = AlertModalTitle;
+AlertModal.Text = AlertModalText;
+AlertModal.Input = AlertModalInput;
+AlertModal.Actions = AlertModalActions;
 AlertModal.ProfileImage = ProfileImage;
 
 const styles = StyleSheet.create({
@@ -127,22 +102,6 @@ const styles = StyleSheet.create({
     gap: globalSpacingSm,
     padding: globalSpacingLg,
     alignSelf: "center",
-  },
-  image: {
-    alignItems: "center",
-  },
-  title: {
-    alignItems: "center",
-  },
-  content: {
-    alignItems: "center",
-  },
-  footer: {
-    flexDirection: "row",
-    gap: globalSpacingXs,
-  },
-  buttonWrapper: {
-    flex: 1,
   },
 });
 
