@@ -18,7 +18,7 @@ export const getCalendarDates = (
     dates.push({
       date: prevLastDate - i,
       isCurrentMonth: false,
-      fullDate: new Date(year, month - 1, prevLastDate - i + 1),
+      fullDate: new Date(year, month - 1, prevLastDate - i),
     });
   }
 
