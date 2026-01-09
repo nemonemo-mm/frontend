@@ -1,7 +1,7 @@
 import { CalendarDate, CalendarSchedule } from "@/shared/types/Calendar";
 import getWeekSchedules from "@/shared/utils/getWeekSchedules";
 import { StyleSheet, View } from "react-native";
-import { globalGray400 } from "..";
+import { globalGray200, globalGray400 } from "..";
 import NemoDate from "../atoms/NemoDate";
 import NemoText from "../atoms/NemoText";
 
@@ -25,56 +25,43 @@ const CalendarWeekDates = ({ dates }: CalendarDatesProps) => {
     </View>
   );
 };
-
+//! 이번달에서는 한 칸 뒤로 밀리는데, 이전달 혹은 다음달 날짜에는 잘 표시가 되고 있음...
 //일주일 일정
 const CalendarWeekSchedules = ({
   dates,
   schedules,
 }: CalendarSchedulesProps) => {
-  const thisWeekSchedules = getWeekSchedules(dates, schedules);
-  const dayWidth = `${100 / 7}%`;
+  const thisWeekSchedules = getWeekSchedules(dates, schedules, 4);
+  const dayWidth = 100 / 7;
 
   return (
     <View>
-      {thisWeekSchedules.splice(0, 4).map((schedule, i) => {
+      {thisWeekSchedules.map((schedule, i) => {
         return (
           <View
             key={`schedule-${schedule.schedule.id}`}
             style={{ flexDirection: "row" }}
           >
-            {Array.from({ length: schedule.startIndex }).map((_, index) => (
-              <View
-                key={`spacer-${schedule.schedule.id}-${index}`}
-                style={{ flexBasis: dayWidth }}
-              />
-            ))}
+            {schedule.startsThisWeek && (
+              <ScheduleSpacer count={schedule.startIndex} />
+            )}
             <View
               style={[
                 {
-                  flexBasis: `${(100 / 7) * schedule.span}%`,
-                  flexDirection: "row",
+                  flexBasis: `${dayWidth * schedule.span}%`,
                   gap: 4,
-                  borderRadius: 2,
+                  margin: 2,
                 },
                 // todo: 배경색 지정
               ]}
             >
               {i > 2 ? (
-                <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
-                  ...
-                </NemoText>
+                <NemoText level="body3">...</NemoText>
               ) : (
-                <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
-                  <View
-                    style={{
-                      backgroundColor: globalGray400,
-                      width: 3,
-                      height: 12,
-                      borderRadius: 2,
-                    }}
-                  />{" "}
-                  {schedule.schedule.title}
-                </NemoText>
+                <ScheduleLane
+                  startThisWeek={schedule.startsThisWeek}
+                  title={schedule.schedule.title}
+                />
               )}
             </View>
           </View>
@@ -107,3 +94,45 @@ const style = StyleSheet.create({
   },
 });
 export default CalendarWeek;
+
+const ScheduleSpacer = ({ count }: { count: number }) => (
+  <>
+    {Array.from({ length: count }).map((_, i) => (
+      <View key={i} style={{ flexBasis: `${100 / 7}%` }} />
+    ))}
+  </>
+);
+
+const ScheduleLane = ({
+  startThisWeek,
+  title,
+}: {
+  startThisWeek: boolean;
+  title: string;
+}) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        backgroundColor: globalGray200,
+        borderRadius: 2,
+        paddingRight: 2,
+      }}
+    >
+      {startThisWeek && (
+        <View
+          style={{
+            backgroundColor: globalGray400,
+            width: 3,
+            height: 12,
+            borderRadius: 2,
+            margin: 2,
+          }}
+        />
+      )}
+      <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
+        {title}
+      </NemoText>
+    </View>
+  );
+};

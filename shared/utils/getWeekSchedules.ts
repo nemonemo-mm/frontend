@@ -6,39 +6,48 @@ import {
 
 const getWeekSchedules = (
   weekDates: CalendarDate[],
-  schedules: CalendarSchedule[]
+  schedules: CalendarSchedule[],
+  maxVisible?: number
 ): WeekSchedule[] => {
   if (weekDates.length === 0) return [];
-  return schedules
+
+  const value = schedules
     .filter(
       (s) =>
         s.startDate <= weekDates[6].fullDate &&
         s.endDate >= weekDates[0].fullDate
     )
     .map((s) => {
-      const start = Math.max(
-        0,
-        differenceInDays(s.startDate, weekDates[0].fullDate)
-      );
-      const end = Math.min(
-        6,
-        differenceInDays(s.endDate, weekDates[0].fullDate)
-      );
+      const findDateIndex = (date: Date) =>
+        weekDates.findIndex((d) => {
+          return normalize(d.fullDate).getDate() === normalize(date).getDate();
+        });
+      const startIndex =
+        findDateIndex(s.startDate) === -1 ? 0 : findDateIndex(s.startDate);
+      const endIndex =
+        findDateIndex(s.endDate) === -1 ? 6 : findDateIndex(s.endDate);
 
+      const startsThisWeek = s.startDate >= weekDates[0].fullDate;
+      const span = endIndex - startIndex + 1;
       return {
         schedule: s,
-        startIndex: start,
-        span: end - start + 1,
+        startIndex,
+        span,
+        startsThisWeek,
       };
     })
-    .sort((a, b) => a.span - b.span);
-};
-const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+    .sort((a, b) => {
+      if (a.startIndex !== b.startIndex) {
+        return a.startIndex - b.startIndex;
+      }
+      return b.span - a.span; // 같은 시작이면 긴 게 먼저
+    });
 
-const differenceInDays = (start: Date, end: Date) => {
-  const time = Math.abs(end.getTime() - start.getTime());
-  if (time < 0) return 0;
-  return Math.round(time / MILLISECONDS_PER_DAY);
+  if (maxVisible) return value.splice(0, maxVisible);
+  return value;
 };
+
+const normalize = (d: Date) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 export default getWeekSchedules;

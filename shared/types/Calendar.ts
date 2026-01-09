@@ -16,6 +16,7 @@ export interface WeekSchedule {
   schedule: CalendarSchedule;
   startIndex: number; // 0~6 (요일)
   span: number; // 며칠짜리
+  startsThisWeek: boolean;
 }
 
 export interface CalendarDate {

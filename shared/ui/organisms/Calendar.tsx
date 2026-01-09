@@ -1,4 +1,5 @@
 import useCalendar from "@/shared/hooks/useCalendar";
+import { CalendarSchedule } from "@/shared/types/Calendar";
 import CalendarContainer from "../molecules/CalendarContainer";
 import CalendarDays from "../molecules/CalendarDays";
 import CalendarHeader from "../molecules/CalendarHeader";
@@ -7,9 +8,10 @@ import CalendarWeek from "../molecules/CalendarWeek";
 interface CalendarProps {
   year: number;
   month: number;
+  schedules: CalendarSchedule[];
 }
 
-const Calendar = ({ year, month }: CalendarProps) => {
+const Calendar = ({ year, month, schedules }: CalendarProps) => {
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
     month
@@ -28,48 +30,7 @@ const Calendar = ({ year, month }: CalendarProps) => {
       />
       <CalendarDays />
       {days.map((day, i) => (
-        <CalendarWeek
-          key={"calendar" + i}
-          dates={day}
-          schedules={[
-            {
-              id: 1,
-              startDate: new Date("2026-1-01"),
-              endDate: new Date("2026-1-01"),
-              title: "0 with team",
-            },
-            {
-              id: 12,
-              startDate: new Date("2026-1-01"),
-              endDate: new Date("2026-1-01"),
-              title: "1 with team",
-            },
-            {
-              id: 13,
-              startDate: new Date("2026-1-01"),
-              endDate: new Date("2026-1-01"),
-              title: "2 with team",
-            },
-            {
-              id: 14,
-              startDate: new Date("2026-1-01"),
-              endDate: new Date("2026-1-01"),
-              title: "3 with team",
-            },
-            {
-              id: 15,
-              startDate: new Date("2026-1-01"),
-              endDate: new Date("2026-1-01"),
-              title: "4 with team",
-            },
-            {
-              id: 2,
-              startDate: new Date("2026-1-05"),
-              endDate: new Date("2026-1-07"),
-              title: "Doctor's appointment",
-            },
-          ]}
-        />
+        <CalendarWeek key={"calendar" + i} dates={day} schedules={schedules} />
       ))}
     </CalendarContainer>
   );
