@@ -1,7 +1,7 @@
 import MainIcon from "@/assets/icons/main";
 import MyPageIcon from "@/assets/icons/mypage";
 import PersonalIcon from "@/assets/icons/personal";
-import { globalGreen300 } from "@/shared/ui";
+import { globalGray50, globalGreen300 } from "@/shared/ui";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -9,6 +9,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: globalGreen300,
+        tabBarStyle: { backgroundColor: globalGray50, borderTopWidth: 0 },
+        headerStyle: {
+          backgroundColor: globalGray50,
+        },
+        headerShadowVisible: false,
         headerShown: true,
       }}
     >
