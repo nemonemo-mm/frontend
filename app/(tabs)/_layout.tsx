@@ -18,7 +18,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="[teamId]"
         options={{
           title: "",
           tabBarIcon: ({ color }) => <MainIcon color={color} size={24} />,
@@ -36,6 +36,12 @@ export default function TabsLayout() {
         options={{
           title: "",
           tabBarIcon: ({ color }) => <MyPageIcon color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="home"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
