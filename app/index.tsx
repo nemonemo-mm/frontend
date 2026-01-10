@@ -1,15 +1,6 @@
-import { Text, View } from "react-native";
+import { Redirect } from "expo-router";
 
 export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-    </View>
-  );
+  // auth 구현 전, 개발 편의를 위해 초기 진입 시 홈으로 리다이렉트
+  return <Redirect href="/(tabs)/home" />;
 }
