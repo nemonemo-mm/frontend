@@ -5,20 +5,43 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import { globalGray200, globalGray600, globalRed50, globalRed600 } from "..";
+import {
+  globalGray0,
+  globalGray50,
+  globalGray600,
+  globalRed50,
+  globalRed600,
+} from "..";
+
+type InputVariant = "default" | "modal";
 
 interface InputProps extends TextInputProps {
   label?: string;
   isError?: boolean;
+  variant?: InputVariant;
 }
 
-const Input = ({ label, isError = false, ...props }: InputProps) => {
+const Input = ({
+  label,
+  isError = false,
+  variant = "default",
+  ...props
+}: InputProps) => {
+  const containerStyle =
+    variant === "modal" ? styles.containerModal : styles.containerDefault;
+
+  const textStyle =
+    variant === "modal" ? styles.inputModal : styles.inputDefault;
+
   return (
     <View>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && variant === "default" && (
+        <Text style={styles.label}>{label}</Text>
+      )}
       <View
         style={[
-          styles.container,
+          styles.containerBase,
+          containerStyle,
           isError && {
             borderColor: globalRed600,
             backgroundColor: globalRed50,
@@ -27,7 +50,7 @@ const Input = ({ label, isError = false, ...props }: InputProps) => {
       >
         <TextInput
           placeholderTextColor={globalGray600}
-          style={[styles.input]}
+          style={[styles.inputBase, textStyle]}
           {...props}
         />
       </View>
@@ -36,14 +59,21 @@ const Input = ({ label, isError = false, ...props }: InputProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  containerBase: {
     alignSelf: "stretch",
     minHeight: 48,
     borderRadius: 8,
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: globalGray200,
     paddingRight: 12,
+    borderWidth: 1,
+  },
+  containerDefault: {
+    backgroundColor: globalGray0,
+    borderColor: globalGray0,
+  },
+  containerModal: {
+    backgroundColor: globalGray50,
+    borderColor: globalGray50,
   },
   label: {
     fontFamily: "Pretendard-Regular",
@@ -52,18 +82,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 12,
   },
-  input: {
+  inputBase: {
     fontFamily: "Pretendard-Regular",
     fontWeight: "400",
     fontSize: 14,
-    flex: 1, // 컨테이너의 남은 가로 공간을 다 사용
+    flex: 1,
     marginLeft: 12,
     letterSpacing: 0,
     paddingVertical: 0,
   },
-  placeholder: {
-    color: globalGray600,
-    fontWeight: "400",
+  inputDefault: {
+    lineHeight: 16, // body2
+  },
+  inputModal: {
+    lineHeight: 20, // body2wide
   },
 });
 

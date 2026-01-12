@@ -78,6 +78,27 @@ const style = StyleSheet.create({
     lineHeight: 18,
     letterSpacing: 0,
   },
+  text_body2Tight: {
+    fontWeight: "400",
+    fontFamily: "Pretendard-Regular",
+    fontSize: 14,
+    lineHeight: 16,
+    letterSpacing: 0,
+  },
+  text_body2wide: {
+    fontWeight: "400",
+    fontFamily: "Pretendard-Regular",
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0,
+  },
+  text_caption: {
+    fontWeight: "600",
+    fontFamily: "Pretendard-Regular",
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: 0,
+  },
 });
 
 export default NemoText;
