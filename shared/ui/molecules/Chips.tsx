@@ -5,12 +5,12 @@ import Chip from "../atoms/Chip";
 type Text = {
   id: string;
   content: string;
-  active: boolean;
+  isActive: boolean;
 };
 
 export interface ChipsProps {
   texts: Text[];
-  handler: (v: Text[]) => {};
+  handler: (v: Text[]) => void;
 }
 
 const Chips = ({ texts, handler }: ChipsProps) => {
@@ -19,7 +19,7 @@ const Chips = ({ texts, handler }: ChipsProps) => {
   const handleSetActive = (id: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, active: !item.active } : item
+        item.id === id ? { ...item, isActive: !item.isActive } : item
       )
     );
   };
@@ -33,7 +33,7 @@ const Chips = ({ texts, handler }: ChipsProps) => {
       {items.map((text) => (
         <Chip
           key={text.id}
-          active={text.active}
+          active={text.isActive}
           onPress={() => handleSetActive(text.id)}
         >
           {text.content}
