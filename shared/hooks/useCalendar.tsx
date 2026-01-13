@@ -1,10 +1,6 @@
 import { useMemo, useState } from "react";
+import { CalendarState } from "../types/Calendar";
 import { getCalendarDates } from "../utils/getCalendarDates";
-
-interface CalendarState {
-  year: number;
-  month: number;
-}
 
 const useCalendar = (year: number, month: number) => {
   const [currentYearMonth, setCurrent] = useState<CalendarState>({

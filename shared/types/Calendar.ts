@@ -24,3 +24,8 @@ export interface CalendarDate {
   isCurrentMonth: boolean;
   fullDate: Date;
 }
+
+export interface CalendarState {
+  year: number;
+  month: number;
+}
