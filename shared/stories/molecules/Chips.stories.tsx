@@ -6,7 +6,7 @@ const meta: Meta<typeof Chips> = {
   component: Chips,
   argTypes: {
     texts: { control: "object" },
-    handler: (v: { id: string; active: boolean; content: string }[]) => ({}),
+    handler: (v: { id: string; isActive: boolean; content: string }[]) => ({}),
   },
 };
 
@@ -17,10 +17,10 @@ type Story = StoryObj<typeof Chips>;
 export const Primary: Story = {
   args: {
     texts: [
-      { id: "1", active: true, content: "React" },
-      { id: "2", active: false, content: "TypeScript" },
-      { id: "3", active: true, content: "Storybook" },
-      { id: "4", active: false, content: "Chips" },
+      { id: "1", isActive: true, content: "React" },
+      { id: "2", isActive: false, content: "TypeScript" },
+      { id: "3", isActive: true, content: "Storybook" },
+      { id: "4", isActive: false, content: "Chips" },
     ], // Example data for the Chips component
     handler: (updatedTexts) => {
       console.log("Updated texts:", updatedTexts);

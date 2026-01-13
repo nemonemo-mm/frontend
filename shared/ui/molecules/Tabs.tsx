@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Tab from "../atoms/Tab";
 
-type TabsText = {
+export type TabsText = {
   id: string;
   content: string;
   isActive: boolean;
@@ -10,7 +10,7 @@ type TabsText = {
 
 interface TabsProps {
   texts: TabsText[];
-  handler: (v: TabsText[]) => {};
+  handler: (v: TabsText[]) => void;
 }
 
 const Tabs = ({ texts, handler }: TabsProps) => {
