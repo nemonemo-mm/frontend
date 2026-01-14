@@ -1,18 +1,23 @@
 import { Image, StyleSheet, View } from "react-native";
-
-const defaultUserImage = require("../../../assets/icons/user.svg");
+import UserIcon from "../../../assets/icons/user";
 
 interface ProfileImageProps {
   uri?: string;
-  size?: number;
+  size: number;
 }
 
 const ProfileImage = ({ uri, size }: ProfileImageProps) => {
-  const imageSource = uri ? { uri } : defaultUserImage;
-
   return (
-    <View style={styles.container}>
-      <Image source={imageSource} style={{ width: size, height: size }} />
+    <View style={[styles.container, { width: size, height: size }]}>
+      {uri ? (
+        <Image
+          source={{ uri }}
+          style={[styles.image, { width: size, height: size }]}
+          resizeMode="cover"
+        />
+      ) : (
+        <UserIcon size={size} />
+      )}
     </View>
   );
 };
@@ -20,6 +25,11 @@ const ProfileImage = ({ uri, size }: ProfileImageProps) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  image: {
+    borderRadius: 9999,
   },
 });
 
