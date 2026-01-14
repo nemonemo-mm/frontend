@@ -32,6 +32,15 @@
     "plugins": [
       "expo-router",
       [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "./plugins/with-rnfirebase-ios.cjs",
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
