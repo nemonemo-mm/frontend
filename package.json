@@ -12,7 +12,8 @@
     "storybook-generate": "sb-rn-get-stories",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "token": "node ./shared/config/style-dictionary.js"
+    "token": "node ./shared/config/style-dictionary.js",
+    "postinstall": "node scripts/patch-react-native-gradle-plugin-dev-server.cjs"
   },
   "dependencies": {
     "@babel/core": "^7.28.5",
