@@ -8,7 +8,6 @@ import {
   globalGreen700,
   globalSpacingXs,
 } from "..";
-import Input from "../atoms/Input";
 import Toggle from "../atoms/Toggle";
 import NemoTextLabel from "../molecules/NemoTextLabel";
 import Segments from "../molecules/Segments";
@@ -48,8 +47,8 @@ const reducer = (
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
-    case "SET_SELECTED_DATE":
-      return { ...state, selectedDate: action.payload };
+    case "SET_START_DATE":
+      return { ...state, startAt: action.payload };
     case "SET_SELECTED_TIME":
     case "SET_TITLE":
       return { ...state, title: action.payload };
@@ -86,13 +85,19 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
         <View>
           {currentSegment == "calendar" ? (
             <View>
-              <Input
-                placeholder="제목을 입력하세요"
-                value={state.title}
-                onChangeText={(text: string) =>
-                  dispatch({ type: "SET_TITLE", payload: text })
-                }
-              />
+              <View style={style.container}>
+                <View style={style.optionContainer}>
+                  <TextInput
+                    placeholderTextColor={globalGray600}
+                    value={state.title}
+                    onChangeText={(text: string) =>
+                      dispatch({ type: "SET_TITLE", payload: text })
+                    }
+                    placeholder="제목을 입력하세요"
+                    style={[style.input]}
+                  />
+                </View>
+              </View>
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>종일</NemoTextLabel>
@@ -162,13 +167,19 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
             </View>
           ) : (
             <View>
-              <Input
-                placeholder="제목을 입력하세요"
-                value={state.title}
-                onChangeText={(text: string) =>
-                  dispatch({ type: "SET_TITLE", payload: text })
-                }
-              />
+              <View style={style.container}>
+                <View style={style.optionContainer}>
+                  <TextInput
+                    placeholderTextColor={globalGray600}
+                    value={state.title}
+                    onChangeText={(text: string) =>
+                      dispatch({ type: "SET_TITLE", payload: text })
+                    }
+                    placeholder="제목을 입력하세요"
+                    style={[style.input]}
+                  />
+                </View>
+              </View>
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>종료일</NemoTextLabel>
