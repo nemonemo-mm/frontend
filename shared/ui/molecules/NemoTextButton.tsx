@@ -21,7 +21,8 @@ const style = StyleSheet.create({
   btn: {
     borderRadius: globalSpacingXs,
     backgroundColor: globalGray200 + "60",
-    paddingVertical: 7,
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 12,
     marginLeft: 6,
   },
