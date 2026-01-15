@@ -7,6 +7,7 @@ import CalendarWeek from "@/shared/ui/molecules/CalendarWeek"; // Ensure this is
 import Chips from "@/shared/ui/molecules/Chips";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
+import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import Feather from "@expo/vector-icons/Feather";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -37,28 +38,33 @@ const positionTexts = [
     isActive: false,
   },
 ];
+
 const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
 const GroupScreen = ({}: GroupScreenProps) => {
   const [currentTab, setCurrentTab] = useState("calendar");
   const [currentPositions, setCurrentPositions] = useState(positionTexts);
+
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
     month
   );
-
+  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] = useState(false);
   const handleCalendarMonth = (direction: -1 | 1) => {
     if (direction == -1) goPrevMonth();
     else goNextMonth();
+  };
+  const handleAddSchedule = () => {
+    setIsOpenAddScheduleModal(true);
   };
   const handleTab = (tab: TabsText[]) => {
     setCurrentTab(tab.find((t) => t.isActive)!.id);
   };
   const handlePositionChips = (position: TabsText[]) => {
-    console.log(position);
     setCurrentPositions(position);
   };
+
   useEffect(() => {}, []);
 
   const thisWeek = days
@@ -70,7 +76,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
         <View style={styles.noticeInput}>
           <Input placeholder="아직 작성된 공지가 없어요" />
           <Button containerStyle={styles.noticeBtn}>
-            <Feather name="edit-2" size={24} color={globalGray700} />
+            <Feather name="edit-2" size={20} color={globalGray700} />
           </Button>
         </View>
         <Tabs texts={tabTexts} handler={handleTab} />
@@ -83,7 +89,13 @@ const GroupScreen = ({}: GroupScreenProps) => {
               days={days}
               schedules={[]}
               handleCalendarMonth={handleCalendarMonth}
+              handleAddSchedule={handleAddSchedule}
             />
+            {isOpenAddScheduleModal && (
+              <CalendarModal
+                closeModal={() => setIsOpenAddScheduleModal(false)}
+              />
+            )}
           </View>
         )}
         {currentTab == "todo" && (
