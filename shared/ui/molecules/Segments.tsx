@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { ViewProps } from "react-native-svg/lib/typescript/fabric/utils";
 import { globalGray50 } from "..";
 import Segment from "../atoms/Segment";
+import { TabsText } from "./Tabs";
 
-type SegmentsText = {
-  id: string;
-  content: string;
-  isActive: boolean;
-};
-
-interface SegmentsProps {
-  texts: SegmentsText[];
-  handler: (v: SegmentsText[]) => {};
+interface SegmentsProps extends ViewProps {
+  texts: TabsText[];
+  level: "l" | "m" | "s";
+  handler: (v: TabsText[]) => void;
 }
 
-const Segments = ({ texts, handler }: SegmentsProps) => {
+const Segments = ({ texts, level, handler, ...props }: SegmentsProps) => {
   const [items, setItems] = useState(texts);
 
   useEffect(() => {
@@ -32,7 +29,13 @@ const Segments = ({ texts, handler }: SegmentsProps) => {
   };
 
   return (
-    <View style={style.segments}>
+    <View
+      style={[
+        { height: level == "l" ? 48 : level == "m" ? 32 : "auto" },
+        style.segments,
+      ]}
+      {...props}
+    >
       {items.map((text) => (
         <Segment
           key={text.id}
