@@ -4,12 +4,19 @@ import { globalGray400, globalGray50, globalGreen700 } from "..";
 import NemoText from "./NemoText";
 
 interface SegmentProps {
+  level: "l" | "m";
   isActive: boolean;
   onPress: (e: GestureResponderEvent) => void;
   children: ReactNode;
 }
 
-const Segment = ({ isActive, onPress, children, ...props }: SegmentProps) => {
+const Segment = ({
+  level,
+  isActive,
+  onPress,
+  children,
+  ...props
+}: SegmentProps) => {
   return (
     <Pressable
       style={[
@@ -20,7 +27,7 @@ const Segment = ({ isActive, onPress, children, ...props }: SegmentProps) => {
       {...props}
     >
       <NemoText
-        level="h2"
+        level={level == "l" ? "h2" : "body1"}
         style={[isActive ? style.activeText : style.inactiveText]}
       >
         {children}
@@ -31,7 +38,7 @@ const Segment = ({ isActive, onPress, children, ...props }: SegmentProps) => {
 
 const style = StyleSheet.create({
   segment: {
-    paddingVertical: 6,
+    // paddingVertical: 6,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
