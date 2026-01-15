@@ -9,15 +9,15 @@ import {
 
 interface ButtonProps extends PressableProps {
   children: ReactNode;
-  containerStyle?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
 }
 
-const Button = ({ children, containerStyle, ...props }: ButtonProps) => {
+const Button = ({ children, ...props }: ButtonProps) => {
   return (
     <Pressable
-      {...props}
       accessibilityRole="button"
-      style={[styles.container, containerStyle]}
+      style={[styles.container, props.style]}
+      {...props}
     >
       {children}
     </Pressable>
