@@ -38,7 +38,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
     setIsOpenModal(true);
   };
   return (
-    <Modal backdropColor={globalGray700 + "05"} animationType="slide">
+    <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <BottomModal.Container>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>

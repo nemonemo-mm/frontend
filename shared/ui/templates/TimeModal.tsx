@@ -20,7 +20,7 @@ const TimeModal = ({ closeModal }: TimeModalProps) => {
   const [min, setMin] = useState(currentMin);
 
   return (
-    <Modal backdropColor={globalGray700 + "05"} animationType="slide">
+    <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <BottomModal.Container>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>

@@ -93,7 +93,7 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
     setWhichOpenModal("time");
   };
   return (
-    <Modal backdropColor={globalGray700 + "05"} animationType="slide">
+    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
       <BottomModal.Container>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>
