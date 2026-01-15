@@ -1,6 +1,6 @@
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useReducer, useState } from "react";
-import { Modal, StyleSheet, TextInput, View } from "react-native";
+import { Modal, Pressable, StyleSheet, TextInput, View } from "react-native";
 import {
   globalGray200,
   globalGray600,
@@ -8,6 +8,7 @@ import {
   globalGreen700,
   globalSpacingXs,
 } from "..";
+import NemoText from "../atoms/NemoText";
 import Toggle from "../atoms/Toggle";
 import NemoTextLabel from "../molecules/NemoTextLabel";
 import Segments from "../molecules/Segments";
@@ -15,10 +16,25 @@ import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 import DateButton from "../organisms/DateButton";
 import TimeButton from "../organisms/TimeButton";
+import AlarmModal from "./AlarmModal";
+import DateModal from "./DateModal";
+import PersonPositionModal from "./PersonPositionModal";
+import RepeatModal from "./RepeatModal";
+import TimeModal from "./TimeModal";
 
 interface CalendarModalProps {
   closeModal: () => void;
 }
+
+type ModalType =
+  | "time"
+  | "date"
+  | "repeat"
+  | "alarm"
+  | "person"
+  | "position"
+  | "";
+
 const segmentTexts = [
   {
     id: "calendar",
@@ -64,8 +80,18 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
   const handleModalSegments = (segment: TabsText[]) => {
     setCurrentSegment(segment.find((s) => s.isActive)!.id);
   };
-  const handlePressDate = () => {};
-  const handlePressTime = () => {};
+
+  //모달 온/오프
+
+  const [whichOpenModal, setWhichOpenModal] = useState<ModalType>("");
+  const handleCloseInnerModal = () => setWhichOpenModal("");
+
+  const handlePressDate = () => {
+    setWhichOpenModal("date");
+  };
+  const handlePressTime = () => {
+    setWhichOpenModal("time");
+  };
   return (
     <Modal backdropColor={globalGray700 + "05"} animationType="slide">
       <BottomModal.Container>
@@ -133,21 +159,37 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>알림</NemoTextLabel>
-                  <NemoTextLabel>지정없음</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("alarm")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      지정없음
+                    </NemoText>
+                  </Pressable>
                 </View>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>반복</NemoTextLabel>
-                  <NemoTextLabel>끔</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("repeat")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      끔
+                    </NemoText>
+                  </Pressable>
                 </View>
               </View>
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>참석자</NemoTextLabel>
-                  <NemoTextLabel>지정없음</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("person")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      지정없음
+                    </NemoText>
+                  </Pressable>
                 </View>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>포지션</NemoTextLabel>
-                  <NemoTextLabel>지정없음</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("position")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      지정없음
+                    </NemoText>
+                  </Pressable>
                 </View>
                 <View style={[style.optionContainer, style.optionInput]}>
                   <TextInput
@@ -198,17 +240,63 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>참석자</NemoTextLabel>
-                  <NemoTextLabel>지정없음</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("person")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      지정없음
+                    </NemoText>
+                  </Pressable>
                 </View>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>포지션</NemoTextLabel>
-                  <NemoTextLabel>지정없음</NemoTextLabel>
+                  <Pressable onPress={() => setWhichOpenModal("position")}>
+                    <NemoText level="body3" style={{ color: globalGray700 }}>
+                      지정없음
+                    </NemoText>
+                  </Pressable>
                 </View>
               </View>
             </View>
           )}
         </View>
       </BottomModal.Container>
+      {whichOpenModal == "time" && (
+        <TimeModal closeModal={handleCloseInnerModal} />
+      )}
+      {whichOpenModal == "date" && (
+        <DateModal closeModal={handleCloseInnerModal} />
+      )}
+      {whichOpenModal == "alarm" && (
+        <AlarmModal closeModal={handleCloseInnerModal} />
+      )}
+      {whichOpenModal == "repeat" && (
+        <RepeatModal closeModal={handleCloseInnerModal} />
+      )}
+      {whichOpenModal == "person" && (
+        <PersonPositionModal
+          texts={[
+            { id: "1", content: "asdfasdf", isActive: false },
+            { id: "2", content: "asdfasdf", isActive: false },
+
+            { id: "3", content: "asdfasdf", isActive: false },
+
+            { id: "4", content: "asdfasdf", isActive: false },
+          ]}
+          closeModal={handleCloseInnerModal}
+        />
+      )}
+      {whichOpenModal == "position" && (
+        <PersonPositionModal
+          texts={[
+            { id: "1", content: "asdfasdf", isActive: false },
+            { id: "2", content: "asdfasdf", isActive: false },
+
+            { id: "3", content: "asdfasdf", isActive: false },
+
+            { id: "4", content: "asdfasdf", isActive: false },
+          ]}
+          closeModal={handleCloseInnerModal}
+        />
+      )}
     </Modal>
   );
 };
