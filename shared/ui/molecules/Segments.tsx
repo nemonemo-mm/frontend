@@ -7,7 +7,7 @@ import { TabsText } from "./Tabs";
 
 interface SegmentsProps extends ViewProps {
   texts: TabsText[];
-  level: "l" | "m" | "s";
+  level: "l" | "m";
   handler: (v: TabsText[]) => void;
 }
 
@@ -30,14 +30,12 @@ const Segments = ({ texts, level, handler, ...props }: SegmentsProps) => {
 
   return (
     <View
-      style={[
-        { height: level == "l" ? 48 : level == "m" ? 32 : "auto" },
-        style.segments,
-      ]}
+      style={[{ height: level == "l" ? 48 : 32 }, style.segments]}
       {...props}
     >
       {items.map((text) => (
         <Segment
+          level={level}
           key={text.id}
           isActive={text.isActive}
           onPress={() => handlePressTab(text.id)}
