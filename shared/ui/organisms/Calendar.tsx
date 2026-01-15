@@ -11,7 +11,7 @@ interface CalendarProps {
   days: CalendarDate[][];
   schedules: CalendarSchedule[];
   handleCalendarMonth: (dir: -1 | 1) => void;
-  onPress?: (e: GestureResponderEvent) => void;
+  handleAddSchedule?: (e: GestureResponderEvent) => void;
 }
 
 const Calendar = ({
@@ -20,10 +20,10 @@ const Calendar = ({
   days,
   schedules,
   handleCalendarMonth,
-  onPress,
+  handleAddSchedule,
 }: CalendarProps) => {
   return (
-    <CalendarContainer onPress={onPress}>
+    <CalendarContainer onPress={handleAddSchedule}>
       <CalendarHeader year={year} month={month} goMonth={handleCalendarMonth} />
       <CalendarDays />
       {days.map((day, i) => (
