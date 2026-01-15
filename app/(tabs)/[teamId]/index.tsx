@@ -75,7 +75,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
       <View>
         <View style={styles.noticeInput}>
           <Input placeholder="아직 작성된 공지가 없어요" />
-          <Button containerStyle={styles.noticeBtn}>
+          <Button style={styles.noticeBtn}>
             <Feather name="edit-2" size={20} color={globalGray700} />
           </Button>
         </View>

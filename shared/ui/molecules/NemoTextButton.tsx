@@ -10,7 +10,7 @@ interface NemoTextButtonProps {
 
 const NemoTextButton = ({ onPress, content }: NemoTextButtonProps) => {
   return (
-    <Button onPress={onPress} containerStyle={style.btn}>
+    <Button onPress={onPress} style={style.btn}>
       <NemoText level="body3" style={{ color: globalGray900 }}>
         {content}
       </NemoText>
