@@ -20,7 +20,10 @@ const getWeekSchedules = (
     .map((s) => {
       const findDateIndex = (date: Date) =>
         weekDates.findIndex((d) => {
-          return normalize(d.fullDate).getDate() === normalize(date).getDate();
+          return (
+            normalize(d.fullDate).getDate() === normalize(date).getDate() &&
+            normalize(d.fullDate).getMonth() === normalize(date).getMonth()
+          );
         });
       const startIndex =
         findDateIndex(s.startDate) === -1 ? 0 : findDateIndex(s.startDate);
@@ -29,6 +32,7 @@ const getWeekSchedules = (
 
       const startsThisWeek = s.startDate >= weekDates[0].fullDate;
       const span = endIndex - startIndex + 1;
+
       return {
         schedule: s,
         startIndex,

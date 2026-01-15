@@ -25,7 +25,6 @@ const CalendarWeekDates = ({ dates }: CalendarDatesProps) => {
     </View>
   );
 };
-//! 이번달에서는 한 칸 뒤로 밀리는데, 이전달 혹은 다음달 날짜에는 잘 표시가 되고 있음...
 //일주일 일정
 const CalendarWeekSchedules = ({
   dates,

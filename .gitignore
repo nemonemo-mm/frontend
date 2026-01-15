@@ -48,3 +48,5 @@ storybook-static
 google-services.json
 GoogleService-Info.plist
 nemonemo-**-firebase-*
+
+.idea
