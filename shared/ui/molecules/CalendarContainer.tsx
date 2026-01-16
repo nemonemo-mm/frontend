@@ -1,16 +1,25 @@
 import { EvilIcons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, View } from "react-native";
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { ViewProps } from "react-native-svg/lib/typescript/fabric/utils";
 
-interface CalendarContainerProps extends ViewProps {}
+interface CalendarContainerProps extends ViewProps {
+  onPress?: (e: GestureResponderEvent) => void;
+}
 
-const CalendarContainer = ({ children }: CalendarContainerProps) => {
+const CalendarContainer = ({ children, onPress }: CalendarContainerProps) => {
   return (
     <View style={style.container}>
       {children}
-      <Pressable style={style.btn}>
-        <EvilIcons name="plus" size={24} color="black" />
-      </Pressable>
+      {onPress && (
+        <Pressable style={style.btn} onPress={onPress}>
+          <EvilIcons name="plus" size={20} color="black" />
+        </Pressable>
+      )}
     </View>
   );
 };
