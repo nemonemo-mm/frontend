@@ -45,12 +45,8 @@ const AuthScreen = () => {
 
       console.log("응답:", response);
 
-      // 토큰 저장 (newUser 여부와 무관하게 먼저 저장해도 됨)
-      await saveAccessToken(response.accessToken);
-      await saveRefreshToken(response.refreshToken);
-
+      // 신규 유저면: 토큰 저장 시도하지 말고, 가입 플로우로 넘기기
       if (response.newUser === true) {
-        // pendingSocialLogin에 초기 데이터 저장
         await setPendingSocialLogin({
           provider: "GOOGLE",
           firebaseIdToken: googleResult.firebaseIdToken,
@@ -58,9 +54,26 @@ const AuthScreen = () => {
           deviceType,
         });
         router.push("/auth/signup");
-      } else {
-        router.push("/(tabs)/home");
+        return;
       }
+
+      // 기존 유저면: 토큰이 "문자열"일 때만 저장
+      if (
+        typeof response.accessToken !== "string" ||
+        typeof response.refreshToken !== "string"
+      ) {
+        console.error(
+          "소셜 로그인 응답에 토큰이 없거나 형식이 올바르지 않습니다:",
+          response
+        );
+        throw new Error(
+          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요."
+        );
+      }
+
+      await saveAccessToken(response.accessToken);
+      await saveRefreshToken(response.refreshToken);
+      router.push("/(tabs)/home");
     } catch (error: any) {
       console.error("구글 로그인 실패 - 상세 에러:", {
         message: error?.message,
