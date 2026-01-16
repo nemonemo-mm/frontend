@@ -2,9 +2,9 @@ export interface SocialLoginRequest {
   provider: "GOOGLE" | "APPLE";
   firebaseIdToken: string;
   clientType: "WEB" | "IOS" | "ANDROID";
-  userName: string | null;
+  userName?: string | null;
   deviceToken?: string;
-  deviceType?: "iOS" | "Android";
+  deviceType: string;
 }
 
 export interface SocialLoginResponse {
