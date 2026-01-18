@@ -5,13 +5,15 @@ import { Pressable, StyleSheet } from "react-native";
 
 interface CheckBoxProps {
   value: boolean;
+  handler: (v: boolean) => void;
 }
 
-const Checkbox = ({ value }: CheckBoxProps) => {
+const Checkbox = ({ value, handler }: CheckBoxProps) => {
   const [check, setCheck] = useState(value);
 
   const handlePressCheckBox = () => {
     setCheck((prev) => !prev);
+    handler(check);
   };
   return (
     <Pressable onPress={handlePressCheckBox}>

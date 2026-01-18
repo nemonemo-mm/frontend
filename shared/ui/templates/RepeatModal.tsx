@@ -121,7 +121,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
             <View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>매달 {endAt.getDate()}일에 반복</NemoTextLabel>
-                <Checkbox value />
+                <Checkbox value={true} handler={() => {}} />
               </View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>반복 종료일</NemoTextLabel>
@@ -138,7 +138,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
                 <NemoTextLabel>
                   매년 {endAt.getMonth() + 1}월 {endAt.getDate()}일에 반복
                 </NemoTextLabel>
-                <Checkbox value />
+                <Checkbox value={true} handler={() => {}} />
               </View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>반복 종료일</NemoTextLabel>

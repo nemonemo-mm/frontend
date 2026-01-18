@@ -9,9 +9,10 @@ import { globalGray250, globalGray50, globalGreen300 } from "..";
 
 interface ToggleProps {
   value: boolean;
+  handler: (v: boolean) => void;
 }
 
-const Toggle = ({ value }: ToggleProps) => {
+const Toggle = ({ value, handler }: ToggleProps) => {
   const [toggle, setToggle] = useState(value);
 
   const animation = useRef(new Animated.Value(0)).current;
@@ -22,6 +23,8 @@ const Toggle = ({ value }: ToggleProps) => {
   const handlePressToggle = (e: GestureResponderEvent) => {
     e.preventDefault();
     setToggle((prev) => !prev);
+
+    handler(toggle);
     const nextValue = !toggle;
     Animated.timing(animation, {
       toValue: nextValue ? 1 : 0,
