@@ -127,7 +127,7 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
               <View style={style.container}>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>종일</NemoTextLabel>
-                  <Toggle value={false} />
+                  <Toggle value={false} handler={() => {}} />
                 </View>
                 <View style={style.optionContainer}>
                   <NemoTextLabel>시작일</NemoTextLabel>

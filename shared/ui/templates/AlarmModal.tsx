@@ -25,19 +25,19 @@ const AlarmModal = ({ closeModal }: AlarmModalProps) => {
         <View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">10분</NemoText>
-            <Checkbox value={false} />
+            <Checkbox value={false} handler={() => {}} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">30분</NemoText>
-            <Checkbox value={false} />
+            <Checkbox value={false} handler={() => {}} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">1시간</NemoText>
-            <Checkbox value={false} />
+            <Checkbox value={false} handler={() => {}} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">끔</NemoText>
-            <Checkbox value={false} />
+            <Checkbox value={false} handler={() => {}} />
           </View>
         </View>
       </BottomModal.Container>
