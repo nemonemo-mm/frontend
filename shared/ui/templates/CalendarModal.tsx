@@ -260,16 +260,22 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
         </View>
       </BottomModal.Container>
       {whichOpenModal == "time" && (
-        <TimeModal closeModal={handleCloseInnerModal} />
+        <TimeModal closeModal={handleCloseInnerModal} confirmModal={() => {}} />
       )}
       {whichOpenModal == "date" && (
-        <DateModal closeModal={handleCloseInnerModal} />
+        <DateModal closeModal={handleCloseInnerModal} confirmModal={() => {}} />
       )}
       {whichOpenModal == "alarm" && (
-        <AlarmModal closeModal={handleCloseInnerModal} />
+        <AlarmModal
+          closeModal={handleCloseInnerModal}
+          confirmModal={() => {}}
+        />
       )}
       {whichOpenModal == "repeat" && (
-        <RepeatModal closeModal={handleCloseInnerModal} />
+        <RepeatModal
+          closeModal={handleCloseInnerModal}
+          confirmModal={() => {}}
+        />
       )}
       {whichOpenModal == "person" && (
         <PersonPositionModal
@@ -282,6 +288,7 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
             { id: "4", content: "asdfasdf", isActive: false },
           ]}
           closeModal={handleCloseInnerModal}
+          confirmModal={() => {}}
         />
       )}
       {whichOpenModal == "position" && (
@@ -295,6 +302,7 @@ const CalendarModal = ({ closeModal }: CalendarModalProps) => {
             { id: "4", content: "asdfasdf", isActive: false },
           ]}
           closeModal={handleCloseInnerModal}
+          confirmModal={() => {}}
         />
       )}
     </Modal>

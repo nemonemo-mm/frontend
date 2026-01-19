@@ -8,13 +8,25 @@ import BottomModal from "../organisms/BottomModal";
 interface PersonPositionModalProps {
   texts: TabsText[];
   closeModal: () => void;
+  confirmModal: (data: string[]) => void;
 }
 
 const PersonPositionModal = ({
   texts,
   closeModal,
+  confirmModal,
 }: PersonPositionModalProps) => {
-  const handleChips = (chips: TabsText[]) => {};
+  let contents: string[] = [];
+  const handleChips = (chips: TabsText[]) => {
+    contents = chips
+      .filter((chip) => chip.isActive)
+      .map((chip) => chip.content);
+  };
+
+  const handleConfirmModal = () => {
+    confirmModal(contents);
+    closeModal();
+  };
   return (
     <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <BottomModal.Container>
@@ -22,7 +34,7 @@ const PersonPositionModal = ({
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
           </BottomModal.LeftButton>
-          <BottomModal.RightButton>
+          <BottomModal.RightButton onPress={handleConfirmModal}>
             <AntDesign name="check" size={20} color={globalGreen700} />
           </BottomModal.RightButton>
         </BottomModal.Header>

@@ -7,9 +7,10 @@ import Wheel from "../organisms/Wheel";
 
 interface TimeModalProps {
   closeModal: () => void;
+  confirmModal: (data: { hour: number; min: number }) => void;
 }
 
-const TimeModal = ({ closeModal }: TimeModalProps) => {
+const TimeModal = ({ closeModal, confirmModal }: TimeModalProps) => {
   const currentHour = new Date().getHours();
   const currentMin = new Date().getMinutes();
 
@@ -18,7 +19,10 @@ const TimeModal = ({ closeModal }: TimeModalProps) => {
 
   const [hour, setHour] = useState(currentHour);
   const [min, setMin] = useState(currentMin);
-
+  const handleConfirmModal = () => {
+    confirmModal({ hour, min });
+    closeModal();
+  };
   return (
     <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <BottomModal.Container>
@@ -27,7 +31,7 @@ const TimeModal = ({ closeModal }: TimeModalProps) => {
             <AntDesign name="close" size={20} color={globalGray700} />
           </BottomModal.LeftButton>
           <BottomModal.Title>시간</BottomModal.Title>
-          <BottomModal.RightButton>
+          <BottomModal.RightButton onPress={handleConfirmModal}>
             <AntDesign name="check" size={20} color={globalGreen700} />
           </BottomModal.RightButton>
         </BottomModal.Header>

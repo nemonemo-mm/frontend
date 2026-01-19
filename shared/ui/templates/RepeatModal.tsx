@@ -1,5 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Checkbox from "../atoms/Checkbox";
@@ -15,6 +15,7 @@ import DateModal from "./DateModal";
 
 interface RepeatModalProps {
   closeModal: () => void;
+  confirmModal: (data: { period: SegmentType; endAt: Date; data: any }) => void;
 }
 
 type SegmentType = "daily" | "weekly" | "monthly" | "yearly";
@@ -24,11 +25,18 @@ const segmentTexts = [
   { id: "monthly", content: "매달", isActive: false },
   { id: "yearly", content: "매년", isActive: false },
 ];
-const RepeatModal = ({ closeModal }: RepeatModalProps) => {
+const RepeatModal = ({ closeModal, confirmModal }: RepeatModalProps) => {
   const [currentSegment, setCurrentSegment] = useState<SegmentType>("daily");
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [activeWeekday, setActiveWeekday] = useState<WeekDayType[]>([]);
+
+  const [isChecked, setIsChecked] = useState(false);
+  const [weekOrDate, setWeekOrDate] = useState(0);
+  useEffect(() => {
+    setIsChecked(false);
+    setWeekOrDate(0);
+  }, [currentSegment]);
 
   const endAt = new Date(Date.now());
   const handleSegments = (texts: TabsText[]) => {
@@ -36,6 +44,24 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
   };
   const handlePressDate = () => {
     setIsOpenModal(true);
+  };
+
+  const handleCheckBox = () => {
+    setIsChecked((prev) => !prev);
+  };
+
+  const handleInputWeekOrDate = (num: string) => {
+    if (num == null || num == "") num = "0";
+    setWeekOrDate(parseInt(num));
+  };
+  const handleConfirmModal = () => {
+    const data = {
+      repeatableChecked: isChecked,
+      activeWeekday,
+      repeatableDates: weekOrDate,
+    };
+    confirmModal({ period: currentSegment, endAt, data });
+    closeModal();
   };
   return (
     <Modal backdropColor={globalGray700 + "20"} animationType="slide">
@@ -45,7 +71,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
             <AntDesign name="close" size={20} color={globalGray700} />
           </BottomModal.LeftButton>
           <BottomModal.Title>반복</BottomModal.Title>
-          <BottomModal.RightButton>
+          <BottomModal.RightButton onPress={handleConfirmModal}>
             <AntDesign name="check" size={20} color={globalGreen700} />
           </BottomModal.RightButton>
         </BottomModal.Header>
@@ -61,6 +87,8 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
                     maxLength={3}
                     inputMode="numeric"
                     textAlign="right"
+                    value={weekOrDate.toString()}
+                    onChangeText={handleInputWeekOrDate}
                   />
                   <NemoText level="body3" style={{ color: globalGray700 }}>
                     일
@@ -102,6 +130,8 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
                     maxLength={3}
                     inputMode="numeric"
                     textAlign="right"
+                    value={weekOrDate.toString()}
+                    onChangeText={handleInputWeekOrDate}
                   />
                   <NemoText level="body3" style={{ color: globalGray700 }}>
                     주
@@ -121,7 +151,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
             <View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>매달 {endAt.getDate()}일에 반복</NemoTextLabel>
-                <Checkbox value={true} handler={() => {}} />
+                <Checkbox value={isChecked} handler={handleCheckBox} />
               </View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>반복 종료일</NemoTextLabel>
@@ -138,7 +168,7 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
                 <NemoTextLabel>
                   매년 {endAt.getMonth() + 1}월 {endAt.getDate()}일에 반복
                 </NemoTextLabel>
-                <Checkbox value={true} handler={() => {}} />
+                <Checkbox value={isChecked} handler={handleCheckBox} />
               </View>
               <View style={style.repeatContainer}>
                 <NemoTextLabel>반복 종료일</NemoTextLabel>
@@ -151,7 +181,12 @@ const RepeatModal = ({ closeModal }: RepeatModalProps) => {
           )}
         </View>
       </BottomModal.Container>
-      {isOpenModal && <DateModal closeModal={() => setIsOpenModal(false)} />}
+      {isOpenModal && (
+        <DateModal
+          closeModal={() => setIsOpenModal(false)}
+          confirmModal={() => {}}
+        />
+      )}
     </Modal>
   );
 };
