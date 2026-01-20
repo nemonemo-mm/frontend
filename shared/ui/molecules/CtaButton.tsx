@@ -18,7 +18,7 @@ interface CtaButtonProps {
 const CtaButton = ({ label, onPress, isActive }: CtaButtonProps) => {
   return (
     <Button
-      containerStyle={[
+      style={[
         styles.container,
         isActive
           ? { backgroundColor: globalGreen300 }

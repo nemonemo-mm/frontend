@@ -16,8 +16,8 @@ const Button = ({ children, ...props }: ButtonProps) => {
   return (
     <Pressable
       accessibilityRole="button"
-      style={[styles.container, props.style]}
       {...props}
+      style={[styles.container, props.style]}
     >
       {children}
     </Pressable>
