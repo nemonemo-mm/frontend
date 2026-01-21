@@ -5,4 +5,7 @@ export type TextLevel =
   | "body1"
   | "body2"
   | "body3"
-  | "tabInActive";
+  | "tabInActive"
+  | "body2Tight"
+  | "body2wide"
+  | "caption";
