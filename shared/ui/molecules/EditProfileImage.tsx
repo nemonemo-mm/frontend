@@ -1,18 +1,28 @@
 import EditIcon from "@/assets/icons/edit";
+import GroupIcon from "@/assets/icons/group";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 
-interface EditableProfileImageProps {
+interface EditProfileImageProps {
   size: number;
   onEditPress: () => void;
   imageUri?: string;
+  variant?: "default" | "team";
 }
 
-export default function EditableProfileImage({
+export default function EditProfileImage({
   size,
   onEditPress,
   imageUri,
-}: EditableProfileImageProps) {
+  variant = "default",
+}: EditProfileImageProps) {
+  const renderDefaultImage = () => {
+    if (variant === "team") {
+      return <GroupIcon size={size} />;
+    }
+    return <ProfileImage size={size} />;
+  };
+
   return (
     <Pressable
       onPress={onEditPress}
@@ -29,7 +39,7 @@ export default function EditableProfileImage({
             resizeMode="cover"
           />
         ) : (
-          <ProfileImage size={size} />
+          renderDefaultImage()
         )}
         <EditIcon style={styles.editButton} />
       </View>

@@ -3,7 +3,7 @@ import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Chips from "@/shared/ui/molecules/Chips";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
-import EditableProfileImage from "@/shared/ui/molecules/EditableProfileImage";
+import EditProfileImage from "@/shared/ui/molecules/EditProfileImage";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -18,7 +18,7 @@ export default function ProfileSetupScreen() {
       <View style={styles.topSection}>
         <NemoText level="h1">팀 내 프로필을 정해 주세요</NemoText>
         <View style={styles.ImageWrapper}>
-          <EditableProfileImage
+          <EditProfileImage
             size={100}
             onEditPress={() => {}}
             imageUri={undefined}
