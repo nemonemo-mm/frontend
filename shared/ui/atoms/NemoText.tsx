@@ -8,9 +8,12 @@ interface NemoTextProps extends TextProps {
 }
 //텍스트를 쓸 때 사용하는 텍스트 컴포넌트.
 //인라인 블록 효과를 위한 텍스트 컴포넌트는 기본 컴포넌트로만 사용
-const NemoText = ({ level, children, ...props }: NemoTextProps) => {
+const NemoText = ({ level, children, style, ...props }: NemoTextProps) => {
   return (
-    <Text style={style[`text_${level}` as keyof typeof style]} {...props}>
+    <Text
+      style={[styles[`text_${level}` as keyof typeof style], style]}
+      {...props}
+    >
       {children}
     </Text>
   );
@@ -28,7 +31,7 @@ export const globalTypographyTabinactive = "400 16px/18 pretendard";
 export const globalTypographyBody2Tight = "400 14px/16 pretendard";
 export const globalTypographyBody2wide = "400 14px/20 pretendard";
  */
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
   text_h1: {
     fontWeight: "500",
     fontFamily: "Pretendard-Regular",
