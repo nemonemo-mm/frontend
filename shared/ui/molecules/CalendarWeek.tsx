@@ -1,6 +1,13 @@
+import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarDate, CalendarSchedule } from "@/shared/types/Calendar";
 import getWeekSchedules from "@/shared/utils/getWeekSchedules";
-import { StyleSheet, View } from "react-native";
+import { useContext } from "react";
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { globalGray200, globalGray400 } from "..";
 import NemoDate from "../atoms/NemoDate";
 import NemoText from "../atoms/NemoText";
@@ -19,19 +26,24 @@ const CalendarWeekDates = ({ dates }: CalendarDatesProps) => {
     <View style={style.container}>
       {dates.map((date, i) => (
         <View style={style.dates} key={"date" + i}>
-          <NemoDate date={date.date} isCurrentMonth={date.isCurrentMonth} />
+          <NemoDate
+            date={date.date}
+            isCurrentMonth={date.isCurrentMonth}
+            disabled={!date.isCurrentMonth}
+          />
         </View>
       ))}
     </View>
   );
 };
+
+const dayWidth = 100 / 7;
 //일주일 일정
 const CalendarWeekSchedules = ({
   dates,
   schedules,
 }: CalendarSchedulesProps) => {
   const thisWeekSchedules = getWeekSchedules(dates, schedules, 4);
-  const dayWidth = 100 / 7;
 
   return (
     <View>
@@ -44,7 +56,7 @@ const CalendarWeekSchedules = ({
             {schedule.startsThisWeek && (
               <ScheduleSpacer count={schedule.startIndex} />
             )}
-            <View
+            <Pressable
               style={[
                 {
                   flexBasis: `${dayWidth * schedule.span}%`,
@@ -62,7 +74,7 @@ const CalendarWeekSchedules = ({
                   title={schedule.schedule.title}
                 />
               )}
-            </View>
+            </Pressable>
           </View>
         );
       })}
@@ -72,11 +84,19 @@ const CalendarWeekSchedules = ({
 
 //일주일 날짜 + 일정이 있는 주단위 캘린더
 const CalendarWeek = ({ dates, schedules }: CalendarSchedulesProps) => {
+  const value = useContext(CalendarContext);
+
+  const handleWeekPress = (event: GestureResponderEvent) => {
+    const { locationX } = event.nativeEvent;
+    const index = Math.floor(locationX / (355 / 7));
+    value?.selectDate(dates[index].fullDate);
+  };
+
   return (
-    <View style={style.week}>
+    <Pressable style={style.week} onPress={handleWeekPress}>
       <CalendarWeekDates dates={dates} />
       <CalendarWeekSchedules dates={dates} schedules={schedules} />
-    </View>
+    </Pressable>
   );
 };
 const style = StyleSheet.create({
