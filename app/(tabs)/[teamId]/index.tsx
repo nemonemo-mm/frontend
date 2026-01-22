@@ -13,7 +13,8 @@ import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
 import Feather from "@expo/vector-icons/Feather";
-import { useCallback, useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 interface GroupScreenProps {}
@@ -46,7 +47,6 @@ const positionTexts = [
 const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
-let selectedDate = today;
 const convertSchedules = (
   data: {
     id: string;
@@ -74,11 +74,17 @@ const convertSchedules = (
 
 const GroupScreen = ({}: GroupScreenProps) => {
   const [currentTab, setCurrentTab] = useState("calendar");
-  const [currentPositions, setCurrentPositions] = useState(positionTexts);
+  const [currentPositions, setCurrentPositions] = useState<TabsText[]>([]);
   const [schedules, setSchedules] = useState<
     { id: string; state: InitialState }[]
   >([]);
 
+  const { teamId } = useLocalSearchParams();
+
+  useEffect(() => {
+    console.log(teamId);
+    // GetPosition(teamId);
+  }, []);
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
     month
@@ -118,7 +124,6 @@ const GroupScreen = ({}: GroupScreenProps) => {
     }),
     [currentYearMonth, days, selectedDate, goNextMonth, goPrevMonth, selectDate]
   );
-  console.log(selectedDate);
   return (
     <CalendarContext.Provider value={contextValue}>
       <View style={[{ padding: 20 }, styles.layout]}>
