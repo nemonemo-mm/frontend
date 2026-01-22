@@ -7,8 +7,9 @@ import BottomModal from "../organisms/BottomModal";
 import Wheel from "../organisms/Wheel";
 
 interface DateModalProps {
+  initialValue: Date;
   closeModal: () => void;
-  confirmModal: (data: { year: number; month: number; date: number }) => void;
+  confirmModal: (data: Date) => void;
 }
 
 const getDaysInMonth = (year: number, month: number) => {
@@ -16,10 +17,14 @@ const getDaysInMonth = (year: number, month: number) => {
   return maxDay;
 };
 
-const DateModal = ({ closeModal, confirmModal }: DateModalProps) => {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  const currentDate = new Date().getDate();
+const DateModal = ({
+  initialValue,
+  closeModal,
+  confirmModal,
+}: DateModalProps) => {
+  const currentYear = initialValue.getFullYear();
+  const currentMonth = initialValue.getMonth();
+  const currentDate = initialValue.getDate();
   const years = useMemo(
     () => Array.from({ length: 16 }, (_, i) => currentYear - 10 + i),
     []
@@ -40,7 +45,7 @@ const DateModal = ({ closeModal, confirmModal }: DateModalProps) => {
   }, [year, month]);
 
   const handleConfirmModal = () => {
-    confirmModal({ year, month, date });
+    confirmModal(new Date(year, month - 1, date));
     closeModal();
   };
 

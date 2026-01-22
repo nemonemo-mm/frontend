@@ -7,40 +7,54 @@ import NemoText from "../atoms/NemoText";
 import BottomModal from "../organisms/BottomModal";
 
 interface AlarmModalProps {
+  initialValue: AlarmState | null;
   closeModal: () => void;
   confirmModal: (data: typeof initialState) => void;
 }
 
-const initialState = {
+export type AlarmState = {
+  ten: boolean;
+  thirty: boolean;
+  sixty: boolean;
+  off: boolean;
+};
+const initialState: AlarmState = {
   off: true,
   ten: false,
   thirty: false,
   sixty: false,
 };
 
-const reducer = (
-  state: typeof initialState,
-  action: { type: string; value: typeof initialState }
-) => {
-  switch (action.type) {
-    case "ALL_OFF": {
-      state = initialState;
-    }
-    default: {
-      state = action.value;
-    }
-  }
+type Action = { type: "SELECT"; key: keyof AlarmState } | { type: "RESET" };
 
-  return state;
+const reducer = (state: AlarmState, action: Action): AlarmState => {
+  switch (action.type) {
+    case "SELECT":
+      return {
+        ten: false,
+        thirty: false,
+        sixty: false,
+        off: false,
+        [action.key]: true,
+      };
+    case "RESET":
+      return initialState;
+    default:
+      return state;
+  }
 };
 
-const AlarmModal = ({ closeModal, confirmModal }: AlarmModalProps) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+const AlarmModal = ({
+  initialValue,
+  closeModal,
+  confirmModal,
+}: AlarmModalProps) => {
+  const [state, dispatch] = useReducer(reducer, initialValue ?? initialState);
   const { off, ten, thirty, sixty } = state;
 
-  const handleAlarmState = (id: keyof typeof initialState, value: boolean) => {
-    if (id == "off") dispatch({ type: "ALL_OFF", value: initialState });
-    dispatch({ type: "", value: { ...state, [id]: value } });
+  const handleAlarmState = (id: keyof typeof initialState) => {
+    if (id == "off") dispatch({ type: "RESET" });
+    dispatch({ type: "SELECT", key: id });
   };
 
   const handleConfirmModal = () => {
@@ -62,31 +76,22 @@ const AlarmModal = ({ closeModal, confirmModal }: AlarmModalProps) => {
         <View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">10분</NemoText>
-            <Checkbox
-              value={ten}
-              handler={() => handleAlarmState("ten", ten)}
-            />
+            <Checkbox value={ten} handler={() => handleAlarmState("ten")} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">30분</NemoText>
             <Checkbox
               value={thirty}
-              handler={() => handleAlarmState("thirty", thirty)}
+              handler={() => handleAlarmState("thirty")}
             />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">1시간</NemoText>
-            <Checkbox
-              value={sixty}
-              handler={() => handleAlarmState("sixty", sixty)}
-            />
+            <Checkbox value={sixty} handler={() => handleAlarmState("sixty")} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">끔</NemoText>
-            <Checkbox
-              value={off}
-              handler={() => handleAlarmState("off", off)}
-            />
+            <Checkbox value={off} handler={() => handleAlarmState("off")} />
           </View>
         </View>
       </BottomModal.Container>

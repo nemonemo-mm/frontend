@@ -6,19 +6,21 @@ import BottomModal from "../organisms/BottomModal";
 import Wheel from "../organisms/Wheel";
 
 interface TimeModalProps {
+  initialValue: { hour: number; min: number };
   closeModal: () => void;
   confirmModal: (data: { hour: number; min: number }) => void;
 }
 
-const TimeModal = ({ closeModal, confirmModal }: TimeModalProps) => {
-  const currentHour = new Date().getHours();
-  const currentMin = new Date().getMinutes();
-
+const TimeModal = ({
+  initialValue,
+  closeModal,
+  confirmModal,
+}: TimeModalProps) => {
   const hours = Array.from({ length: 24 }, (_, i) => i + 1);
   const mins = Array.from({ length: 60 }, (_, i) => i);
 
-  const [hour, setHour] = useState(currentHour);
-  const [min, setMin] = useState(currentMin);
+  const [hour, setHour] = useState(initialValue.hour);
+  const [min, setMin] = useState(initialValue.min);
   const handleConfirmModal = () => {
     confirmModal({ hour, min });
     closeModal();

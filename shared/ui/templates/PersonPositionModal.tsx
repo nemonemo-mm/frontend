@@ -1,4 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
+import { useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Chips from "../molecules/Chips";
@@ -6,21 +7,19 @@ import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 
 interface PersonPositionModalProps {
-  texts: TabsText[];
+  initialValue: TabsText[];
   closeModal: () => void;
-  confirmModal: (data: string[]) => void;
+  confirmModal: (data: TabsText[]) => void;
 }
 
 const PersonPositionModal = ({
-  texts,
+  initialValue,
   closeModal,
   confirmModal,
 }: PersonPositionModalProps) => {
-  let contents: string[] = [];
+  const [contents, setContents] = useState<TabsText[]>(initialValue);
   const handleChips = (chips: TabsText[]) => {
-    contents = chips
-      .filter((chip) => chip.isActive)
-      .map((chip) => chip.content);
+    setContents(chips.filter((chip) => chip.isActive));
   };
 
   const handleConfirmModal = () => {
@@ -39,7 +38,7 @@ const PersonPositionModal = ({
           </BottomModal.RightButton>
         </BottomModal.Header>
         <View style={{ minHeight: 260 }}>
-          <Chips texts={texts} handler={handleChips} />
+          <Chips texts={contents} handler={handleChips} />
         </View>
       </BottomModal.Container>
     </Modal>
