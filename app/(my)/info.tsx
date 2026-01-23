@@ -169,7 +169,7 @@ const Info = () => {
         <Pressable onPress={() => router.back()}>
           <AntDesign name="left" size={16} color={globalGray700} />
         </Pressable>
-        <NemoText level="h3">개인 알림 설정</NemoText>
+        <NemoText level="h3">개인 정보 처리 방침</NemoText>
       </View>
 
       <FlatList
