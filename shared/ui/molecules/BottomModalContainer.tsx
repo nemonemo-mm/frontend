@@ -3,15 +3,23 @@ import { globalBmRadius, globalGray0 } from "..";
 
 interface BottomModalContainerProps extends ViewProps {}
 
-const BottomModalContainer = ({ children }: BottomModalContainerProps) => {
-  return <View style={style.container}>{children}</View>;
+const BottomModalContainer = ({
+  children,
+  style,
+  ...props
+}: BottomModalContainerProps) => {
+  return (
+    <View style={[styles.container, style]} {...props}>
+      {children}
+    </View>
+  );
 };
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     padding: 20,
     marginTop: "auto",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     backgroundColor: globalGray0,
     borderTopLeftRadius: globalBmRadius,
     borderTopRightRadius: globalBmRadius,

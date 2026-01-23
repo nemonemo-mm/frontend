@@ -1,4 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
+import { useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Chips from "../molecules/Chips";
@@ -6,15 +7,25 @@ import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 
 interface PersonPositionModalProps {
-  texts: TabsText[];
+  initialValue: TabsText[];
   closeModal: () => void;
+  confirmModal: (data: TabsText[]) => void;
 }
 
 const PersonPositionModal = ({
-  texts,
+  initialValue,
   closeModal,
+  confirmModal,
 }: PersonPositionModalProps) => {
-  const handleChips = (chips: TabsText[]) => {};
+  const [contents, setContents] = useState<TabsText[]>(initialValue);
+  const handleChips = (chips: TabsText[]) => {
+    setContents(chips.filter((chip) => chip.isActive));
+  };
+
+  const handleConfirmModal = () => {
+    confirmModal(contents);
+    closeModal();
+  };
   return (
     <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <BottomModal.Container>
@@ -22,12 +33,12 @@ const PersonPositionModal = ({
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
           </BottomModal.LeftButton>
-          <BottomModal.RightButton>
+          <BottomModal.RightButton onPress={handleConfirmModal}>
             <AntDesign name="check" size={20} color={globalGreen700} />
           </BottomModal.RightButton>
         </BottomModal.Header>
         <View style={{ minHeight: 260 }}>
-          <Chips texts={texts} handler={handleChips} />
+          <Chips texts={contents} handler={handleChips} />
         </View>
       </BottomModal.Container>
     </Modal>

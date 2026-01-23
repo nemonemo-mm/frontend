@@ -1,9 +1,9 @@
-import { GestureResponderEvent, StyleSheet } from "react-native";
+import { ButtonProps, GestureResponderEvent, StyleSheet } from "react-native";
 import { globalGray200, globalGray900, globalSpacingXs } from "..";
 import Button from "../atoms/Button";
 import NemoText from "../atoms/NemoText";
 
-interface NemoTextButtonProps {
+interface NemoTextButtonProps extends ButtonProps {
   onPress: (e: GestureResponderEvent) => void;
   content: string;
 }
