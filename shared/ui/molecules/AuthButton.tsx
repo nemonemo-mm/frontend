@@ -19,7 +19,7 @@ const AuthButton = ({ label, onPress }: AuthButtonProps) => {
   return (
     <Button
       onPress={onPress}
-      containerStyle={[
+      style={[
         styles.container,
         { backgroundColor, borderColor: isGoogle ? "#0000001A" : "#000000" },
       ]}
