@@ -14,6 +14,7 @@ interface ModalButtonProps {
   variant: "primary" | "secondary";
   onPress: () => void;
   containerStyle?: StyleProp<ViewStyle>; // 추가
+  disabled?: boolean;
 }
 
 const ModalButton = ({
@@ -21,10 +22,11 @@ const ModalButton = ({
   variant,
   onPress,
   containerStyle,
+  disabled,
 }: ModalButtonProps) => {
   return (
     <Button
-      containerStyle={[
+      style={[
         styles.container,
         containerStyle,
         {
@@ -33,6 +35,7 @@ const ModalButton = ({
         },
       ]}
       onPress={onPress}
+      disabled={disabled}
     >
       <NemoText
         level="body1"
