@@ -19,7 +19,10 @@ export default function TeamExistenceCheckScreen() {
         <NemoText level="h1">팀이 있나요?</NemoText>
       </View>
       <View style={styles.buttonContainer}>
-        <Button style={[styles.button, { backgroundColor: globalGreen300 }]}>
+        <Button
+          style={[styles.button, { backgroundColor: globalGreen300 }]}
+          onPress={() => router.push("/teams/check/create")}
+        >
           <NemoText level="h2" style={{ color: globalGray0 }}>
             새로운 팀 만들기
           </NemoText>

@@ -1,12 +1,67 @@
 import ChevronLeftIcon from "@/assets/icons/chevron-left";
 import GroupIcon from "@/assets/icons/group";
+import { teamCreate } from "@/features/team/api/create";
+import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
-import { StyleSheet, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+interface Position {
+  positionName: string;
+  colorHex: string;
+}
+
 export default function CompleteScreen() {
+  const router = useRouter();
+
+  const params = useLocalSearchParams<{
+    teamName: string;
+    teamIntroduction: string;
+    positions: string;
+    ownerPositionName: string;
+  }>();
+
+  // positions를 파싱
+  const positions: Position[] = params.positions
+    ? JSON.parse(params.positions as string)
+    : [];
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const requestBody = {
+        teamName: params.teamName.trim(),
+        ...(params.teamIntroduction?.trim() && {
+          description: params.teamIntroduction.trim(),
+        }),
+        positions: positions,
+        ownerPositionName: params.ownerPositionName,
+      };
+
+      const response = await teamCreate(requestBody);
+      console.log("팀 생성 성공 응답:", response);
+
+      // 성공 후 홈 화면으로 이동
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
+      console.error("팀 생성 실패:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        "팀 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+      Alert.alert("팀 생성 실패", errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -24,32 +79,45 @@ export default function CompleteScreen() {
       {/* 입력 폼 영역 */}
       <View style={styles.formContainer}>
         <View>
-          <Input placeholder="팀 이름을 입력해 주세요" label="팀 이름" />
-        </View>
-        <View>
           <Input
-            placeholder="팀을 소개하는 한 줄을 적어보세요 (선택)"
-            label="팀 소개"
+            placeholder="팀 이름을 입력해 주세요"
+            label="팀 이름"
+            value={params.teamName || ""}
+            editable={false}
           />
         </View>
 
-        {/* TODO: 팀내 포지션 추가 */}
-        {/* <View style={styles.chipsContainer}>
-          <NemoText level="body1">팀 내 포지션</NemoText>
-          <Chips
-            texts={[
-              { id: "1", content: "BE", isActive: false },
-              { id: "2", content: "UX", isActive: false },
-              { id: "3", content: "FE", isActive: false },
-            ]}
-            handler={() => {}}
-          />
-        </View> */}
+        {params.teamIntroduction?.trim() && (
+          <View>
+            <Input
+              placeholder="팀을 소개하는 한 줄을 적어보세요 (선택)"
+              label="팀 소개"
+              value={params.teamIntroduction}
+              editable={false}
+            />
+          </View>
+        )}
       </View>
+
+      {positions.length > 0 && (
+        <View style={styles.chipsContainer}>
+          <NemoText level="body1">팀 내 포지션</NemoText>
+
+          {positions.map((position, index) => (
+            <Chip key={index} active={true} onPress={() => {}}>
+              <NemoText level="body2">{position.positionName}</NemoText>
+            </Chip>
+          ))}
+        </View>
+      )}
 
       {/* 하단 버튼 영역 */}
       <View style={styles.bottomSection}>
-        <CtaButton label="생성하기" onPress={() => {}} isActive={true} />
+        <CtaButton
+          label="생성하기"
+          onPress={handleCreate}
+          isActive={!isSubmitting && !!params.teamName?.trim()}
+        />
       </View>
     </SafeAreaView>
   );
@@ -78,6 +146,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   chipsContainer: {
+    flex: 1,
     gap: 12,
     marginHorizontal: 20,
   },
