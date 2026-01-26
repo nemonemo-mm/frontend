@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 import { globalGray0, globalSpacingLg, globalSpacingSm } from "../index";
 
 import ProfileImage from "../atoms/ProfileImage";
@@ -9,6 +9,8 @@ import AlertModalTitle from "../molecules/AlertModalTitle";
 
 interface AlertModalProps {
   children: React.ReactNode;
+  visible: boolean;
+  onClose: () => void;
 }
 
 /**
@@ -82,8 +84,14 @@ interface AlertModalProps {
  *   />
  * </AlertModal>
  */
-const AlertModal = ({ children }: AlertModalProps) => {
-  return <View style={styles.container}>{children}</View>;
+const AlertModal = ({ children, visible, onClose }: AlertModalProps) => {
+  return (
+    <Modal visible={visible} onRequestClose={onClose} transparent>
+      <View style={styles.overlay}>
+        <View style={styles.container}>{children}</View>
+      </View>
+    </Modal>
+  );
 };
 
 // Compound Components
@@ -102,6 +110,14 @@ const styles = StyleSheet.create({
     gap: globalSpacingSm,
     padding: globalSpacingLg,
     alignSelf: "center",
+    alignItems: "center",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)", // dim
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 52,
   },
 });
 
