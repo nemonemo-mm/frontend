@@ -97,19 +97,19 @@ export default function CompleteScreen() {
             />
           </View>
         )}
+
+        {positions.length > 0 && (
+          <View style={styles.chipsContainer}>
+            <NemoText level="body1">팀 내 포지션</NemoText>
+
+            {positions.map((position, index) => (
+              <Chip key={index} active={true} onPress={() => {}}>
+                <NemoText level="body2">{position.positionName}</NemoText>
+              </Chip>
+            ))}
+          </View>
+        )}
       </View>
-
-      {positions.length > 0 && (
-        <View style={styles.chipsContainer}>
-          <NemoText level="body1">팀 내 포지션</NemoText>
-
-          {positions.map((position, index) => (
-            <Chip key={index} active={true} onPress={() => {}}>
-              <NemoText level="body2">{position.positionName}</NemoText>
-            </Chip>
-          ))}
-        </View>
-      )}
 
       {/* 하단 버튼 영역 */}
       <View style={styles.bottomSection}>
@@ -144,11 +144,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 12,
     marginTop: 30,
+    marginHorizontal: 20,
   },
   chipsContainer: {
-    flex: 1,
     gap: 12,
-    marginHorizontal: 20,
   },
   bottomSection: {
     marginBottom: 20,
