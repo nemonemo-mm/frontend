@@ -20,7 +20,6 @@ type ActiveModal =
 export default function TeamMembersScreen() {
   const router = useRouter();
   const [teamInfo, setTeamInfo] = useState<TeamDetail | null>(null);
-  let teamName = "";
 
   useEffect(() => {
     const init = async () => {
