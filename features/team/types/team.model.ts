@@ -28,3 +28,9 @@ export interface TeamMember {
   positionName: string;
   userImageUrl: string;
 }
+
+export interface TemaList {
+  teamId: number;
+  teamName: string;
+  description: string;
+}

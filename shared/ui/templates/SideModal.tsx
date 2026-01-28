@@ -19,19 +19,19 @@ import {
 } from "..";
 import NemoText from "../atoms/NemoText";
 import ProfileImage from "../atoms/ProfileImage";
-
+export type Teams = {
+  teamId: number;
+  teamName: string;
+  description: string;
+}[];
 interface SideModalProps {
-  teams: {
-    id: number;
-    teamName: string;
-    positionName: string;
-  }[];
-
+  teams: Teams;
   closeModal: () => void;
 }
 
 const SideModal = ({ teams, closeModal }: SideModalProps) => {
   const route = useRouter();
+
   const handlePressTeam = (id: number) => () => {
     route.push(`/(tabs)/${id}/calendar`);
   };
@@ -56,16 +56,19 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
             <View>
               <FlatList
                 data={teams}
-                keyExtractor={(item) => String(item.id)}
+                keyExtractor={(item) => String(item.teamId)}
                 renderItem={({ item }) => (
-                  <Pressable onPress={handlePressTeam(item.id)}>
+                  <Pressable
+                    onPress={handlePressTeam(item.teamId)}
+                    style={{ flexDirection: "row" }}
+                  >
                     <GroupIcon />
                     <View>
                       <NemoText level="body1" style={{ color: globalGray900 }}>
                         {item.teamName}
                       </NemoText>
                       <NemoText level="body3" style={{ color: globalGray700 }}>
-                        {item.positionName}
+                        {item.description}
                       </NemoText>
                     </View>
                   </Pressable>

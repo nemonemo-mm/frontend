@@ -1,5 +1,6 @@
 import GroupIcon from "@/assets/icons/group";
 import TeamSetting from "@/assets/icons/teamSetting";
+import { teamListUp } from "@/features/team/api/list";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
@@ -14,10 +15,10 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
-import SideModal from "@/shared/ui/templates/SideModal";
+import SideModal, { Teams } from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -84,7 +85,11 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   >([]);
 
   const { teamId } = useLocalSearchParams();
+  const [teams, setTeams] = useState<Teams>([]);
 
+  useEffect(() => {
+    teamListUp().then((res) => setTeams(res));
+  }, []);
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
     month
@@ -207,7 +212,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         </View>
       </CalendarContext.Provider>
       {isOpenSidebar && (
-        <SideModal teams={[]} closeModal={() => setIsOpenSidebar(false)} />
+        <SideModal teams={teams} closeModal={() => setIsOpenSidebar(false)} />
       )}
     </SafeAreaView>
   );
