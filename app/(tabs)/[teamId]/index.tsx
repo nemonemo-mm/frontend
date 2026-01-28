@@ -17,7 +17,7 @@ import CalendarModal, {
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface GroupScreenProps {}
@@ -127,22 +127,38 @@ const GroupScreen = ({}: GroupScreenProps) => {
     }),
     [currentYearMonth, days, selectedDate, goNextMonth, goPrevMonth, selectDate]
   );
+
+  //todo: 사이드바 연동
+  const handlePressTeamName = () => {};
+  //todo: 알림 페이지 연동
+  const handlePressAlarm = () => {};
+  //todo: 팀 설정 페이지 연동
+  const handlePressTeamSettings = () => {};
   return (
     <SafeAreaView>
       <CalendarContext.Provider value={contextValue}>
         <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
-          <GroupIcon />
-          <NemoText level="h3" style={{ marginLeft: 4 }}>
-            teamName
-          </NemoText>
+          <Pressable
+            style={[styles.row, styles.layout]}
+            onPress={handlePressTeamName}
+          >
+            <GroupIcon />
+            <NemoText level="h3" style={{ marginLeft: 4 }}>
+              teamName
+            </NemoText>
+          </Pressable>
           <View style={{ margin: "auto" }} />
-          <Feather
-            name="bell"
-            size={20}
-            color={globalGray700}
-            style={{ marginRight: 12 }}
-          />
-          <TeamSetting size={24} color={globalGray700} />
+          <Pressable onPress={handlePressAlarm}>
+            <Feather
+              name="bell"
+              size={20}
+              color={globalGray700}
+              style={{ marginRight: 12 }}
+            />
+          </Pressable>
+          <Pressable onPress={handlePressTeamSettings}>
+            <TeamSetting size={24} color={globalGray700} />
+          </Pressable>
         </View>
         <View style={[{ padding: 20 }, styles.layout]}>
           <View>
