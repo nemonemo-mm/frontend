@@ -15,6 +15,7 @@ import {
   globalGray200,
   globalGray700,
   globalGray900,
+  globalSpacingLg,
   globalSpacingXs,
 } from "..";
 import NemoText from "../atoms/NemoText";
@@ -53,14 +54,15 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
               <NemoText level="body1">userName</NemoText>
             </View>
             <View style={styles.border} />
-            <View>
+            <View style={styles.groupContainer}>
+              <NemoText level="h2">소속된 그룹</NemoText>
               <FlatList
                 data={teams}
                 keyExtractor={(item) => String(item.teamId)}
                 renderItem={({ item }) => (
                   <Pressable
                     onPress={handlePressTeam(item.teamId)}
-                    style={{ flexDirection: "row" }}
+                    style={styles.group}
                   >
                     <GroupIcon />
                     <View>
@@ -74,14 +76,7 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                   </Pressable>
                 )}
                 ListFooterComponent={() => (
-                  <Pressable
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
+                  <Pressable style={styles.group}>
                     <View style={styles.selectBox}>
                       <Ionicons name="add" size={20} color="black" />
                     </View>
@@ -114,10 +109,21 @@ const styles = StyleSheet.create({
     flexBasis: 260,
     flex: 1,
   },
+  groupContainer: {
+    paddingHorizontal: globalSpacingLg,
+    gap: 8,
+  },
   border: {
     height: 1,
     marginVertical: 16,
     backgroundColor: globalGray200,
+  },
+  group: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 10,
   },
   selectBox: {
     width: 56,
