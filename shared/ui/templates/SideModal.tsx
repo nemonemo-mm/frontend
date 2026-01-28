@@ -81,7 +81,10 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                   </Pressable>
                 )}
                 ListFooterComponent={() => (
-                  <Pressable style={styles.group}>
+                  <Pressable
+                    style={styles.group}
+                    onPress={() => route.push("/teams/check")}
+                  >
                     <View style={styles.selectBox}>
                       <Ionicons name="add" size={20} color="black" />
                     </View>
