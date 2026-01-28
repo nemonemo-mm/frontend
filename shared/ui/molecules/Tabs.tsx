@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Tab from "../atoms/Tab";
 
@@ -10,15 +10,11 @@ export type TabsText = {
 
 interface TabsProps {
   texts: TabsText[];
-  handler: (v: TabsText[]) => void;
+  handler: (v: string) => void;
 }
 
 const Tabs = ({ texts, handler }: TabsProps) => {
   const [items, setItems] = useState(texts);
-
-  useEffect(() => {
-    handler(items);
-  }, [items]);
 
   const handlePressTab = (id: string) => {
     setItems((prev) =>
@@ -28,6 +24,7 @@ const Tabs = ({ texts, handler }: TabsProps) => {
           : { ...item, isActive: false }
       )
     );
+    handler(id);
   };
 
   return (
