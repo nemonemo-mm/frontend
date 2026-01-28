@@ -1,18 +1,15 @@
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
-import { globalGray700 } from "@/shared/ui";
-import Button from "@/shared/ui/atoms/Button";
-import Input from "@/shared/ui/atoms/Input";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek"; // Ensure this is the correct import path
 import Chips from "@/shared/ui/molecules/Chips";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
+import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
-import Feather from "@expo/vector-icons/Feather";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -129,10 +126,11 @@ const GroupScreen = ({}: GroupScreenProps) => {
       <View style={[{ padding: 20 }, styles.layout]}>
         <View>
           <View style={styles.noticeInput}>
-            <Input placeholder="아직 작성된 공지가 없어요" />
-            <Button style={styles.noticeBtn}>
-              <Feather name="edit-2" size={20} color={globalGray700} />
-            </Button>
+            <ModalEditableField
+              title="공지 작성"
+              description="팀에 공유할 공지 내용을 입력해주세요"
+              placeholder="아직 작성된 공지가 없어요"
+            />
           </View>
           <Tabs texts={tabTexts} handler={handleTab} />
           {currentTab == "calendar" && (
