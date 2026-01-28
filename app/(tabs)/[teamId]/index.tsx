@@ -18,6 +18,7 @@ import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface GroupScreenProps {}
 const tabTexts = [
@@ -127,67 +128,69 @@ const GroupScreen = ({}: GroupScreenProps) => {
     [currentYearMonth, days, selectedDate, goNextMonth, goPrevMonth, selectDate]
   );
   return (
-    <CalendarContext.Provider value={contextValue}>
-      <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
-        <GroupIcon />
-        <NemoText level="h3" style={{ marginLeft: 4 }}>
-          teamName
-        </NemoText>
-        <View style={{ margin: "auto" }} />
-        <Feather
-          name="bell"
-          size={20}
-          color={globalGray700}
-          style={{ marginRight: 12 }}
-        />
-        <TeamSetting size={24} color={globalGray700} />
-      </View>
-      <View style={[{ padding: 20 }, styles.layout]}>
-        <View>
-          <View style={styles.noticeInput}>
-            <ModalEditableField
-              title="공지 작성"
-              description="팀에 공유할 공지 내용을 입력해주세요"
-              placeholder="아직 작성된 공지가 없어요"
-            />
-          </View>
-          <Tabs texts={tabTexts} handler={handleTab} />
-          {currentTab == "calendar" && (
-            <View>
-              <Chips texts={positionTexts} handler={handlePositionChips} />
-              <Calendar
-                year={currentYearMonth.year}
-                month={currentYearMonth.month + 1}
-                days={days}
-                schedules={convertSchedules(schedules)}
-                onCalendarMonth={handleCalendarMonth}
-                onAddSchedule={handleAddSchedule}
-              />
-              {isOpenAddScheduleModal && (
-                <CalendarModal
-                  selectedDate={selectedDate}
-                  confirmModal={(data: { id: string; state: InitialState }) =>
-                    setSchedules((prev) => [...prev, data])
-                  }
-                  closeModal={() => {
-                    setIsOpenAddScheduleModal(false);
-                  }}
-                />
-              )}
-            </View>
-          )}
-          {currentTab == "todo" && (
-            <View>
-              <CalendarDays />
-              <CalendarWeek
-                dates={thisWeek}
-                schedules={convertSchedules(schedules)}
-              />
-            </View>
-          )}
+    <SafeAreaView>
+      <CalendarContext.Provider value={contextValue}>
+        <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
+          <GroupIcon />
+          <NemoText level="h3" style={{ marginLeft: 4 }}>
+            teamName
+          </NemoText>
+          <View style={{ margin: "auto" }} />
+          <Feather
+            name="bell"
+            size={20}
+            color={globalGray700}
+            style={{ marginRight: 12 }}
+          />
+          <TeamSetting size={24} color={globalGray700} />
         </View>
-      </View>
-    </CalendarContext.Provider>
+        <View style={[{ padding: 20 }, styles.layout]}>
+          <View>
+            <View style={styles.noticeInput}>
+              <ModalEditableField
+                title="공지 작성"
+                description="팀에 공유할 공지 내용을 입력해주세요"
+                placeholder="아직 작성된 공지가 없어요"
+              />
+            </View>
+            <Tabs texts={tabTexts} handler={handleTab} />
+            {currentTab == "calendar" && (
+              <View>
+                <Chips texts={positionTexts} handler={handlePositionChips} />
+                <Calendar
+                  year={currentYearMonth.year}
+                  month={currentYearMonth.month + 1}
+                  days={days}
+                  schedules={convertSchedules(schedules)}
+                  onCalendarMonth={handleCalendarMonth}
+                  onAddSchedule={handleAddSchedule}
+                />
+                {isOpenAddScheduleModal && (
+                  <CalendarModal
+                    selectedDate={selectedDate}
+                    confirmModal={(data: { id: string; state: InitialState }) =>
+                      setSchedules((prev) => [...prev, data])
+                    }
+                    closeModal={() => {
+                      setIsOpenAddScheduleModal(false);
+                    }}
+                  />
+                )}
+              </View>
+            )}
+            {currentTab == "todo" && (
+              <View>
+                <CalendarDays />
+                <CalendarWeek
+                  dates={thisWeek}
+                  schedules={convertSchedules(schedules)}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+      </CalendarContext.Provider>
+    </SafeAreaView>
   );
 };
 
