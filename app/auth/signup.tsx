@@ -25,7 +25,9 @@ const SignupScreen = () => {
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       <View style={styles.container}>
         <View style={styles.profile}>
-          <NemoText level="h1">앱에서 사용할 이름을 입력해 주세요.</NemoText>
+          <NemoText level="h1" style={{ paddingBottom: 36 }}>
+            앱에서 사용할 이름을 입력해 주세요.
+          </NemoText>
         </View>
 
         <Input
@@ -38,7 +40,7 @@ const SignupScreen = () => {
       </View>
 
       <CtaButton
-        label="다음"
+        label="가입하기"
         onPress={handleNext}
         isActive={!!userName.trim()}
       />
@@ -49,7 +51,7 @@ const SignupScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 108,
+    marginTop: 140,
     marginHorizontal: 20,
     gap: globalSpacing2xl,
   },
