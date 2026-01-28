@@ -1,6 +1,10 @@
+import GroupIcon from "@/assets/icons/group";
+import TeamSetting from "@/assets/icons/teamSetting";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
+import { globalGray700 } from "@/shared/ui";
+import NemoText from "@/shared/ui/atoms/NemoText";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek"; // Ensure this is the correct import path
 import Chips from "@/shared/ui/molecules/Chips";
@@ -10,9 +14,11 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
+import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface GroupScreenProps {}
 const tabTexts = [
@@ -121,58 +127,93 @@ const GroupScreen = ({}: GroupScreenProps) => {
     }),
     [currentYearMonth, days, selectedDate, goNextMonth, goPrevMonth, selectDate]
   );
+
+  //todo: 사이드바 연동
+  const handlePressTeamName = () => {};
+  //todo: 알림 페이지 연동
+  const handlePressAlarm = () => {};
+  //todo: 팀 설정 페이지 연동
+  const handlePressTeamSettings = () => {};
   return (
-    <CalendarContext.Provider value={contextValue}>
-      <View style={[{ padding: 20 }, styles.layout]}>
-        <View>
-          <View style={styles.noticeInput}>
-            <ModalEditableField
-              title="공지 작성"
-              description="팀에 공유할 공지 내용을 입력해주세요"
-              placeholder="아직 작성된 공지가 없어요"
+    <SafeAreaView>
+      <CalendarContext.Provider value={contextValue}>
+        <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
+          <Pressable
+            style={[styles.row, styles.layout]}
+            onPress={handlePressTeamName}
+          >
+            <GroupIcon />
+            <NemoText level="h3" style={{ marginLeft: 4 }}>
+              teamName
+            </NemoText>
+          </Pressable>
+          <View style={{ margin: "auto" }} />
+          <Pressable onPress={handlePressAlarm}>
+            <Feather
+              name="bell"
+              size={20}
+              color={globalGray700}
+              style={{ marginRight: 12 }}
             />
-          </View>
-          <Tabs texts={tabTexts} handler={handleTab} />
-          {currentTab == "calendar" && (
-            <View>
-              <Chips texts={positionTexts} handler={handlePositionChips} />
-              <Calendar
-                year={currentYearMonth.year}
-                month={currentYearMonth.month + 1}
-                days={days}
-                schedules={convertSchedules(schedules)}
-                onCalendarMonth={handleCalendarMonth}
-                onAddSchedule={handleAddSchedule}
-              />
-              {isOpenAddScheduleModal && (
-                <CalendarModal
-                  selectedDate={selectedDate}
-                  confirmModal={(data: { id: string; state: InitialState }) =>
-                    setSchedules((prev) => [...prev, data])
-                  }
-                  closeModal={() => {
-                    setIsOpenAddScheduleModal(false);
-                  }}
-                />
-              )}
-            </View>
-          )}
-          {currentTab == "todo" && (
-            <View>
-              <CalendarDays />
-              <CalendarWeek
-                dates={thisWeek}
-                schedules={convertSchedules(schedules)}
-              />
-            </View>
-          )}
+          </Pressable>
+          <Pressable onPress={handlePressTeamSettings}>
+            <TeamSetting size={24} color={globalGray700} />
+          </Pressable>
         </View>
-      </View>
-    </CalendarContext.Provider>
+        <View style={[{ padding: 20 }, styles.layout]}>
+          <View>
+            <View style={styles.noticeInput}>
+              <ModalEditableField
+                title="공지 작성"
+                description="팀에 공유할 공지 내용을 입력해주세요"
+                placeholder="아직 작성된 공지가 없어요"
+              />
+            </View>
+            <Tabs texts={tabTexts} handler={handleTab} />
+            {currentTab == "calendar" && (
+              <View>
+                <Chips texts={positionTexts} handler={handlePositionChips} />
+                <Calendar
+                  year={currentYearMonth.year}
+                  month={currentYearMonth.month + 1}
+                  days={days}
+                  schedules={convertSchedules(schedules)}
+                  onCalendarMonth={handleCalendarMonth}
+                  onAddSchedule={handleAddSchedule}
+                />
+                {isOpenAddScheduleModal && (
+                  <CalendarModal
+                    selectedDate={selectedDate}
+                    confirmModal={(data: { id: string; state: InitialState }) =>
+                      setSchedules((prev) => [...prev, data])
+                    }
+                    closeModal={() => {
+                      setIsOpenAddScheduleModal(false);
+                    }}
+                  />
+                )}
+              </View>
+            )}
+            {currentTab == "todo" && (
+              <View>
+                <CalendarDays />
+                <CalendarWeek
+                  dates={thisWeek}
+                  schedules={convertSchedules(schedules)}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+      </CalendarContext.Provider>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+  },
   layout: {
     alignItems: "center",
     justifyContent: "center",
