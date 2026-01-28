@@ -49,7 +49,6 @@ const AddPositionModal = ({
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={style.keyboardAvoidingView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <BottomModal.Container>
           <BottomModal.Header>
