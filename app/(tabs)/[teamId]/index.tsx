@@ -1,6 +1,10 @@
+import GroupIcon from "@/assets/icons/group";
+import TeamSetting from "@/assets/icons/teamSetting";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
+import { globalGray700 } from "@/shared/ui";
+import NemoText from "@/shared/ui/atoms/NemoText";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek"; // Ensure this is the correct import path
 import Chips from "@/shared/ui/molecules/Chips";
@@ -10,6 +14,7 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
+import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -123,6 +128,20 @@ const GroupScreen = ({}: GroupScreenProps) => {
   );
   return (
     <CalendarContext.Provider value={contextValue}>
+      <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
+        <GroupIcon />
+        <NemoText level="h3" style={{ marginLeft: 4 }}>
+          teamName
+        </NemoText>
+        <View style={{ margin: "auto" }} />
+        <Feather
+          name="bell"
+          size={20}
+          color={globalGray700}
+          style={{ marginRight: 12 }}
+        />
+        <TeamSetting size={24} color={globalGray700} />
+      </View>
       <View style={[{ padding: 20 }, styles.layout]}>
         <View>
           <View style={styles.noticeInput}>
@@ -173,6 +192,9 @@ const GroupScreen = ({}: GroupScreenProps) => {
 };
 
 const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+  },
   layout: {
     alignItems: "center",
     justifyContent: "center",
