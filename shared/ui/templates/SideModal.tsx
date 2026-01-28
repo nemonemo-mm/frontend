@@ -1,5 +1,7 @@
 import GroupIcon from "@/assets/icons/group";
+import { teamDetailInfo } from "@/features/team/api/detail";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
   FlatList,
@@ -33,7 +35,10 @@ interface SideModalProps {
 const SideModal = ({ teams, closeModal }: SideModalProps) => {
   const route = useRouter();
 
-  const handlePressTeam = (id: number) => () => {
+  const handlePressTeam = (id: number) => async () => {
+    const teamInfo = await teamDetailInfo(id);
+    await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
+    closeModal();
     route.push(`/(tabs)/${id}/calendar`);
   };
   const insets = useSafeAreaInsets();
