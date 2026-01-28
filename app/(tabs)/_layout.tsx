@@ -14,7 +14,7 @@ export default function TabsLayout() {
           backgroundColor: globalGray50,
         },
         headerShadowVisible: false,
-        headerShown: true,
+        headerShown: false,
       }}
     >
       <Tabs.Screen
