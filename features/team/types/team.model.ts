@@ -19,3 +19,12 @@ export interface TeamInfoResponse {
   teamImageUrl: string;
   positions: Position[];
 }
+
+export interface TeamMember {
+  memberId: number;
+  userId: number;
+  displayName: string;
+  positionId: number;
+  positionName: string;
+  userImageUrl: string;
+}
