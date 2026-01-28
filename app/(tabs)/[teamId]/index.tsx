@@ -18,7 +18,6 @@ const GroupScreen = ({}: GroupScreenProps) => {
 
   useEffect(() => {
     const init = async () => {
-      console.log(teamId);
       try {
         // teamId 없으면 팀 목록부터
         if (!teamId) {
@@ -27,7 +26,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
 
           const firstTeam = teams[0];
           await AsyncStorage.setItem("currentTeam", JSON.stringify(firstTeam));
-          console.log(firstTeam.teamId);
+
           route.replace(`/(tabs)/${firstTeam.teamId}/calendar`);
           return;
         }

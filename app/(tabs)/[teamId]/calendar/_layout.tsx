@@ -125,7 +125,9 @@ export default function CalendarTodosScreen() {
   //todo: 알림 페이지 연동
   const handlePressAlarm = () => {};
   //todo: 팀 설정 페이지 연동
-  const handlePressTeamSettings = () => {};
+  const handlePressTeamSettings = () => {
+    route.push(`/(team)/members`);
+  };
   return (
     <SafeAreaView>
       <CalendarContext.Provider value={contextValue}>
