@@ -34,3 +34,16 @@ export interface TemaList {
   teamName: string;
   description: string;
 }
+
+export interface TeamDetail {
+  teamId: number;
+  teamName: string;
+  inviteCode: string;
+  ownerId: number;
+  ownerName: string;
+  isOwner: boolean;
+  description: string;
+  teamImageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
