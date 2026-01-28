@@ -5,8 +5,8 @@ import {
   PositionResponse,
 } from "../types/position.model";
 
-export async function GetPosition(teamId: number): Promise<PositionResponse> {
-  const { data } = await apiClient.get<PositionResponse>(
+export async function GetPosition(teamId: number): Promise<PositionResponse[]> {
+  const { data } = await apiClient.get<PositionResponse[]>(
     `/teams/${teamId}/positions`
   );
 
