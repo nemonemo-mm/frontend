@@ -50,7 +50,7 @@ export default function CompleteScreen() {
       console.log("팀 생성 성공 응답:", response);
 
       // 성공 후 홈 화면으로 이동
-      router.replace("/(tabs)/home");
+      router.replace(`/(tabs)/${response.teamId}/calendar`);
     } catch (error: any) {
       console.error("팀 생성 실패:", error);
       const errorMessage =
