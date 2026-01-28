@@ -14,17 +14,22 @@ import AlertModal from "./AlertModal";
 
 interface ModalEditableFieldProps {
   title: string;
+  description?: string;
+  placeholder?: string;
   defaultValue?: string;
 }
 
 const ModalEditableField = ({
   title,
+  description,
+  placeholder = "",
   defaultValue,
 }: ModalEditableFieldProps) => {
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
-  const [value, setValue] = useState(defaultValue ?? "");
+  const [value, setValue] = useState(defaultValue ?? placeholder ?? "");
 
   const [currentInput, setCurrentInput] = useState(defaultValue ?? "");
+
   const handleCurrentInput = (text: string) => {
     setCurrentInput(text);
   };
@@ -57,7 +62,9 @@ const ModalEditableField = ({
       {isOpenEditModal && (
         <AlertModal>
           <AlertModal.Title>{title}</AlertModal.Title>
+          {description && <AlertModal.Text>{description}</AlertModal.Text>}
           <AlertModal.Input
+            placeholder={placeholder}
             value={currentInput}
             onChangeText={handleCurrentInput}
           />

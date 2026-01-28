@@ -1,7 +1,6 @@
 import {
   globalGray0,
   globalGray700,
-  globalGray900,
   globalRed600,
   globalSpacingLg,
   globalSpacingMd,
@@ -10,6 +9,7 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -34,15 +34,11 @@ const MyInfo = ({}: MyInfoProps) => {
             <Feather name="edit-2" size={16} color={globalGray700} />
           </Pressable>
         </View>
-        <Pressable style={[styles.linkContainer, styles.link]}>
-          <NemoText
-            level="h2"
-            style={{ color: globalGray900, textAlign: "center" }}
-          >
-            userName
-          </NemoText>
-          <Feather name="edit-2" size={16} color={globalGray700} />
-        </Pressable>
+        <ModalEditableField
+          title="프로필명 변경"
+          placeholder=""
+          defaultValue="userName"
+        />
       </View>
       <View style={styles.footer}>
         <NemoText level="body1" style={{ color: globalRed600 }}>
