@@ -14,6 +14,7 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
+import SideModal from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
@@ -124,8 +125,11 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     [currentYearMonth, days, selectedDate, goNextMonth, goPrevMonth, selectDate]
   );
 
+  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   //todo: 사이드바 연동
-  const handlePressTeamName = () => {};
+  const handlePressTeamName = () => {
+    setIsOpenSidebar(true);
+  };
   //todo: 알림 페이지 연동
   const handlePressAlarm = () => {};
   //todo: 팀 설정 페이지 연동
@@ -202,6 +206,9 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
           </View>
         </View>
       </CalendarContext.Provider>
+      {isOpenSidebar && (
+        <SideModal teams={[]} closeModal={() => setIsOpenSidebar(false)} />
+      )}
     </SafeAreaView>
   );
 };
