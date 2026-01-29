@@ -17,7 +17,7 @@ export interface TodoResponse {
     userName: string;
   }[];
   positionIds: number[];
-  representativePositionId: number;
+  representativeColorHex: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,6 +29,7 @@ export interface TodoRequest {
   endAt: string;
   place: string;
   url: string;
+
   assigneeMemberIds: number[];
   positionIds: number[];
 }
