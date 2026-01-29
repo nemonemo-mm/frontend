@@ -10,6 +10,7 @@ import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import { useQuery } from "@tanstack/react-query";
+import * as Clipboard from "expo-clipboard";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 
 interface TeamManagementProps {
@@ -38,6 +39,12 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
     queryFn: () => GetPosition(teamId!),
     enabled: !!teamId,
   });
+
+  const handleCopyInviteCode = async () => {
+    if (teamDetail?.inviteCode) {
+      await Clipboard.setStringAsync(teamDetail.inviteCode);
+    }
+  };
 
   const isLoading = isLoadingTeam || isLoadingPositions;
   const isError = isErrorTeam || isErrorPositions;
@@ -118,6 +125,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
             value={teamDetail.inviteCode}
             editable={false}
             rightIcon={<CopyIcon />}
+            onPressRightIcon={handleCopyInviteCode}
           />
         </View>
       </View>
