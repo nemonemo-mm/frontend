@@ -26,6 +26,8 @@
 ]
  */
 
+import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
+
 export interface SchedulesResponse {
   id: number;
   teamId: number;
@@ -41,7 +43,7 @@ export interface SchedulesResponse {
   createdAt: string;
   updatedAt: string;
   positionIds: number[];
-  representativePositionId: number;
+  representativeColorHex: string;
   repeatSummary: string;
   parentScheduleId: number;
 }
@@ -56,10 +58,11 @@ export interface ScheduleRequest {
   place: string;
   url: string;
   repeatType: string;
-  repeatInterval: number;
-  repeatDays: number[];
-  repeatMonthDay: number;
+  repeatInterval: number | null;
+  repeatWeekDays: WeekDayType[];
+  repeatUseDate: boolean;
   repeatEndDate: string;
   positionIds: number[];
   attendeeMemberIds: number[];
+  alarm: string;
 }
