@@ -1,7 +1,10 @@
+import { teamDetailInfo } from "@/features/team/api/detail";
+import { teamListUp } from "@/features/team/api/list";
 import { globalGray400, globalGray700, globalGray900 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -12,8 +15,36 @@ interface GroupScreenProps {}
 const GroupScreen = ({}: GroupScreenProps) => {
   const { teamId } = useLocalSearchParams();
   const route = useRouter();
+
   useEffect(() => {
-    if (teamId) route.push(`/(tabs)/${teamId}/calendar`);
+    const init = async () => {
+      try {
+        // teamId 없으면 팀 목록부터
+        if (!teamId) {
+          const teams = await teamListUp();
+          if (!teams || teams.length === 0) return;
+
+          const firstTeam = teams[0];
+          await AsyncStorage.setItem("currentTeam", JSON.stringify(firstTeam));
+
+          route.replace(`/(tabs)/${firstTeam.teamId}/calendar`);
+          return;
+        }
+
+        // teamId 있으면 해당 팀 조회
+        const id = Number(teamId);
+        if (Number.isNaN(id)) return;
+
+        const teamInfo = await teamDetailInfo(id);
+        await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
+
+        route.replace(`/(tabs)/${id}/calendar`);
+      } catch (e) {
+        console.error("팀 초기화 실패", e);
+      }
+    };
+
+    init();
   }, [teamId]);
 
   const handlePressStart = () => {

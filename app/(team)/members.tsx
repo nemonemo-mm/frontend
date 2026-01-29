@@ -1,13 +1,14 @@
-import ChevronLeftIcon from "@/assets/icons/chevron-left";
 import { useTeamMembers } from "@/features/team/hooks/useTeamMembers";
-import type { TeamMember } from "@/features/team/types/team.model";
+import type { TeamDetail, TeamMember } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs from "@/shared/ui/molecules/Tabs";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -18,11 +19,20 @@ type ActiveModal =
 
 export default function TeamMembersScreen() {
   const router = useRouter();
-  const { teamId } = useLocalSearchParams<{
-    teamId: string;
-  }>();
+  const [teamInfo, setTeamInfo] = useState<TeamDetail | null>(null);
 
-  const parsedTeamId = teamId ? Number(teamId) : null;
+  useEffect(() => {
+    const init = async () => {
+      const data = await AsyncStorage.getItem("currentTeam");
+      if (!data) return;
+      const parseInfo = JSON.parse(data) as TeamDetail;
+      setTeamInfo(parseInfo);
+    };
+
+    init();
+  }, []);
+
+  const parsedTeamId = teamInfo?.teamId ? Number(teamInfo.teamId) : null;
   const { data: members, isLoading, isError } = useTeamMembers(parsedTeamId);
 
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -36,8 +46,16 @@ export default function TeamMembersScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Pressable onPress={() => router.back()}>
-          <ChevronLeftIcon />
+        <Pressable
+          onPress={() => router.back()}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <AntDesign name="left" size={24} color={globalGray700} />
+          <NemoText level="h3">{teamInfo?.teamName}</NemoText>
         </Pressable>
       </View>
 
