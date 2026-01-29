@@ -8,72 +8,97 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { globalGreen50 } from "..";
 import NemoDate from "../atoms/NemoDate";
 import NemoText from "../atoms/NemoText";
 
-interface CalendarDatesProps {
-  dates: CalendarDate[];
-}
+/* ---------- utils ---------- */
+const isSameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
+/* ---------- constants ---------- */
+const WEEK_WIDTH = 355;
+const DAY_WIDTH = WEEK_WIDTH / 7;
+const DATES_HEIGHT = 18;
+
+const LANE_HEIGHT = 16;
+const LANE_GAP = 4;
+
+/* ---------- props ---------- */
 interface CalendarSchedulesProps {
   dates: CalendarDate[];
   schedules: CalendarSchedule[];
+  onSelectDate?: (date: Date) => void;
 }
-//일주일 날짜
-const CalendarWeekDates = ({ dates }: CalendarDatesProps) => {
+
+/* ---------- CalendarWeek ---------- */
+const CalendarWeek = ({
+  dates,
+  schedules,
+  onSelectDate,
+}: CalendarSchedulesProps) => {
+  const calendarContext = useContext(CalendarContext);
+
+  if (!calendarContext) {
+    throw new Error(
+      "CalendarContext is undefined. Ensure the provider is set."
+    );
+  }
+
+  const { selectedDate } = calendarContext;
+
+  const weekSchedules = getWeekSchedules(dates, schedules);
+  const lanesCount = Math.min(weekSchedules.length, 4);
+
+  const totalHeight = DATES_HEIGHT + lanesCount * (LANE_HEIGHT + LANE_GAP);
+
+  const handleWeekPress = (event: GestureResponderEvent) => {
+    const { locationX } = event.nativeEvent;
+    const index = Math.floor(locationX / DAY_WIDTH);
+    onSelectDate?.(dates[index].fullDate);
+  };
+
   return (
-    <View style={style.container}>
-      {dates.map((date, i) => (
-        <View style={style.dates} key={"date" + i}>
-          <NemoDate
-            date={date.date}
-            isCurrentMonth={date.isCurrentMonth}
-            disabled={!date.isCurrentMonth}
-          />
-        </View>
-      ))}
-    </View>
+    <Pressable
+      style={[styles.week, { height: totalHeight, minHeight: 91 }]}
+      onPress={handleWeekPress}
+    >
+      <View pointerEvents="none" style={styles.weekInner}>
+        <CalendarWeekDates dates={dates} selectedDate={selectedDate} />
+        <CalendarWeekSchedules dates={dates} schedules={schedules} />
+      </View>
+    </Pressable>
   );
 };
 
-const dayWidth = 100 / 7;
-//일주일 일정
-const CalendarWeekSchedules = ({
+export default CalendarWeek;
+
+/* ---------- Dates ---------- */
+const CalendarWeekDates = ({
   dates,
-  schedules,
-}: CalendarSchedulesProps) => {
-  const thisWeekSchedules = getWeekSchedules(dates, schedules, 4);
+  selectedDate,
+}: {
+  dates: CalendarDate[];
+  selectedDate: Date;
+}) => {
   return (
-    <View>
-      {thisWeekSchedules.map((schedule, i) => {
+    <View style={styles.datesContainer}>
+      {dates.map((d) => {
+        const isSelected = isSameDay(d.fullDate, selectedDate);
+
         return (
           <View
-            key={`${schedule.schedule.status}-${schedule.schedule.id}`}
-            style={{ flexDirection: "row" }}
+            key={d.fullDate.toISOString()}
+            style={[styles.dateCell, isSelected && styles.selectedDate]}
           >
-            {schedule.startsThisWeek && (
-              <ScheduleSpacer count={schedule.startIndex} />
-            )}
-            <Pressable
-              style={[
-                {
-                  flexBasis: `${dayWidth * schedule.span}%`,
-                  gap: 4,
-                  margin: 2,
-                },
-              ]}
-            >
-              {i > 2 ? (
-                <NemoText level="body3">...</NemoText>
-              ) : (
-                <ScheduleLane
-                  startThisWeek={schedule.startsThisWeek}
-                  title={schedule.schedule.title}
-                  backgroundColor={schedule.schedule.colorHex + "40"}
-                  lineColor={schedule.schedule.colorHex}
-                />
-              )}
-            </Pressable>
+            <NemoDate
+              style={{ marginBottom: "auto" }}
+              date={d.date}
+              isCurrentMonth={d.isCurrentMonth}
+              disabled={!d.isCurrentMonth}
+            />
           </View>
         );
       })}
@@ -81,80 +106,136 @@ const CalendarWeekSchedules = ({
   );
 };
 
-//일주일 날짜 + 일정이 있는 주단위 캘린더
-const CalendarWeek = ({ dates, schedules }: CalendarSchedulesProps) => {
-  const value = useContext(CalendarContext);
+/* ---------- Schedules (absolute overlay) ---------- */
+const CalendarWeekSchedules = ({
+  dates,
+  schedules,
+}: CalendarSchedulesProps) => {
+  const calendarContext = useContext(CalendarContext);
 
-  const handleWeekPress = (event: GestureResponderEvent) => {
-    const { locationX } = event.nativeEvent;
-    const index = Math.floor(locationX / (355 / 7));
-    value?.selectDate(dates[index].fullDate);
-  };
+  if (!calendarContext) {
+    throw new Error(
+      "CalendarContext is undefined. Ensure the provider is set."
+    );
+  }
+
+  const { selectedDate } = calendarContext;
+
+  const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
+  const selectedIndex = selectedDate
+    ? dates.findIndex((d) => isSameDay(d.fullDate, selectedDate))
+    : -1;
+
+  // ✅ 레인 개수만큼 높이 확보
+  const lanesCount = Math.min(weekSchedules.length, 4); // 4줄만 보여줄 거면
 
   return (
-    <Pressable style={style.week} onPress={handleWeekPress}>
-      <CalendarWeekDates dates={dates} />
-      <CalendarWeekSchedules dates={dates} schedules={schedules} />
-    </Pressable>
+    <View
+      style={[
+        styles.schedulesOverlay,
+        { height: lanesCount * (LANE_HEIGHT + LANE_GAP) },
+      ]}
+    >
+      {weekSchedules.slice(0, 4).map((s, rowIndex) => {
+        const start = s.startIndex;
+
+        return (
+          <View
+            key={`${s.schedule.status}-${s.schedule.id}`}
+            style={[
+              styles.scheduleWrapper,
+              {
+                left: start * DAY_WIDTH,
+                width: s.span * DAY_WIDTH,
+                top: rowIndex * (LANE_HEIGHT + LANE_GAP),
+                // ✅ “배경”이 보이게 wrapper에만 배경
+                backgroundColor: s.schedule.colorHex + "30",
+              },
+            ]}
+          >
+            <ScheduleLane
+              startThisWeek={s.startsThisWeek}
+              title={s.schedule.title}
+              lineColor={s.schedule.colorHex}
+            />
+          </View>
+        );
+      })}
+    </View>
   );
 };
-const style = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    maxWidth: 355,
-  },
-  week: {
-    minHeight: 91,
-    width: "100%",
-  },
-  dates: {
-    flex: 1,
-  },
-});
-export default CalendarWeek;
 
-const ScheduleSpacer = ({ count }: { count: number }) => (
-  <>
-    {Array.from({ length: count }).map((_, i) => (
-      <View key={i} style={{ flexBasis: `${100 / 7}%` }} />
-    ))}
-  </>
-);
-
+/* ---------- ScheduleLane ---------- */
 const ScheduleLane = ({
   startThisWeek,
   title,
-  backgroundColor,
   lineColor,
 }: {
   startThisWeek: boolean;
   title: string;
-  backgroundColor: string;
   lineColor: string;
 }) => {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        backgroundColor: backgroundColor,
-        borderRadius: 2,
-        paddingRight: 2,
-      }}
-    >
+    <View style={styles.lane}>
       {startThisWeek && (
-        <View
-          style={{
-            backgroundColor: lineColor,
-            width: 3,
-            height: 12,
-            borderRadius: 2,
-            margin: 2,
-          }}
-        />
+        <View style={[styles.laneLine, { backgroundColor: lineColor }]} />
       )}
-      <NemoText level="body3" ellipsizeMode="tail" numberOfLines={1}>
+      <NemoText level="body3" numberOfLines={1}>
         {title}
       </NemoText>
     </View>
   );
 };
+
+/* ---------- styles ---------- */
+const styles = StyleSheet.create({
+  /* dates */
+  datesContainer: {
+    flexDirection: "row",
+    height: 91,
+  },
+  dateCell: {
+    width: DAY_WIDTH,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+  selectedDate: {
+    backgroundColor: globalGreen50,
+  },
+
+  week: {
+    width: WEEK_WIDTH,
+  },
+  weekInner: {
+    position: "relative",
+    overflow: "visible",
+  },
+
+  schedulesOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: DATES_HEIGHT,
+  },
+
+  scheduleWrapper: {
+    position: "absolute",
+    height: LANE_HEIGHT,
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    justifyContent: "center",
+  },
+
+  lane: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "transparent",
+  },
+  laneLine: {
+    width: 3,
+    height: 12,
+    borderRadius: 2,
+  },
+});

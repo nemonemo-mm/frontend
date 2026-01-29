@@ -1,18 +1,30 @@
 import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
 import { useTeamTodos } from "@/features/calendar/hooks/useTodos";
+import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
+import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { TeamDetail } from "@/features/team/types/team.model";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import Checkbox from "@/shared/ui/atoms/Checkbox";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek";
-import { EvilIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
 interface TodosProps {}
+type Section =
+  | {
+      key: "schedule";
+      title: string;
+      data: SchedulesResponse[];
+    }
+  | {
+      key: "todo";
+      title: string;
+      data: TodoResponse[];
+    };
 
 const formatDateString = (date: string): string => {
   const oldDate = new Date(date);
@@ -40,7 +52,7 @@ const Todos = ({}: TodosProps) => {
     init();
   }, [teamId]);
 
-  const { days, schedules, todos, selectedDate } = calendarContext;
+  const { days, schedules, todos, selectedDate, selectDate } = calendarContext;
 
   const thisWeek = days
     .filter((day) =>
@@ -82,95 +94,120 @@ const Todos = ({}: TodosProps) => {
     end,
   });
   const todayTodos = todayTodoQuery.data;
-  return (
-    <View>
-      <CalendarDays />
-      <CalendarWeek dates={thisWeek} schedules={[...schedules, ...todos]} />
 
+  const sections: Section[] = [
+    {
+      key: "schedule",
+      title: "스케줄",
+      data: todaySchedule ?? [],
+    },
+    {
+      key: "todo",
+      title: "할 일",
+      data: todayTodos ?? [],
+    },
+  ];
+  const renderSection = ({ item }: { item: Section }) => {
+    return (
       <View style={styles.container}>
-        <Pressable style={styles.btn} onPress={() => {}}>
-          <EvilIcons name="plus" size={20} color="black" />
-        </Pressable>
-        <NemoText level="h2">{info?.teamName}의 스케줄</NemoText>
+        <NemoText level="h2">
+          {info?.teamName}의 {item.title}
+        </NemoText>
 
-        <FlatList
-          data={todaySchedule ?? []}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.scheduleContainer}>
+        {item.data.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <NemoText level="body2">오늘 {item.title}이 없습니다.</NemoText>
+          </View>
+        ) : item.key === "schedule" ? (
+          item.data.map((s) => (
+            <View key={s.id} style={styles.rowItem}>
               <View
-                style={{
-                  width: 1,
-                  backgroundColor: item.representativeColorHex,
-                }}
+                style={[
+                  styles.colorBar,
+                  { backgroundColor: s.representativeColorHex },
+                ]}
               />
-              <NemoText level="body1">
-                {formatDateString(item.startAt)} ~{" "}
-                {formatDateString(item.endAt)}
-              </NemoText>
-              <NemoText level="body1">{item.title}</NemoText>
-              <NemoText level="body1">{item.description}</NemoText>
+              <View style={styles.rowItem}>
+                <NemoText level="body2">
+                  {formatDateString(s.startAt)} ~ {formatDateString(s.endAt)}
+                </NemoText>
+                <NemoText level="body1">{s.title}</NemoText>
+                {!!s.description && (
+                  <NemoText level="body2">{s.description}</NemoText>
+                )}
+              </View>
             </View>
-          )}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <NemoText level="body2">오늘 스케줄이 없습니다.</NemoText>
-            </View>
-          }
-        />
-      </View>
-
-      <View style={styles.container}>
-        <NemoText level="h2">{info?.teamName}의 할 일</NemoText>
-
-        <FlatList
-          data={todayTodos ?? []}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.scheduleContainer}>
+          ))
+        ) : (
+          item.data.map((t) => (
+            <View key={t.id} style={styles.rowItem}>
               <View
-                style={{
-                  width: 1,
-                  backgroundColor: item.representativeColorHex,
-                }}
+                style={[
+                  styles.colorBar,
+                  { backgroundColor: t.representativeColorHex },
+                ]}
               />
-              <NemoText level="body1">{item.assigneeMemberUserName}</NemoText>
-              <NemoText level="body1">{item.title}</NemoText>
-              <NemoText level="body1">{item.description}</NemoText>
-              <View style={{ margin: "auto" }} />
+              <View style={styles.rowItem}>
+                {!!t.assigneeMemberUserName && (
+                  <NemoText level="body2">{t.assigneeMemberUserName}</NemoText>
+                )}
+                <NemoText level="body1">{t.title}</NemoText>
+                {!!t.description && (
+                  <NemoText level="body2">{t.description}</NemoText>
+                )}
+              </View>
+
+              <View style={{ marginLeft: "auto" }} />
               <Checkbox value={true} handler={() => {}} />
             </View>
-          )}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <NemoText level="body2">오늘 할 일이 없습니다.</NemoText>
-            </View>
-          }
+          ))
+        )}
+      </View>
+    );
+  };
+  return (
+    <View style={{ flex: 1 }}>
+      {/* 🔒 고정 헤더 */}
+      <View style={{ marginBottom: 36 }}>
+        <CalendarDays />
+        <CalendarWeek
+          dates={thisWeek}
+          schedules={[...schedules, ...todos]}
+          onSelectDate={selectDate}
         />
       </View>
+
+      {/* 📜 스크롤 영역 */}
+      <FlatList
+        data={sections}
+        keyExtractor={(item) => item.key}
+        renderItem={renderSection}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    paddingVertical: 16,
+    gap: 12,
     minHeight: 200,
-    gap: 16,
-    position: "relative",
-  },
-  scheduleContainer: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 12,
   },
   emptyContainer: {
-    minHeight: 200,
-    flex: 1,
-    margin: "auto",
+    paddingVertical: 24,
+    alignItems: "center",
   },
-  btn: {
-    position: "absolute",
-    right: 0,
+  rowItem: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "flex-start",
+    paddingVertical: 8,
+  },
+  colorBar: {
+    width: 2,
+    borderRadius: 2,
+    alignSelf: "stretch",
   },
 });
+
 export default Todos;
