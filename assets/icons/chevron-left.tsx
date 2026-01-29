@@ -1,4 +1,4 @@
-import { globalGray500 } from "@/shared/ui";
+import { globalGray700 } from "@/shared/ui";
 import * as React from "react";
 import Svg, { Path, SvgProps } from "react-native-svg";
 
@@ -9,7 +9,7 @@ interface ChevronLeftIconProps extends SvgProps {
 
 const ChevronLeftIcon = ({
   size = 16,
-  color = globalGray500,
+  color = globalGray700,
   ...props
 }: ChevronLeftIconProps) => (
   <Svg width={size} height={size} viewBox="0 0 9 16" fill="none" {...props}>
