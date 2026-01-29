@@ -75,7 +75,9 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                         {item.teamName}
                       </NemoText>
                       <NemoText level="body3" style={{ color: globalGray700 }}>
-                        {item.description}
+                        {item.description == "MEMBER"
+                          ? "전체"
+                          : item.description}
                       </NemoText>
                     </View>
                   </Pressable>

@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Chip from "../atoms/Chip";
 
 type Text = {
-  id: string;
+  id: number;
   content: string;
   isActive: boolean;
 };
@@ -14,29 +13,22 @@ export interface ChipsProps {
 }
 
 const Chips = ({ texts, handler }: ChipsProps) => {
-  const [items, setItems] = useState(texts);
-
-  const handleSetActive = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isActive: !item.isActive } : item
-      )
+  const handleSetActive = (id: number) => {
+    const next = texts.map((item) =>
+      item.id === id ? { ...item, isActive: !item.isActive } : item
     );
+    handler(next);
   };
-
-  useEffect(() => {
-    handler(items);
-  }, [items]);
 
   return (
     <View style={style.chips}>
-      {items.map((text) => (
+      {texts.map((text) => (
         <Chip
           key={text.id}
           active={text.isActive}
           onPress={() => handleSetActive(text.id)}
         >
-          {text.content}
+          {text.content == "MEMBER" ? "전체" : text.content}
         </Chip>
       ))}
     </View>
