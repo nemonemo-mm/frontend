@@ -19,12 +19,8 @@ const getWeekSchedules = (
     )
     .map((s) => {
       const findDateIndex = (date: Date) =>
-        weekDates.findIndex((d) => {
-          return (
-            normalize(d.fullDate).getDate() === normalize(date).getDate() &&
-            normalize(d.fullDate).getMonth() === normalize(date).getMonth()
-          );
-        });
+        weekDates.findIndex((d) => isSameDay(d.fullDate, date));
+
       const startIndex =
         findDateIndex(s.startDate) === -1 ? 0 : findDateIndex(s.startDate);
       const endIndex =
@@ -47,11 +43,14 @@ const getWeekSchedules = (
       return b.span - a.span; // 같은 시작이면 긴 게 먼저
     });
 
-  if (maxVisible) return value.splice(0, maxVisible);
+  if (maxVisible) return value.slice(0, maxVisible);
+
   return value;
 };
 
-const normalize = (d: Date) =>
-  new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const isSameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
 export default getWeekSchedules;
