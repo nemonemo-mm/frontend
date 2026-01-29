@@ -24,6 +24,7 @@ import TimeModal from "./TimeModal";
 
 interface CalendarModalProps {
   selectedDate: Date;
+  positions: TabsText[];
   confirmModal: (data: { id: string; state: InitialState }) => void;
   closeModal: () => void;
 }
@@ -43,7 +44,7 @@ type WhichModalType =
 
 const segmentTexts = [
   {
-    id: "calendar",
+    id: "schedule",
     content: "캘린더",
     isActive: true,
   },
@@ -53,9 +54,8 @@ const segmentTexts = [
     isActive: false,
   },
 ];
-
-const today = new Date(Date.now());
 export interface InitialState {
+  isAllDay: boolean;
   startAt: Date;
   startAtTime: { hour: number; min: number };
   endAt: Date;
@@ -66,7 +66,7 @@ export interface InitialState {
   alarm: AlarmState | null;
 
   title: string;
-  memo: string;
+  description: string;
   url: string;
 }
 
@@ -75,6 +75,8 @@ const reducer = (
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
+    case "SET_ISALLDAY":
+      return { ...state, isAllDay: action.payload };
     case "SET_START_DATE":
       return { ...state, startAt: action.payload };
     case "SET_START_TIME":
@@ -94,7 +96,7 @@ const reducer = (
     case "SET_REPEAT":
       return { ...state, repeat: action.payload };
     case "SET_MEMO":
-      return { ...state, memo: action.payload };
+      return { ...state, description: action.payload };
     case "SET_URL":
       return { ...state, url: action.payload };
     default:
@@ -128,53 +130,41 @@ const formatRepeat = (repeat: RepeatState): string => {
   return result;
 };
 
-const formatAlarm = (alarm: AlarmState) => {
-  if (!alarm || alarm.off) return "끔";
-  const result: string[] = [];
-  if (alarm.ten) result.push("10분전");
-  if (alarm.thirty) result.push("30분전");
-  if (alarm.sixty) result.push("1시간전");
-  return result.length > 1 ? result.join(", ") : result[0];
+export const formatAlarm = (alarm: AlarmState | null) => {
+  let result: string = "";
+  if (!alarm || alarm.off) result = "끔";
+  else if (alarm.ten) result = "10분전";
+  else if (alarm.thirty) result = "30분전";
+  else if (alarm.sixty) result = "1시간전";
+  return result;
 };
 
 const CalendarModal = ({
   selectedDate,
+  positions,
   confirmModal,
   closeModal,
 }: CalendarModalProps) => {
   const initialState: InitialState = {
+    isAllDay: false,
     startAt: selectedDate,
     startAtTime: { hour: 0, min: 0 },
     endAt: selectedDate,
     endAtTime: { hour: 0, min: 0 },
-    person: [
-      { id: "1", content: "asdfasdf", isActive: false },
-      { id: "2", content: "asdfasdf", isActive: false },
-
-      { id: "3", content: "asdfasdf", isActive: false },
-
-      { id: "4", content: "asdfasdf", isActive: false },
-    ],
-    position: [
-      { id: "1", content: "asdfasdf", isActive: false },
-      { id: "2", content: "asdfasdf", isActive: false },
-
-      { id: "3", content: "asdfasdf", isActive: false },
-
-      { id: "4", content: "asdfasdf", isActive: false },
-    ],
+    person: [],
+    position: positions,
     repeat: null,
     alarm: null,
     title: "",
-    memo: "",
+    description: "",
     url: "",
   };
 
-  const [currentSegment, setCurrentSegment] = useState("calendar");
-  const [isAllDay, setIsAllDay] = useState(false);
+  const [currentSegment, setCurrentSegment] = useState("schedule");
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
+    isAllDay,
     startAt,
     startAtTime,
     endAt,
@@ -184,7 +174,7 @@ const CalendarModal = ({
     repeat,
     alarm,
     title,
-    memo,
+    description,
     url,
   } = state as InitialState;
 
@@ -198,7 +188,9 @@ const CalendarModal = ({
     position.filter((pos) => pos.isActive).length > 0
       ? position.filter((pos) => pos.isActive).length
       : "지정없음";
-  const handleModalSegments = (segment: TabsText[]) => {
+  const handleModalSegments = (
+    segment: { id: string; content: string; isActive: boolean }[]
+  ) => {
     setCurrentSegment(segment.find((s) => s.isActive)!.id);
   };
 
@@ -266,7 +258,7 @@ const CalendarModal = ({
           handler={handleModalSegments}
         />
         <View>
-          {currentSegment == "calendar" ? (
+          {currentSegment == "schedule" ? (
             <View>
               <View style={style.container}>
                 <View style={style.optionContainer}>
@@ -286,8 +278,8 @@ const CalendarModal = ({
                   <NemoTextLabel>종일</NemoTextLabel>
                   <Toggle
                     value={isAllDay}
-                    handler={() => {
-                      setIsAllDay((prev) => !prev);
+                    handler={(result) => {
+                      dispatch({ type: "SET_ISALLDAY", payload: result });
                     }}
                   />
                 </View>
@@ -394,7 +386,7 @@ const CalendarModal = ({
                     placeholderTextColor={globalGray600}
                     placeholder="메모를 남겨주세요"
                     style={[style.input]}
-                    value={memo}
+                    value={description}
                     onChangeText={(text: string) =>
                       dispatch({ type: "SET_MEMO", payload: text })
                     }

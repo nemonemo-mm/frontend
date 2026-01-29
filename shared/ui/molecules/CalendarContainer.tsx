@@ -27,7 +27,6 @@ const style = StyleSheet.create({
   container: {
     position: "relative",
     alignItems: "center",
-    justifyContent: "center",
     maxWidth: 355,
   },
   btn: {

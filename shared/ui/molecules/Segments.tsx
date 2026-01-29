@@ -3,12 +3,11 @@ import { StyleSheet, View } from "react-native";
 import { ViewProps } from "react-native-svg/lib/typescript/fabric/utils";
 import { globalGray50 } from "..";
 import Segment from "../atoms/Segment";
-import { TabsText } from "./Tabs";
 
 interface SegmentsProps extends ViewProps {
-  texts: TabsText[];
+  texts: { id: string; content: string; isActive: boolean }[];
   level: "l" | "m";
-  handler: (v: TabsText[]) => void;
+  handler: (v: { id: string; content: string; isActive: boolean }[]) => void;
 }
 
 const Segments = ({ texts, level, handler, ...props }: SegmentsProps) => {

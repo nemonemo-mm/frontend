@@ -26,7 +26,9 @@
 ]
  */
 
-export interface CalendarResponse {
+import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
+
+export interface SchedulesResponse {
   id: number;
   teamId: number;
   title: string;
@@ -41,7 +43,26 @@ export interface CalendarResponse {
   createdAt: string;
   updatedAt: string;
   positionIds: number[];
-  representativePositionId: number;
+  representativeColorHex: string;
   repeatSummary: string;
   parentScheduleId: number;
+}
+
+export interface ScheduleRequest {
+  teamId: number;
+  title: string;
+  description: string;
+  startAt: string;
+  endAt: string;
+  isAllDay: boolean;
+  place: string;
+  url: string;
+  repeatType: string;
+  repeatInterval: number | null;
+  repeatWeekDays: WeekDayType[];
+  repeatUseDate: boolean;
+  repeatEndDate: string;
+  positionIds: number[];
+  attendeeMemberIds: number[];
+  alarm: string;
 }

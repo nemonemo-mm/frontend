@@ -3,20 +3,20 @@ import { StyleSheet, View } from "react-native";
 import Tab from "../atoms/Tab";
 
 export type TabsText = {
-  id: string;
+  id: number;
   content: string;
   isActive: boolean;
 };
 
 interface TabsProps {
   texts: TabsText[];
-  handler: (v: string) => void;
+  handler: (v: number) => void;
 }
 
 const Tabs = ({ texts, handler }: TabsProps) => {
   const [items, setItems] = useState(texts);
 
-  const handlePressTab = (id: string) => {
+  const handlePressTab = (id: number) => {
     setItems((prev) =>
       prev.map((item) =>
         item.id === id

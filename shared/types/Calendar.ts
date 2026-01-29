@@ -11,6 +11,8 @@ export interface CalendarSchedule {
   title: string;
   startDate: Date;
   endDate: Date;
+  colorHex: string;
+  status: "TODOS" | "SCHEDULES";
 }
 export interface WeekSchedule {
   schedule: CalendarSchedule;

@@ -10,8 +10,7 @@ export type PositionChip = {
 
 function toPositionChip(position: PositionResponse): PositionChip {
   return {
-    positionId: position.id,
-    positionName: position.name,
+    ...position,
   };
 }
 
@@ -27,4 +26,3 @@ export function usePositions(teamId: number | null) {
     enabled: isEnabled,
   });
 }
-
