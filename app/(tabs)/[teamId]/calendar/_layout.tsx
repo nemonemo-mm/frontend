@@ -36,7 +36,7 @@ const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
 const convertSchedules = (
-  data: SchedulesResponse[] | undefined
+  data: SchedulesResponse[] | undefined,
 ): CalendarSchedule[] => {
   if (!data) return [];
   return data.map((item) => {
@@ -80,24 +80,24 @@ export default function CalendarTodosScreen() {
     route.replace(
       nextPath as
         | `/(${string})/${string}/calendar`
-        | `/(${string})/${string}/calendar/todos`
+        | `/(${string})/${string}/calendar/todos`,
     );
   };
 
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
-    month
+    month,
   );
   const schedulesQuery = useTeamSchedules(parseInt(teamId as string), {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1
+      1,
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0
+      0,
     ).toISOString(),
   });
 
@@ -105,12 +105,12 @@ export default function CalendarTodosScreen() {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1
+      1,
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0
+      0,
     ).toISOString(),
   });
 
@@ -170,9 +170,11 @@ export default function CalendarTodosScreen() {
   };
   //todo: 알림 페이지 연동
   const handlePressAlarm = () => {};
+
   const handlePressTeamSettings = () => {
-    route.push(`/(team)/members`);
+    route.push(`/(team)/members?teamId=${teamId}`);
   };
+
   return (
     <SafeAreaView>
       <CalendarContext.Provider value={contextValue}>
