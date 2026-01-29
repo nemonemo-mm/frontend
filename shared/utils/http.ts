@@ -1,3 +1,4 @@
+import { requestRefreshToken } from "@/features/auth/api/token";
 import {
   clearTokens,
   getAccessToken,
@@ -16,6 +17,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const accessToken = await getAccessToken();
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -70,19 +72,7 @@ async function refreshAccessToken(): Promise<string | null> {
       return null;
     }
 
-    // Refresh Token을 Authorization 헤더에 Bearer 형식으로 전송
-    const { data } = await axios.post<{
-      accessToken: string;
-      refreshToken: string; // 새 Refresh Token도 함께 받아야 함
-    }>(
-      `${apiClient.defaults.baseURL}/auth/refresh`, // 실제 엔드포인트 확인 필요
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`, // Bearer 형식으로 전송
-        },
-      }
-    );
+    const data = await requestRefreshToken(refreshToken);
 
     // 새 Access Token 저장
     await saveAccessToken(data.accessToken);

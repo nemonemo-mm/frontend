@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { View } from "react-native";
-import AuthButton from "../../ui/molecules/AuthButton";
+import GoogleAuthButton from "../../ui/molecules/GoogleAuthButton";
 
-const meta: Meta<typeof AuthButton> = {
+const meta: Meta<typeof GoogleAuthButton> = {
   title: "molecules/AuthButton",
-  component: AuthButton,
+  component: GoogleAuthButton,
   decorators: [
     (Story) => (
       <View style={{ width: "100%" }}>
@@ -16,22 +16,12 @@ const meta: Meta<typeof AuthButton> = {
 
 export default meta;
 
-type Story = StoryObj<typeof AuthButton>;
+type Story = StoryObj<typeof GoogleAuthButton>;
 
 export const Google: Story = {
   args: {
-    label: "Google",
     onPress: () => {
       console.log("Google 로그인 클릭");
-    },
-  },
-};
-
-export const Apple: Story = {
-  args: {
-    label: "Apple",
-    onPress: () => {
-      console.log("Apple 로그인 클릭");
     },
   },
 };

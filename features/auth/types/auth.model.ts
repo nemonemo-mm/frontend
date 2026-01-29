@@ -23,6 +23,22 @@ export interface SocialLoginResponse {
   newUser: boolean;
 }
 
+export interface RefreshTokenResponse {
+  userId: number;
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    userId: number;
+    email: string;
+    userName: string;
+    provider: "GOOGLE" | "APPLE";
+    providerId: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  newUser: boolean;
+}
+
 export interface ApiErrorResponse {
   code: string;
   message: string;

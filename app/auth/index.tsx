@@ -1,12 +1,13 @@
 import { socialLogin } from "@/features/auth/api/auth";
+import AppleAuth from "@/features/auth/components/AppleAuth";
 import { useGoogleLogin } from "@/features/auth/hooks/useGoogleLogin";
 import { setPendingSocialLogin } from "@/features/auth/utils/pendingSocialLogin";
 import {
   saveAccessToken,
   saveRefreshToken,
 } from "@/features/auth/utils/tokenStorage";
-import { globalGreen300, globalSpacingMd, globalSpacingSm } from "@/shared/ui";
-import AuthButton from "@/shared/ui/molecules/AuthButton";
+import { globalGreen300, globalSpacingSm } from "@/shared/ui";
+import GoogleAuthButton from "@/shared/ui/molecules/GoogleAuthButton";
 import { useRouter } from "expo-router";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -122,7 +123,8 @@ const AuthScreen = () => {
 
         {/* 버튼 영역 */}
         <View style={styles.buttonContainer}>
-          <AuthButton label="Google" onPress={handleGoogleLogin} />
+          <GoogleAuthButton onPress={handleGoogleLogin} />
+          <AppleAuth />
         </View>
       </View>
     </SafeAreaView>
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     maxWidth: 480,
-    gap: globalSpacingMd,
+    gap: 40,
   },
 });
 

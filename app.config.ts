@@ -30,6 +30,7 @@ export default {
       },
     },
     supportsTablet: true,
+    usesAppleSignIn: true,
     googleServicesFile: "./GoogleService-Info.plist",
     bundleIdentifier: "com.nemonemomm.frontend",
   },
@@ -51,6 +52,7 @@ export default {
     favicon: "./assets/images/favicon.png",
   },
   plugins: [
+    "expo-apple-authentication",
     "expo-router",
     [
       "expo-build-properties",
@@ -63,6 +65,7 @@ export default {
         },
       },
     ],
+    "./plugins/with-rnfirebase-ios.cjs",
     [
       "expo-splash-screen",
       {
