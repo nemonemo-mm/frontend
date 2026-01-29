@@ -8,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { globalGray200, globalGray400 } from "..";
 import NemoDate from "../atoms/NemoDate";
 import NemoText from "../atoms/NemoText";
 
@@ -44,13 +43,12 @@ const CalendarWeekSchedules = ({
   schedules,
 }: CalendarSchedulesProps) => {
   const thisWeekSchedules = getWeekSchedules(dates, schedules, 4);
-
   return (
     <View>
       {thisWeekSchedules.map((schedule, i) => {
         return (
           <View
-            key={`schedule-${schedule.schedule.id}`}
+            key={`${schedule.schedule.status}-${schedule.schedule.id}`}
             style={{ flexDirection: "row" }}
           >
             {schedule.startsThisWeek && (
@@ -63,7 +61,6 @@ const CalendarWeekSchedules = ({
                   gap: 4,
                   margin: 2,
                 },
-                // todo: 배경색 지정
               ]}
             >
               {i > 2 ? (
@@ -72,6 +69,8 @@ const CalendarWeekSchedules = ({
                 <ScheduleLane
                   startThisWeek={schedule.startsThisWeek}
                   title={schedule.schedule.title}
+                  backgroundColor={schedule.schedule.colorHex + "40"}
+                  lineColor={schedule.schedule.colorHex}
                 />
               )}
             </Pressable>
@@ -125,15 +124,19 @@ const ScheduleSpacer = ({ count }: { count: number }) => (
 const ScheduleLane = ({
   startThisWeek,
   title,
+  backgroundColor,
+  lineColor,
 }: {
   startThisWeek: boolean;
   title: string;
+  backgroundColor: string;
+  lineColor: string;
 }) => {
   return (
     <View
       style={{
         flexDirection: "row",
-        backgroundColor: globalGray200,
+        backgroundColor: backgroundColor,
         borderRadius: 2,
         paddingRight: 2,
       }}
@@ -141,7 +144,7 @@ const ScheduleLane = ({
       {startThisWeek && (
         <View
           style={{
-            backgroundColor: globalGray400,
+            backgroundColor: lineColor,
             width: 3,
             height: 12,
             borderRadius: 2,
