@@ -12,9 +12,9 @@
  */
 
 export interface PositionResponse {
-  id: number;
+  positionId: number;
   teamId: number;
-  name: string;
+  positionName: string;
   colorHex: string | null;
   isDefault: boolean;
   createdAt: string;
