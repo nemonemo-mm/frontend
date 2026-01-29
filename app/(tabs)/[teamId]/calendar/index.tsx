@@ -15,6 +15,7 @@ import CalendarModal, {
   formatAlarm,
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
+import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -68,6 +69,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   const {
     currentYearMonth,
     selectedDate,
+    selectDate,
     days,
     schedules,
     callSchedules,
@@ -77,6 +79,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     goNextMonth,
   } = calendarContext;
   const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] = useState(false);
+  const [isOpenListModal, setIsOpenListModal] = useState(false);
 
   const handleCalendarMonth = (direction: -1 | 1) => {
     if (direction == -1) goPrevMonth();
@@ -177,7 +180,10 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   const handlePositionChips = (next: TabsText[]) => {
     setCurrentPositions(next);
   };
-
+  const handleSelectDate = (date: Date) => {
+    selectDate(date);
+    setIsOpenListModal(true);
+  };
   return (
     <View>
       <View>
@@ -189,7 +195,17 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
           schedules={[...schedules, ...todos]}
           onCalendarMonth={handleCalendarMonth}
           onAddSchedule={handleAddSchedule}
+          onSelectDate={handleSelectDate}
         />
+        {isOpenListModal && (
+          <ScheduleListModal
+            list={[...schedules, ...todos]}
+            positions={currentPosition}
+            selectedDate={selectedDate}
+            closeModal={() => setIsOpenListModal(false)}
+            confirmModal={handleSelectDate}
+          />
+        )}
         {isOpenAddScheduleModal && (
           <CalendarModal
             selectedDate={selectedDate}
