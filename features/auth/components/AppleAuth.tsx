@@ -1,8 +1,4 @@
-import {
-  AppleAuthProvider,
-  getAuth,
-  signInWithCredential,
-} from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
@@ -40,11 +36,9 @@ export default function AppleAuth() {
         throw new Error("Apple ID Token을 가져오지 못했습니다.");
       }
 
-      const appleCredentials = AppleAuthProvider.credential(identityToken);
-      const userCredential = await signInWithCredential(
-        getAuth(),
-        appleCredentials
-      );
+      const appleCredentials = auth.AppleAuthProvider.credential(identityToken);
+      const userCredential =
+        await auth().signInWithCredential(appleCredentials);
 
       const firebaseIdToken = await userCredential.user.getIdToken();
 
@@ -83,7 +77,7 @@ export default function AppleAuth() {
         typeof response.refreshToken !== "string"
       ) {
         throw new Error(
-          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요."
+          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요.",
         );
       }
 
