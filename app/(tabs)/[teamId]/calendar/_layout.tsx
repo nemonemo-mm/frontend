@@ -158,7 +158,11 @@ export default function CalendarTodosScreen() {
   const [teams, setTeams] = useState<Teams>([]);
 
   useEffect(() => {
-    teamListUp().then((res) => setTeams(res));
+    const initTeams = async () => {
+      const data = await teamListUp();
+      if (data) setTeams(data);
+    };
+    initTeams();
   }, []);
 
   const handlePressTeamName = () => {
@@ -208,7 +212,7 @@ export default function CalendarTodosScreen() {
                 title="공지 작성"
                 description="팀에 공유할 공지 내용을 입력해주세요"
                 placeholder="아직 작성된 공지가 없어요"
-                // defaultValue={info.notice}
+                defaultValue={info?.notice}
               />
             </View>
             <Tabs texts={tabTexts} handler={handleTab} />
