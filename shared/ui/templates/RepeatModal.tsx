@@ -6,7 +6,6 @@ import Checkbox from "../atoms/Checkbox";
 import NemoDayButton, { WeekDayType } from "../molecules/NemoDayButton";
 import NemoTextLabel from "../molecules/NemoTextLabel";
 import Segments from "../molecules/Segments";
-import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 import DateButton from "../organisms/DateButton";
 import RepeatCount from "../organisms/RepeatCount";
@@ -76,7 +75,9 @@ const RepeatModal = ({
 
   const [isOpenModal, setIsOpenModal] = useState(false);
 
-  const handleSegments = (texts: TabsText[]) => {
+  const handleSegments = (
+    texts: { id: string; content: string; isActive: boolean }[]
+  ) => {
     const period = texts.find((t) => t.isActive)!.id as SegmentType;
 
     setRepeatState((prev) => {

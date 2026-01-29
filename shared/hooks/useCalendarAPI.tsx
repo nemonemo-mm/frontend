@@ -1,24 +1,18 @@
-import { createContext, Dispatch } from "react";
+import { createContext } from "react";
 import {
   CalendarDate,
   CalendarSchedule,
   CalendarState,
 } from "../types/Calendar";
-import { InitialState } from "../ui/templates/CalendarModal";
 
 export interface CalendarContextType {
   currentYearMonth: CalendarState;
   days: CalendarDate[][];
   selectedDate: Date;
   schedules: CalendarSchedule[];
-  setSchedules: Dispatch<
-    React.SetStateAction<
-      {
-        id: string;
-        state: InitialState;
-      }[]
-    >
-  >;
+  todos: CalendarSchedule[];
+  callSchedules: () => void;
+  callTodos: () => void;
   goNextMonth: () => void;
   goPrevMonth: () => void;
   selectDate: (date: Date) => void;
