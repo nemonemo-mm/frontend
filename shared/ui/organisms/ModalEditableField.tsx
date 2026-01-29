@@ -53,14 +53,17 @@ const ModalEditableField = ({
       >
         <NemoText
           level="h2"
-          style={{ color: globalGray900, textAlign: "center" }}
+          style={{ color: globalGray900, textAlign: "left", maxWidth: "90%" }}
         >
           {value}
         </NemoText>
         <Feather name="edit-2" size={16} color={globalGray700} />
       </Pressable>
       {isOpenEditModal && (
-        <AlertModal>
+        <AlertModal
+          visible={isOpenEditModal}
+          onClose={() => setIsOpenEditModal(false)}
+        >
           <AlertModal.Title>{title}</AlertModal.Title>
           {description && <AlertModal.Text>{description}</AlertModal.Text>}
           <AlertModal.Input
@@ -88,7 +91,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   link: {
-    paddingHorizontal: globalSpacingXs,
+    padding: globalSpacingXs,
+
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
