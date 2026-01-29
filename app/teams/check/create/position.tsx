@@ -1,11 +1,12 @@
 import ChevronLeftIcon from "@/assets/icons/chevron-left";
+import { useAddPositionModal } from "@/features/position/hooks/useAddPositionModal";
 import Chip from "@/shared/ui/atoms/Chip";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Position {
@@ -21,18 +22,15 @@ export default function PositionScreen() {
     teamIntroduction: string;
   }>();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isVisible, open, close } = useAddPositionModal();
   const [positions, setPositions] = useState<Position[]>([]);
   const [selectedPositionName, setSelectedPositionName] = useState<
     string | null
   >(null);
 
-  const handleModalOpen = () => setIsModalOpen(true);
-  const handleModalClose = () => setIsModalOpen(false);
-
   const handleAddPosition = (positionName: string, colorHex: string) => {
     setPositions((prev) => [...prev, { positionName, colorHex }]);
-    setIsModalOpen(false);
+    close();
   };
 
   const handlePositionSelect = (positionName: string) => {
@@ -54,7 +52,9 @@ export default function PositionScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <ChevronLeftIcon />
+        <Pressable onPress={() => router.back()}>
+          <ChevronLeftIcon />
+        </Pressable>
       </View>
 
       <View style={styles.content}>
@@ -72,14 +72,14 @@ export default function PositionScreen() {
           </Chip>
         ))}
 
-        <Chip active={true} onPress={handleModalOpen}>
+        <Chip active={true} onPress={open}>
           <NemoText level="body2">추가하기</NemoText>
         </Chip>
       </View>
 
       <AddPositionModal
-        visible={isModalOpen}
-        closeModal={handleModalClose}
+        visible={isVisible}
+        closeModal={close}
         onAddPosition={handleAddPosition}
       />
 

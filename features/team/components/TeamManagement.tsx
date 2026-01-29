@@ -1,6 +1,7 @@
 import CopyIcon from "@/assets/icons/copy";
 import GroupIcon from "@/assets/icons/group";
 import { GetPosition } from "@/features/position/api/position";
+import { useAddPositionModal } from "@/features/position/hooks/useAddPositionModal";
 import { PositionResponse } from "@/features/position/types/position.model";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { TeamDetail } from "@/features/team/types/team.model";
@@ -9,6 +10,7 @@ import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
 import { useQuery } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
@@ -18,6 +20,8 @@ interface TeamManagementProps {
 }
 
 export default function TeamManagement({ teamId }: TeamManagementProps) {
+  const { isVisible, open, close } = useAddPositionModal();
+
   // 팀 상세 정보 조회
   const {
     data: teamDetail,
@@ -46,6 +50,11 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
     }
   };
 
+  const handleAddPosition = (positionName: string, colorHex: string) => {
+    // TODO: 포지션 추가 API 연동
+    console.log("포지션 추가:", positionName, colorHex);
+  };
+
   const isLoading = isLoadingTeam || isLoadingPositions;
   const isError = isErrorTeam || isErrorPositions;
 
@@ -68,68 +77,79 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 상단 팀 이미지 */}
-      <View style={styles.topSection}>
-        {teamDetail.teamImageUrl ? (
-          <ProfileImage size={90} uri={teamDetail.teamImageUrl} />
-        ) : (
-          <GroupIcon width={90} height={84} />
-        )}
-      </View>
-
-      {/* 팀 정보 폼 */}
-      <View style={styles.formContainer}>
-        <View>
-          <Input
-            placeholder="팀 이름"
-            label="팀 이름"
-            value={teamDetail.teamName}
-            editable={false}
-          />
+    <>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* 상단 팀 이미지 */}
+        <View style={styles.topSection}>
+          {teamDetail.teamImageUrl ? (
+            <ProfileImage size={90} uri={teamDetail.teamImageUrl} />
+          ) : (
+            <GroupIcon width={90} height={84} />
+          )}
         </View>
 
-        {teamDetail.description && (
+        {/* 팀 정보 폼 */}
+        <View style={styles.formContainer}>
           <View>
             <Input
-              placeholder="팀 소개"
-              label="팀 소개"
-              value={teamDetail.description}
+              placeholder="팀 이름"
+              label="팀 이름"
+              value={teamDetail.teamName}
               editable={false}
             />
           </View>
-        )}
 
-        {/* 팀 내 포지션 */}
-        {positions && positions.length > 0 && (
-          <View style={styles.chipsContainer}>
-            <NemoText level="body1">팀 내 포지션</NemoText>
-            <View style={styles.chipsWrapper}>
-              {positions.map((position) => (
-                <Chip
-                  key={position.positionId}
-                  active={true}
-                  onPress={() => {}}
-                >
-                  <NemoText level="body2">{position.positionName}</NemoText>
-                </Chip>
-              ))}
+          {teamDetail.description && (
+            <View>
+              <Input
+                placeholder="팀 소개"
+                label="팀 소개"
+                value={teamDetail.description}
+                editable={false}
+              />
             </View>
-          </View>
-        )}
+          )}
 
-        <View style={styles.inviteCodeContainer}>
-          <Input
-            placeholder="팀 초대 코드"
-            label="팀 초대 코드"
-            value={teamDetail.inviteCode}
-            editable={false}
-            rightIcon={<CopyIcon />}
-            onPressRightIcon={handleCopyInviteCode}
-          />
+          {/* 팀 내 포지션 */}
+          {positions && positions.length > 0 && (
+            <View style={styles.chipsContainer}>
+              <NemoText level="body1">팀 내 포지션</NemoText>
+              <View style={styles.chipsWrapper}>
+                {positions.map((position) => (
+                  <Chip
+                    key={position.positionId}
+                    active={false}
+                    onPress={() => {}}
+                  >
+                    <NemoText level="body2">{position.positionName}</NemoText>
+                  </Chip>
+                ))}
+                <Chip active={true} onPress={open}>
+                  <NemoText level="body2">포지션 추가</NemoText>
+                </Chip>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.inviteCodeContainer}>
+            <Input
+              placeholder="팀 초대 코드"
+              label="팀 초대 코드"
+              value={teamDetail.inviteCode}
+              editable={false}
+              rightIcon={<CopyIcon />}
+              onPressRightIcon={handleCopyInviteCode}
+            />
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      <AddPositionModal
+        visible={isVisible}
+        closeModal={close}
+        onAddPosition={handleAddPosition}
+      />
+    </>
   );
 }
 
