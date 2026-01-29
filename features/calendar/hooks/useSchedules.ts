@@ -12,7 +12,10 @@ import {
   getMySchedule,
   getTeamSchedule,
 } from "../api/schedule";
-import type { ScheduleRequest, SchedulesResponse } from "../types/schedule.model";
+import type {
+  ScheduleRequest,
+  SchedulesResponse,
+} from "../types/schedule.model";
 
 export type ScheduleQueryParams = {
   start: string;
@@ -44,12 +47,7 @@ export function useTeamSchedules(
 }
 
 export function useMySchedules(params: ScheduleQueryParams) {
-  const queryKey = [
-    "me",
-    "schedules",
-    params.start,
-    params.end,
-  ];
+  const queryKey = ["me", "schedules", params.start, params.end];
   const enabled = hasValidRange(params);
 
   return useQuery<SchedulesResponse[]>({
@@ -69,7 +67,10 @@ type DeleteSchedulePayload = {
   teamId?: number | null;
 };
 
-function invalidateScheduleQueries(queryClient: QueryClient, teamId?: number | null) {
+function invalidateScheduleQueries(
+  queryClient: QueryClient,
+  teamId?: number | null
+) {
   if (typeof teamId === "number" && teamId > 0) {
     queryClient.invalidateQueries({
       queryKey: ["teams", teamId, "schedules"],
