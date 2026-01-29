@@ -27,6 +27,19 @@ export interface TeamMember {
   positionId: number;
   positionName: string;
   userImageUrl: string;
+  isOwner: boolean;
+}
+
+export interface OwnerInfo {
+  userId: number;
+  ownerName: string;
+  ownerImageUrl: string;
+}
+
+export interface TeamMembersResponse {
+  teamName: string;
+  ownerInfo: OwnerInfo;
+  members: TeamMember[];
 }
 
 export interface TemaList {
