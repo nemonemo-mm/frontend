@@ -1,4 +1,5 @@
 import {
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -19,12 +20,16 @@ interface InputProps extends TextInputProps {
   label?: string;
   isError?: boolean;
   variant?: InputVariant;
+  rightIcon?: React.ReactNode;
+  onPressRightIcon?: () => void;
 }
 
 const Input = ({
   label,
   isError = false,
   variant = "default",
+  rightIcon,
+  onPressRightIcon,
   ...props
 }: InputProps) => {
   const containerStyle =
@@ -53,6 +58,11 @@ const Input = ({
           style={[styles.inputBase, textStyle]}
           {...props}
         />
+        {rightIcon && (
+          <View style={{ marginRight: 12 }}>
+            <Pressable onPress={onPressRightIcon}>{rightIcon}</Pressable>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -63,7 +73,8 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     minHeight: 48,
     borderRadius: 8,
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
     paddingRight: 12,
     borderWidth: 1,
   },

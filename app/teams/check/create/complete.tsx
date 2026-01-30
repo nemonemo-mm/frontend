@@ -7,7 +7,7 @@ import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Position {
@@ -65,7 +65,9 @@ export default function CompleteScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <ChevronLeftIcon />
+        <Pressable onPress={() => router.back()}>
+          <ChevronLeftIcon />
+        </Pressable>
       </View>
 
       {/* 상단 텍스트 및 프로필 이미지 영역 */}
@@ -99,14 +101,16 @@ export default function CompleteScreen() {
         )}
 
         {positions.length > 0 && (
-          <View style={styles.chipsContainer}>
+          <View style={styles.positionContainer}>
             <NemoText level="body1">팀 내 포지션</NemoText>
 
-            {positions.map((position, index) => (
-              <Chip key={index} active={true} onPress={() => {}}>
-                <NemoText level="body2">{position.positionName}</NemoText>
-              </Chip>
-            ))}
+            <View style={styles.chips}>
+              {positions.map((position, index) => (
+                <Chip key={index} active={true} onPress={() => {}}>
+                  <NemoText level="body2">{position.positionName}</NemoText>
+                </Chip>
+              ))}
+            </View>
           </View>
         )}
       </View>
@@ -146,8 +150,12 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginHorizontal: 20,
   },
-  chipsContainer: {
+  positionContainer: {
     gap: 12,
+  },
+  chips: {
+    flexDirection: "row",
+    gap: 8,
   },
   bottomSection: {
     marginBottom: 20,

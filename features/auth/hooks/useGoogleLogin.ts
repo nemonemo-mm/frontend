@@ -1,8 +1,4 @@
-import {
-  GoogleAuthProvider,
-  getAuth,
-  signInWithCredential,
-} from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   isErrorWithCode,
@@ -54,8 +50,8 @@ export function useGoogleLogin() {
       if (!googleIdToken)
         throw new Error("Google ID Token을 가져오지 못했습니다.");
 
-      const credential = GoogleAuthProvider.credential(googleIdToken);
-      const userCredential = await signInWithCredential(getAuth(), credential);
+      const credential = auth.GoogleAuthProvider.credential(googleIdToken);
+      const userCredential = await auth().signInWithCredential(credential);
 
       const firebaseIdToken = await userCredential.user.getIdToken();
 
