@@ -11,3 +11,7 @@ export async function getTeamMembers(teamId: number) {
 export async function exitTeam(teamId: number) {
   await apiClient.delete(`/teams/${teamId}/members/me`);
 }
+
+export async function removeMember(teamId: number, memberId: number) {
+  await apiClient.delete(`/teams/${teamId}/members/${memberId}`);
+}

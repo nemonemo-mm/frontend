@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     paddingTop: 100,
     paddingBottom: 20,
     gap: 36,
+    marginHorizontal: 20,
   },
   button: {
     marginHorizontal: 20,

@@ -3,11 +3,15 @@ import TeamManagement from "@/features/team/components/TeamManagement";
 import TeamMembersList from "@/features/team/components/TeamMembersList";
 import { useTeamMembers } from "@/features/team/hooks/useTeamMembers";
 import NemoText from "@/shared/ui/atoms/NemoText";
-import Tabs from "@/shared/ui/molecules/Tabs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { teamDetailInfo } from "@/features/team/api/detail";
+import type { TeamDetail } from "@/features/team/types/team.model";
+import TeamTabs from "@/shared/ui/molecules/TeamTabs";
+import { useQuery } from "@tanstack/react-query";
 
 export default function TeamMembersScreen() {
   const router = useRouter();
@@ -16,7 +20,20 @@ export default function TeamMembersScreen() {
   const parsedTeamId = teamId ? Number(teamId) : null;
   const { data: teamData, isLoading, isError } = useTeamMembers(parsedTeamId);
 
+  const { data: teamDetail } = useQuery<TeamDetail>({
+    queryKey: ["teamDetail", parsedTeamId],
+    queryFn: () => teamDetailInfo(parsedTeamId!),
+    enabled: !!parsedTeamId,
+  });
+
   const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    { id: 0, content: "팀원", isActive: activeTab === 0 },
+    ...(teamDetail?.isOwner
+      ? [{ id: 1, content: "팀 관리", isActive: activeTab === 1 }]
+      : []),
+  ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -35,13 +52,7 @@ export default function TeamMembersScreen() {
       </View>
 
       <View style={styles.tabsContainer}>
-        <Tabs
-          texts={[
-            { id: 0, content: "팀원", isActive: activeTab === 0 },
-            { id: 1, content: "팀 관리", isActive: activeTab === 1 },
-          ]}
-          handler={(id) => setActiveTab(id)}
-        />
+        <TeamTabs texts={tabs} handler={(id) => setActiveTab(id)} />
       </View>
 
       {activeTab === 0 && (
@@ -50,6 +61,7 @@ export default function TeamMembersScreen() {
           isLoading={isLoading}
           isError={isError}
           teamId={parsedTeamId}
+          isOwner={teamDetail?.isOwner}
         />
       )}
 

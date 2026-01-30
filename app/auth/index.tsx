@@ -65,10 +65,10 @@ const AuthScreen = () => {
       ) {
         console.error(
           "소셜 로그인 응답에 토큰이 없거나 형식이 올바르지 않습니다:",
-          response
+          response,
         );
         throw new Error(
-          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요."
+          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요.",
         );
       }
 
@@ -91,7 +91,7 @@ const AuthScreen = () => {
                 firebaseIdToken:
                   JSON.parse(error?.config?.data)?.firebaseIdToken?.substring(
                     0,
-                    20
+                    20,
                   ) + "...",
               }
             : undefined,
@@ -124,7 +124,8 @@ const AuthScreen = () => {
         {/* 버튼 영역 */}
         <View style={styles.buttonContainer}>
           <GoogleAuthButton onPress={handleGoogleLogin} />
-          <AppleAuth />
+
+          {Platform.OS === "ios" && <AppleAuth />}
         </View>
       </View>
     </SafeAreaView>
