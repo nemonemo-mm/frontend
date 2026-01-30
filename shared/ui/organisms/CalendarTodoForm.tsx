@@ -12,13 +12,14 @@ const CalendarTodoForm = ({}: CalendarTodoFormProps) => {
   const ctx = useContext(CalendarFormContext);
   if (!ctx) throw new Error("CalendarFormContext missing");
 
-  const { state, dispatch } = ctx;
+  const { readonly, state, dispatch } = ctx;
   const { end, person, position } = state;
 
   return (
     <View>
       <View style={styles.container}>
         <DateTimeForm
+          disabled={readonly}
           label="종료일"
           date={end}
           time={{
@@ -53,10 +54,12 @@ const CalendarTodoForm = ({}: CalendarTodoFormProps) => {
       </View>
       <View style={styles.container}>
         <PersonForm
+          disabled={readonly}
           persons={person}
           onPerson={(v) => dispatch({ type: "SET_PERSON", payload: v })}
         />
         <PositionForm
+          disabled={readonly}
           positions={position}
           onPosition={(v) => dispatch({ type: "SET_POSITION", payload: v })}
         />
