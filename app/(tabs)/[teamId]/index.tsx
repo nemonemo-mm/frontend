@@ -1,5 +1,5 @@
 import { teamDetailInfo } from "@/features/team/api/detail";
-import { teamListUp } from "@/features/team/api/list";
+import { useTeamList } from "@/features/team/hooks/useTeamList";
 import { globalGray400, globalGray700, globalGray900 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
@@ -15,13 +15,13 @@ interface GroupScreenProps {}
 const GroupScreen = ({}: GroupScreenProps) => {
   const { teamId } = useLocalSearchParams();
   const route = useRouter();
+  const { data: teams } = useTeamList();
 
   useEffect(() => {
     const init = async () => {
       try {
         // teamId 없으면 팀 목록부터
         if (!teamId) {
-          const teams = await teamListUp();
           if (!teams || teams.length === 0) return;
 
           const firstTeam = teams[0];
@@ -45,7 +45,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
     };
 
     init();
-  }, [teamId]);
+  }, [teamId, teams]);
 
   const handlePressStart = () => {
     route.navigate("/teams/check");
