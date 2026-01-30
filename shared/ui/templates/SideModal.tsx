@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
   groupContainer: {
     paddingHorizontal: globalSpacingLg,
     gap: 8,
+    maxHeight: 600,
   },
   border: {
     height: 1,
