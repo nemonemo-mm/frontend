@@ -1,10 +1,19 @@
+import LeaderIcon from "@/assets/icons/leader";
+import { exitTeam } from "@/features/team/api/members";
 import type { TeamMember } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 
 interface TeamMembersListProps {
   members?: TeamMember[];
@@ -24,6 +33,7 @@ export default function TeamMembersList({
   isError,
   teamId,
 }: TeamMembersListProps) {
+  const router = useRouter();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   const handleProfileModalOpen = (member: TeamMember) =>
@@ -31,10 +41,25 @@ export default function TeamMembersList({
   const handleLeaveModalOpen = () => setActiveModal({ type: "leave" });
   const handleModalClose = () => setActiveModal(null);
 
-  const handleLeaveTeam = () => {
-    // TODO: 팀 나가기 API 호출
-    console.log("팀 나가기:", teamId);
-    handleModalClose();
+  const handleLeaveTeam = async () => {
+    if (!teamId) return;
+    try {
+      await exitTeam(teamId);
+      handleModalClose();
+
+      Alert.alert("알림", "팀에서 나갔습니다.", [
+        {
+          text: "확인",
+          onPress: () => router.replace("/home"),
+        },
+      ]);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "팀 나가기에 실패했습니다.";
+
+      Alert.alert("알림", message);
+      handleModalClose();
+    }
   };
 
   return (
@@ -57,10 +82,16 @@ export default function TeamMembersList({
             style={styles.memberItem}
             onPress={() => handleProfileModalOpen(member)}
           >
-            <ProfileImage size={40} uri={member.userImageUrl} />
+            <View>
+              <ProfileImage size={40} uri={member.userImageUrl} />
+              {member.isOwner && (
+                <View style={styles.leaderIconContainer}>
+                  <LeaderIcon size={12} />
+                </View>
+              )}
+            </View>
             <NemoText level="body2">{member.displayName}</NemoText>
             <NemoText level="body2" style={{ color: globalGray700 }}>
-              {" • "}
               {member.positionName}
             </NemoText>
           </Pressable>
@@ -132,5 +163,10 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
     paddingVertical: 20,
+  },
+  leaderIconContainer: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
   },
 });
