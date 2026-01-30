@@ -1,15 +1,15 @@
 import { StyleSheet, View } from "react-native";
 import Chip from "../atoms/Chip";
 
-type Text = {
+export type ChipText = {
   id: number;
   content: string;
   isActive: boolean;
 };
 
 export interface ChipsProps {
-  texts: Text[];
-  handler: (v: Text[]) => void;
+  texts: ChipText[];
+  handler: (v: ChipText[]) => void;
 }
 
 const Chips = ({ texts, handler }: ChipsProps) => {
