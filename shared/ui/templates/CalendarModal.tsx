@@ -1,8 +1,9 @@
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
+import { CalendarFormContext } from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useReducer, useState } from "react";
-import { Modal, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Modal, StyleSheet, TextInput, View } from "react-native";
 import {
   globalGray200,
   globalGray600,
@@ -10,19 +11,13 @@ import {
   globalGreen700,
   globalSpacingXs,
 } from "..";
-import NemoText from "../atoms/NemoText";
-import Toggle from "../atoms/Toggle";
-import NemoTextLabel from "../molecules/NemoTextLabel";
 import Segments from "../molecules/Segments";
 import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
-import DateButton from "../organisms/DateButton";
-import TimeButton from "../organisms/TimeButton";
-import AlarmModal, { AlarmState } from "./AlarmModal";
-import DateModal from "./DateModal";
-import PersonPositionModal from "./PersonPositionModal";
-import RepeatModal, { RepeatState } from "./RepeatModal";
-import TimeModal from "./TimeModal";
+import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
+import CalendarTodoForm from "../organisms/CalendarTodoForm";
+import { AlarmState } from "./AlarmModal";
+import { RepeatState } from "./RepeatModal";
 
 interface CalendarModalProps {
   data?: SchedulesResponse | TodoResponse;
@@ -30,32 +25,17 @@ interface CalendarModalProps {
   selectedDate: Date;
   positions: TabsText[];
   confirmModal: (
-    data: { id: string; state: InitialState },
+    data: { id: string; state: InitialCalendarState },
     patch: boolean
   ) => void;
   closeModal: () => void;
 }
 
-type WhichModalType =
-  | { type: ""; target: ""; initialValue: null }
-  | { type: "date"; target: "startAt" | "endAt"; initialValue: Date }
-  | {
-      type: "time";
-      target: "startAtTime" | "endAtTime";
-      initialValue: { hour: number; min: number };
-    }
-  | { type: "repeat"; target: "repeat"; initialValue: RepeatState | null }
-  | { type: "alarm"; target: "alarm"; initialValue: AlarmState | null }
-  | { type: "person"; target: "person"; initialValue: TabsText[] }
-  | { type: "position"; target: "position"; initialValue: TabsText[] };
-
-export interface InitialState {
+export interface InitialCalendarState {
   id?: number;
   isAllDay: boolean;
-  startAt: Date;
-  startAtTime: { hour: number; min: number };
-  endAt: Date;
-  endAtTime: { hour: number; min: number };
+  start: Date;
+  end: Date;
   person: TabsText[];
   position: TabsText[];
   repeat: RepeatState | null;
@@ -67,20 +47,16 @@ export interface InitialState {
 }
 
 const reducer = (
-  state: InitialState,
+  state: InitialCalendarState,
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
     case "SET_ISALLDAY":
       return { ...state, isAllDay: action.payload };
-    case "SET_START_DATE":
+    case "SET_START":
       return { ...state, startAt: action.payload };
-    case "SET_START_TIME":
-      return { ...state, startAtTime: action.payload };
-    case "SET_END_DATE":
+    case "SET_END":
       return { ...state, endAt: action.payload };
-    case "SET_END_TIME":
-      return { ...state, endAtTime: action.payload };
     case "SET_PERSON":
       return { ...state, person: action.payload };
     case "SET_POSITION":
@@ -100,32 +76,6 @@ const reducer = (
   }
 };
 
-const formatRepeat = (repeat: RepeatState): string => {
-  if (!repeat) return "지정없음";
-
-  const { period, endAt } = repeat;
-  const endDate = `${endAt.getFullYear()}년 ${endAt.getMonth() + 1}월 ${endAt.getDate()}일`;
-  let result: string;
-  switch (period) {
-    case "daily":
-      result = `${repeat.interval}일 간격으로 ${endDate}까지 반복`;
-      break;
-    case "weekly":
-      result = `${repeat.weekdays.join(", ")}요일에 ${repeat.interval}주 간격으로 ${endDate}까지 반복`;
-      break;
-    case "monthly":
-      result = `${repeat.useDate ? "매월 " : ""}${endDate}까지 반복`;
-      break;
-    case "yearly":
-      result = `${repeat.useDate ? "매년 " : ""}${endDate}까지 반복`;
-      break;
-    default:
-      result = "지정없음";
-  }
-
-  return result;
-};
-
 const createInitialState = ({
   data,
   type,
@@ -136,14 +86,12 @@ const createInitialState = ({
   type: "schedule" | "todo";
   selectedDate: Date;
   positions: TabsText[];
-}): InitialState => {
+}): InitialCalendarState => {
   // 기본값
-  const base: InitialState = {
+  const base: InitialCalendarState = {
     isAllDay: false,
-    startAt: selectedDate,
-    startAtTime: { hour: 0, min: 0 },
-    endAt: selectedDate,
-    endAtTime: { hour: 0, min: 0 },
+    start: selectedDate,
+    end: selectedDate,
     person: [],
     position: positions,
     repeat: null,
@@ -162,8 +110,8 @@ const createInitialState = ({
     return {
       ...base,
       isAllDay: s.isAllDay ?? false,
-      startAt: new Date(s.startAt),
-      endAt: new Date(s.endAt),
+      start: new Date(s.startAt),
+      end: new Date(s.endAt),
       title: s.title ?? "",
       description: s.description ?? "",
       url: s.url ?? "",
@@ -175,19 +123,10 @@ const createInitialState = ({
 
   return {
     ...base,
-    endAt: new Date(t.endAt),
+    end: new Date(t.endAt),
     title: t.title ?? "",
     description: t.description ?? "",
   };
-};
-
-export const formatAlarm = (alarm: AlarmState | null) => {
-  let result: string = "";
-  if (!alarm || alarm.off) result = "끔";
-  else if (alarm.ten) result = "10분전";
-  else if (alarm.thirty) result = "30분전";
-  else if (alarm.sixty) result = "1시간전";
-  return result;
 };
 
 const CalendarModal = ({
@@ -219,74 +158,11 @@ const CalendarModal = ({
   const [currentSegment, setCurrentSegment] = useState("schedule");
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {
-    isAllDay,
-    startAt,
-    startAtTime,
-    endAt,
-    endAtTime,
-    person,
-    position,
-    repeat,
-    alarm,
-    title,
-    description,
-    url,
-  } = state as InitialState;
 
-  const repeatLabel = repeat ? formatRepeat(repeat) : "지정없음";
-  const alarmLabel = alarm ? formatAlarm(alarm) : "지정없음";
-  const personLabel =
-    person.filter((per) => per.isActive).length > 0
-      ? person.filter((per) => per.isActive).length
-      : "지정없음";
-  const positionLabel =
-    position.filter((pos) => pos.isActive).length > 0
-      ? position.filter((pos) => pos.isActive).length
-      : "지정없음";
   const handleModalSegments = (
     segment: { id: string; content: string; isActive: boolean }[]
   ) => {
     setCurrentSegment(segment.find((s) => s.isActive)!.id);
-  };
-
-  //모달 온/오프
-
-  const [whichOpenModal, setWhichOpenModal] = useState<WhichModalType>({
-    target: "",
-    type: "",
-    initialValue: null,
-  });
-
-  const handleCloseInnerModal = () => {
-    setWhichOpenModal({ target: "", type: "", initialValue: null });
-  };
-
-  const handlePressStartDate = () => {
-    setWhichOpenModal({
-      type: "date",
-      target: "startAt",
-      initialValue: startAt,
-    });
-  };
-  const handlePressEndDate = () => {
-    setWhichOpenModal({ type: "date", target: "endAt", initialValue: endAt });
-  };
-  const handlePressStartTime = () => {
-    if (isAllDay) return;
-    setWhichOpenModal({
-      type: "time",
-      target: "startAtTime",
-      initialValue: startAtTime,
-    });
-  };
-  const handlePressEndTime = () => {
-    if (isAllDay) return;
-    setWhichOpenModal({
-      type: "time",
-      target: "endAtTime",
-      initialValue: endAtTime,
-    });
   };
 
   const handleConfirmModal = () => {
@@ -317,291 +193,28 @@ const CalendarModal = ({
           handler={handleModalSegments}
         />
         <View>
-          {currentSegment == "schedule" ? (
-            <View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <TextInput
-                    placeholderTextColor={globalGray600}
-                    value={title}
-                    onChangeText={(text: string) =>
-                      dispatch({ type: "SET_TITLE", payload: text })
-                    }
-                    placeholder="제목을 입력하세요"
-                    style={[style.input]}
-                  />
-                </View>
-              </View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>종일</NemoTextLabel>
-                  <Toggle
-                    value={isAllDay}
-                    handler={(result) => {
-                      dispatch({ type: "SET_ISALLDAY", payload: result });
-                    }}
-                  />
-                </View>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>시작일</NemoTextLabel>
-                  <View style={style.row}>
-                    <DateButton
-                      disabled={isAllDay}
-                      selectedDate={startAt}
-                      handlePressDate={handlePressStartDate}
-                    />
-                    <TimeButton
-                      disabled={isAllDay}
-                      selectedTime={startAtTime}
-                      handlePressTime={handlePressStartTime}
-                    />
-                  </View>
-                </View>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>종료일</NemoTextLabel>
-                  <View style={style.row}>
-                    <DateButton
-                      disabled={isAllDay}
-                      selectedDate={endAt}
-                      handlePressDate={handlePressEndDate}
-                    />
-                    <TimeButton
-                      disabled={isAllDay}
-                      selectedTime={endAtTime}
-                      handlePressTime={handlePressEndTime}
-                    />
-                  </View>
-                </View>
-              </View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>알림</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "alarm",
-                        target: "alarm",
-                        initialValue: alarm,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {alarmLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>반복</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "repeat",
-                        target: "repeat",
-                        initialValue: repeat,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {repeatLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-              </View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>참석자</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "person",
-                        target: "person",
-                        initialValue: person,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {personLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>포지션</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "position",
-                        target: "position",
-                        initialValue: position,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {positionLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-                <View style={[style.optionContainer, style.optionInput]}>
-                  <TextInput
-                    placeholderTextColor={globalGray600}
-                    placeholder="메모를 남겨주세요"
-                    style={[style.input]}
-                    value={description}
-                    onChangeText={(text: string) =>
-                      dispatch({ type: "SET_MEMO", payload: text })
-                    }
-                  />
-                </View>
-                <View style={[style.optionContainer, style.optionInput]}>
-                  <TextInput
-                    placeholderTextColor={globalGray600}
-                    placeholder="관련 링크를 추가해 보세요"
-                    style={[style.input]}
-                    value={url}
-                    onChangeText={(text: string) =>
-                      dispatch({ type: "SET_URL", payload: text })
-                    }
-                  />
-                </View>
-              </View>
+          <View style={style.container}>
+            <View style={style.optionContainer}>
+              <TextInput
+                placeholderTextColor={globalGray600}
+                value={state.title}
+                onChangeText={(text: string) =>
+                  dispatch({ type: "SET_TITLE", payload: text })
+                }
+                placeholder="제목을 입력하세요"
+                style={[style.input]}
+              />
             </View>
-          ) : (
-            <View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <TextInput
-                    placeholderTextColor={globalGray600}
-                    value={state.title}
-                    onChangeText={(text: string) =>
-                      dispatch({ type: "SET_TITLE", payload: text })
-                    }
-                    placeholder="제목을 입력하세요"
-                    style={[style.input]}
-                  />
-                </View>
-              </View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>종료일</NemoTextLabel>
-                  <View style={style.row}>
-                    <DateButton
-                      selectedDate={endAt}
-                      handlePressDate={handlePressEndDate}
-                    />
-                    <TimeButton
-                      selectedTime={endAtTime}
-                      handlePressTime={handlePressEndTime}
-                    />
-                  </View>
-                </View>
-              </View>
-              <View style={style.container}>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>참석자</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "person",
-                        target: "person",
-                        initialValue: person,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {personLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-                <View style={style.optionContainer}>
-                  <NemoTextLabel>포지션</NemoTextLabel>
-                  <Pressable
-                    onPress={() =>
-                      setWhichOpenModal({
-                        type: "position",
-                        target: "position",
-                        initialValue: position,
-                      })
-                    }
-                  >
-                    <NemoText level="body3" style={{ color: globalGray700 }}>
-                      {positionLabel}
-                    </NemoText>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          )}
+          </View>
+          <CalendarFormContext.Provider value={{ state, dispatch }}>
+            {currentSegment == "schedule" ? (
+              <CalendarScheduleForm />
+            ) : (
+              <CalendarTodoForm />
+            )}
+          </CalendarFormContext.Provider>
         </View>
       </BottomModal.Container>
-      {whichOpenModal.type == "time" && (
-        <TimeModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(time) => {
-            if (whichOpenModal.target === "startAtTime") {
-              dispatch({ type: "SET_START_TIME", payload: time });
-            }
-            if (whichOpenModal.target === "endAtTime") {
-              dispatch({ type: "SET_END_TIME", payload: time });
-            }
-          }}
-        />
-      )}
-      {whichOpenModal.type == "date" && (
-        <DateModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(date) => {
-            if (whichOpenModal.target === "startAt") {
-              dispatch({ type: "SET_START_DATE", payload: date });
-              if (isAllDay) {
-                dispatch({ type: "SET_END_DATE", payload: date });
-              }
-            }
-            if (whichOpenModal.target === "endAt") {
-              dispatch({ type: "SET_END_DATE", payload: date });
-              if (isAllDay) {
-                dispatch({ type: "SET_START_DATE", payload: date });
-              }
-            }
-          }}
-        />
-      )}
-      {whichOpenModal.type == "alarm" && (
-        <AlarmModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(alarmState) =>
-            dispatch({ type: "SET_ALARM", payload: alarmState })
-          }
-        />
-      )}
-      {whichOpenModal.type == "repeat" && (
-        <RepeatModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(repeatState) => {
-            dispatch({ type: "SET_REPEAT", payload: repeatState });
-          }}
-        />
-      )}
-      {whichOpenModal.type == "person" && (
-        <PersonPositionModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(person) => {
-            dispatch({ type: "SET_PERSON", payload: person });
-          }}
-        />
-      )}
-      {whichOpenModal.type == "position" && (
-        <PersonPositionModal
-          initialValue={whichOpenModal.initialValue}
-          closeModal={handleCloseInnerModal}
-          confirmModal={(position) => {
-            dispatch({ type: "SET_POSITION", payload: position });
-          }}
-        />
-      )}
     </Modal>
   );
 };
