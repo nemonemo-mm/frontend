@@ -23,7 +23,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
   const ctx = useContext(CalendarFormContext);
   if (!ctx) throw new Error("CalendarFormContext missing");
 
-  const { state, dispatch } = ctx;
+  const { readonly, state, dispatch } = ctx;
   const {
     isAllDay,
     start,
@@ -47,13 +47,15 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         <View style={styles.optionContainer}>
           <NemoTextLabel>종일</NemoTextLabel>
           <Toggle
+            disabled={readonly}
             value={isAllDay}
             handler={(result) => {
-              dispatch({ type: "SET_ISALLDAY", payload: result });
+              !readonly && dispatch({ type: "SET_ISALLDAY", payload: result });
             }}
           />
         </View>
         <DateTimeForm
+          disabled={readonly}
           label="시작일"
           date={start}
           time={{ hour: start.getHours(), min: start.getMinutes() }}
@@ -83,6 +85,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
           }
         />
         <DateTimeForm
+          disabled={readonly}
           label="종료일"
           date={end}
           time={{ hour: end.getHours(), min: end.getMinutes() }}
@@ -115,7 +118,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
       <View style={styles.container}>
         <View style={styles.optionContainer}>
           <NemoTextLabel>알림</NemoTextLabel>
-          <Pressable onPress={() => setIsOpenAlarmModal(true)}>
+          <Pressable onPress={() => !readonly && setIsOpenAlarmModal(true)}>
             <NemoText level="body3" style={{ color: globalGray700 }}>
               {alarmLabel}
             </NemoText>
@@ -123,7 +126,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         </View>
         <View style={styles.optionContainer}>
           <NemoTextLabel>반복</NemoTextLabel>
-          <Pressable onPress={() => setIsOpenRepeatModal(true)}>
+          <Pressable onPress={() => !readonly && setIsOpenRepeatModal(true)}>
             <NemoText level="body3" style={{ color: globalGray700 }}>
               {repeatLabel}
             </NemoText>
@@ -132,10 +135,12 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
       </View>
       <View style={styles.container}>
         <PersonForm
+          disabled={readonly}
           persons={person}
           onPerson={(v) => dispatch({ type: "SET_PERSON", payload: v })}
         />
         <PositionForm
+          disabled={readonly}
           positions={position}
           onPosition={(v) => dispatch({ type: "SET_POSITION", payload: v })}
         />
