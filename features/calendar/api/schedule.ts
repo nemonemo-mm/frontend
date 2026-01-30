@@ -35,17 +35,17 @@ export async function addSchedule(
 }
 
 export async function changeSchedule(
-  scheuduleId: number,
+  scheduleId: number,
   body: ScheduleRequest
 ): Promise<SchedulesResponse> {
   const { data } = await apiClient.patch<SchedulesResponse>(
-    `/schedules/${scheuduleId}`,
+    `/schedules/${scheduleId}`,
     body
   );
   return data;
 }
 
-export async function deleteSchedule(scheuduleId: number): Promise<{}> {
-  const { data } = await apiClient.delete<{}>(`/schedules/${scheuduleId}`);
+export async function deleteSchedule(scheduleId: number): Promise<{}> {
+  const { data } = await apiClient.delete<{}>(`/schedules/${scheduleId}`);
   return data;
 }

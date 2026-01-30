@@ -1,3 +1,5 @@
+import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
+import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useReducer, useState } from "react";
 import { Modal, Pressable, StyleSheet, TextInput, View } from "react-native";
@@ -23,9 +25,14 @@ import RepeatModal, { RepeatState } from "./RepeatModal";
 import TimeModal from "./TimeModal";
 
 interface CalendarModalProps {
+  data?: SchedulesResponse | TodoResponse;
+  type?: "schedule" | "todo";
   selectedDate: Date;
   positions: TabsText[];
-  confirmModal: (data: { id: string; state: InitialState }) => void;
+  confirmModal: (
+    data: { id: string; state: InitialState },
+    patch: boolean
+  ) => void;
   closeModal: () => void;
 }
 
@@ -42,19 +49,8 @@ type WhichModalType =
   | { type: "person"; target: "person"; initialValue: TabsText[] }
   | { type: "position"; target: "position"; initialValue: TabsText[] };
 
-const segmentTexts = [
-  {
-    id: "schedule",
-    content: "캘린더",
-    isActive: true,
-  },
-  {
-    id: "todo",
-    content: "투두",
-    isActive: false,
-  },
-];
 export interface InitialState {
+  id?: number;
   isAllDay: boolean;
   startAt: Date;
   startAtTime: { hour: number; min: number };
@@ -130,22 +126,19 @@ const formatRepeat = (repeat: RepeatState): string => {
   return result;
 };
 
-export const formatAlarm = (alarm: AlarmState | null) => {
-  let result: string = "";
-  if (!alarm || alarm.off) result = "끔";
-  else if (alarm.ten) result = "10분전";
-  else if (alarm.thirty) result = "30분전";
-  else if (alarm.sixty) result = "1시간전";
-  return result;
-};
-
-const CalendarModal = ({
+const createInitialState = ({
+  data,
+  type,
   selectedDate,
   positions,
-  confirmModal,
-  closeModal,
-}: CalendarModalProps) => {
-  const initialState: InitialState = {
+}: {
+  data?: SchedulesResponse | TodoResponse;
+  type: "schedule" | "todo";
+  selectedDate: Date;
+  positions: TabsText[];
+}): InitialState => {
+  // 기본값
+  const base: InitialState = {
     isAllDay: false,
     startAt: selectedDate,
     startAtTime: { hour: 0, min: 0 },
@@ -160,6 +153,69 @@ const CalendarModal = ({
     url: "",
   };
 
+  if (!data) return base;
+
+  // schedule 편집
+  if (type === "schedule") {
+    const s = data as SchedulesResponse;
+
+    return {
+      ...base,
+      isAllDay: s.isAllDay ?? false,
+      startAt: new Date(s.startAt),
+      endAt: new Date(s.endAt),
+      title: s.title ?? "",
+      description: s.description ?? "",
+      url: s.url ?? "",
+    };
+  }
+
+  // todo 편집
+  const t = data as TodoResponse;
+
+  return {
+    ...base,
+    endAt: new Date(t.endAt),
+    title: t.title ?? "",
+    description: t.description ?? "",
+  };
+};
+
+export const formatAlarm = (alarm: AlarmState | null) => {
+  let result: string = "";
+  if (!alarm || alarm.off) result = "끔";
+  else if (alarm.ten) result = "10분전";
+  else if (alarm.thirty) result = "30분전";
+  else if (alarm.sixty) result = "1시간전";
+  return result;
+};
+
+const CalendarModal = ({
+  data,
+  type = "schedule",
+  selectedDate,
+  positions,
+  confirmModal,
+  closeModal,
+}: CalendarModalProps) => {
+  const initialState = createInitialState({
+    data,
+    type,
+    selectedDate,
+    positions,
+  });
+  const segmentTexts = [
+    {
+      id: "schedule",
+      content: "캘린더",
+      isActive: type == "schedule",
+    },
+    {
+      id: "todo",
+      content: "투두",
+      isActive: type == "todo",
+    },
+  ];
   const [currentSegment, setCurrentSegment] = useState("schedule");
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -234,11 +290,14 @@ const CalendarModal = ({
   };
 
   const handleConfirmModal = () => {
-    const data = {
+    const newData = {
       id: currentSegment,
       state,
     };
-    confirmModal(data);
+    if (!!data) {
+      newData.state.id = data.id;
+    }
+    confirmModal(newData, !!data);
     closeModal();
   };
   return (
