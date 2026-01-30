@@ -170,11 +170,7 @@ const Todos = ({}: TodosProps) => {
       {/* 🔒 고정 헤더 */}
       <View style={{ marginBottom: 36 }}>
         <CalendarDays />
-        <CalendarWeek
-          dates={thisWeek}
-          schedules={[...schedules, ...todos]}
-          onSelectDate={selectDate}
-        />
+        <CalendarWeek dates={thisWeek} schedules={[...schedules, ...todos]} />
       </View>
 
       {/* 📜 스크롤 영역 */}
