@@ -16,24 +16,13 @@ import CalendarModal, {
   InitialState,
 } from "@/shared/ui/templates/CalendarModal";
 import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
+import { convertDateAndTimeToString } from "@/shared/utils/convertDateAndTimeToString";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 interface CalendarScreenProps {}
 
-const convertDateAndTimeToString = (
-  dates: Date,
-  time: { hour: number; min: number }
-): string => {
-  const year = dates.getFullYear();
-  const month = dates.getMonth();
-  const date = dates.getDate();
-  const hour = time.hour;
-  const min = time.min;
-
-  return new Date(year, month, date, hour, min).toISOString();
-};
 const convertPositions = (
   positions: PositionChip[] | undefined
 ): TabsText[] => {
@@ -199,7 +188,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         />
         {isOpenListModal && (
           <ScheduleListModal
-            list={[...schedules, ...todos]}
             positions={currentPosition}
             selectedDate={selectedDate}
             closeModal={() => setIsOpenListModal(false)}
