@@ -1,7 +1,13 @@
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
-import { CalendarFormContext } from "@/shared/hooks/useCalendarForm";
+import { usePositions } from "@/features/position/hooks/usePositions";
+import {
+  CalendarFormContext,
+  createInitialState,
+  InitialCalendarState,
+} from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { useReducer, useState } from "react";
 import { Modal, StyleSheet, TextInput, View } from "react-native";
 import {
@@ -12,41 +18,22 @@ import {
   globalSpacingXs,
 } from "..";
 import Segments from "../molecules/Segments";
-import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
 import CalendarTodoForm from "../organisms/CalendarTodoForm";
-import { AlarmState } from "./AlarmModal";
-import { RepeatState } from "./RepeatModal";
 
 interface CalendarModalProps {
-  data?: SchedulesResponse | TodoResponse;
   type?: "schedule" | "todo";
+  data?: SchedulesResponse | TodoResponse;
   selectedDate: Date;
-  positions: TabsText[];
-  confirmModal: (
-    data: { id: string; state: InitialCalendarState },
-    patch: boolean
-  ) => void;
+  confirmModal: (data: {
+    id: "schedule" | "todo";
+    state: InitialCalendarState;
+  }) => void;
   closeModal: () => void;
 }
 
-export interface InitialCalendarState {
-  id?: number;
-  isAllDay: boolean;
-  start: Date;
-  end: Date;
-  person: TabsText[];
-  position: TabsText[];
-  repeat: RepeatState | null;
-  alarm: AlarmState | null;
-
-  title: string;
-  description: string;
-  url: string;
-}
-
-const reducer = (
+export const reducer = (
   state: InitialCalendarState,
   action: { type: string; payload: any }
 ) => {
@@ -54,9 +41,9 @@ const reducer = (
     case "SET_ISALLDAY":
       return { ...state, isAllDay: action.payload };
     case "SET_START":
-      return { ...state, startAt: action.payload };
+      return { ...state, start: action.payload };
     case "SET_END":
-      return { ...state, endAt: action.payload };
+      return { ...state, end: action.payload };
     case "SET_PERSON":
       return { ...state, person: action.payload };
     case "SET_POSITION":
@@ -76,72 +63,20 @@ const reducer = (
   }
 };
 
-const createInitialState = ({
-  data,
-  type,
-  selectedDate,
-  positions,
-}: {
-  data?: SchedulesResponse | TodoResponse;
-  type: "schedule" | "todo";
-  selectedDate: Date;
-  positions: TabsText[];
-}): InitialCalendarState => {
-  // 기본값
-  const base: InitialCalendarState = {
-    isAllDay: false,
-    start: selectedDate,
-    end: selectedDate,
-    person: [],
-    position: positions,
-    repeat: null,
-    alarm: null,
-    title: "",
-    description: "",
-    url: "",
-  };
-
-  if (!data) return base;
-
-  // schedule 편집
-  if (type === "schedule") {
-    const s = data as SchedulesResponse;
-
-    return {
-      ...base,
-      isAllDay: s.isAllDay ?? false,
-      start: new Date(s.startAt),
-      end: new Date(s.endAt),
-      title: s.title ?? "",
-      description: s.description ?? "",
-      url: s.url ?? "",
-    };
-  }
-
-  // todo 편집
-  const t = data as TodoResponse;
-
-  return {
-    ...base,
-    end: new Date(t.endAt),
-    title: t.title ?? "",
-    description: t.description ?? "",
-  };
-};
-
 const CalendarModal = ({
-  data,
   type = "schedule",
+  data,
   selectedDate,
-  positions,
   confirmModal,
   closeModal,
 }: CalendarModalProps) => {
+  const { teamId } = useLocalSearchParams<{ teamId: string }>();
+  const positionQuery = usePositions(parseInt(teamId));
   const initialState = createInitialState({
     data,
     type,
+    positions: positionQuery.data ?? [],
     selectedDate,
-    positions,
   });
   const segmentTexts = [
     {
@@ -155,14 +90,22 @@ const CalendarModal = ({
       isActive: type == "todo",
     },
   ];
-  const [currentSegment, setCurrentSegment] = useState("schedule");
+  const [currentSegment, setCurrentSegment] = useState<"schedule" | "todo">(
+    type
+  );
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleModalSegments = (
     segment: { id: string; content: string; isActive: boolean }[]
   ) => {
-    setCurrentSegment(segment.find((s) => s.isActive)!.id);
+    const activeSegment = segment.find((s) => s.isActive);
+    if (
+      activeSegment &&
+      (activeSegment.id === "schedule" || activeSegment.id === "todo")
+    ) {
+      setCurrentSegment(activeSegment.id);
+    }
   };
 
   const handleConfirmModal = () => {
@@ -170,10 +113,7 @@ const CalendarModal = ({
       id: currentSegment,
       state,
     };
-    if (!!data) {
-      newData.state.id = data.id;
-    }
-    confirmModal(newData, !!data);
+    confirmModal(newData);
     closeModal();
   };
   return (
