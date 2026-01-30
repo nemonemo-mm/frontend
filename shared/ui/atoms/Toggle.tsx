@@ -3,16 +3,17 @@ import {
   Animated,
   GestureResponderEvent,
   Pressable,
+  PressableProps,
   StyleSheet,
 } from "react-native";
 import { globalGray250, globalGray50, globalGreen300 } from "..";
 
-interface ToggleProps {
+interface ToggleProps extends PressableProps {
   value: boolean;
   handler: (v: boolean) => void;
 }
 
-const Toggle = ({ value, handler }: ToggleProps) => {
+const Toggle = ({ value, handler, ...props }: ToggleProps) => {
   const [toggle, setToggle] = useState(value);
 
   const animation = useRef(new Animated.Value(0)).current;
@@ -36,6 +37,7 @@ const Toggle = ({ value, handler }: ToggleProps) => {
     <Pressable
       style={[style.toggle, toggle && style.pressedToggle]}
       onPress={handlePressToggle}
+      {...props}
     >
       <Animated.View style={[style.circle, { transform: [{ translateX }] }]} />
     </Pressable>

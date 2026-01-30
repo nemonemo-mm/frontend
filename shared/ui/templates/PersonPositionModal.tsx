@@ -2,12 +2,12 @@ import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
-import Chips from "../molecules/Chips";
+import Chips, { ChipText } from "../molecules/Chips";
 import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 
 interface PersonPositionModalProps {
-  initialValue: TabsText[];
+  initialValue: ChipText[];
   closeModal: () => void;
   confirmModal: (data: TabsText[]) => void;
 }
@@ -17,8 +17,8 @@ const PersonPositionModal = ({
   closeModal,
   confirmModal,
 }: PersonPositionModalProps) => {
-  const [contents, setContents] = useState<TabsText[]>(initialValue);
-  const handleChips = (chips: TabsText[]) => {
+  const [contents, setContents] = useState<ChipText[]>(initialValue);
+  const handleChips = (chips: ChipText[]) => {
     setContents(chips.filter((chip) => chip.isActive));
   };
 
