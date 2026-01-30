@@ -59,7 +59,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     currentYearMonth,
     selectedDate,
     selectDate,
-    selectDate,
     days,
     schedules,
     callSchedules,
@@ -69,7 +68,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     goNextMonth,
   } = calendarContext;
   const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] = useState(false);
-  const [isOpenListModal, setIsOpenListModal] = useState(false);
   const [isOpenListModal, setIsOpenListModal] = useState(false);
 
   const handleCalendarMonth = (direction: -1 | 1) => {
@@ -175,10 +173,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     selectDate(date);
     setIsOpenListModal(true);
   };
-  const handleSelectDate = (date: Date) => {
-    selectDate(date);
-    setIsOpenListModal(true);
-  };
+
   return (
     <View>
       <View>
