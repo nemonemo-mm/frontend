@@ -1,10 +1,15 @@
 import LeaderIcon from "@/assets/icons/leader";
-import { exitTeam } from "@/features/team/api/members";
-import type { TeamMember } from "@/features/team/types/team.model";
+import RemoveMemberIcon from "@/assets/icons/remove-member";
+import { exitTeam, removeMember } from "@/features/team/api/members";
+import type {
+  TeamMember,
+  TeamMembersResponse,
+} from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,17 +19,20 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { useTeamMembers } from "../hooks/useTeamMembers";
 
 interface TeamMembersListProps {
   members?: TeamMember[];
   isLoading: boolean;
   isError: boolean;
   teamId: number | null;
+  isOwner?: boolean;
 }
 
 type ActiveModal =
   | { type: "profile"; member: TeamMember }
   | { type: "leave" }
+  | { type: "remove"; member: TeamMember }
   | null;
 
 export default function TeamMembersList({
@@ -32,13 +40,63 @@ export default function TeamMembersList({
   isLoading,
   isError,
   teamId,
+  isOwner,
 }: TeamMembersListProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+
+  const { data: teamData } = useTeamMembers(teamId);
+
+  const { mutate: removeMemberMutate } = useMutation({
+    mutationFn: (memberId: number) => removeMember(teamId!, memberId),
+    onMutate: async (memberId) => {
+      await queryClient.cancelQueries({
+        queryKey: ["teams", teamId, "members"],
+      });
+
+      const previousMembers = queryClient.getQueryData<TeamMembersResponse>([
+        "teams",
+        teamId,
+        "members",
+      ]);
+
+      if (previousMembers) {
+        queryClient.setQueryData<TeamMembersResponse>(
+          ["teams", teamId, "members"],
+          {
+            ...previousMembers,
+            members: previousMembers.members.filter(
+              (m) => m.memberId !== memberId,
+            ),
+          },
+        );
+      }
+
+      return { previousMembers };
+    },
+    onError: (err, newTodo, context) => {
+      if (context?.previousMembers) {
+        queryClient.setQueryData(
+          ["teams", teamId, "members"],
+          context.previousMembers,
+        );
+      }
+      Alert.alert("오류", "멤버 삭제 중 문제가 발생했습니다.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["teams", teamId, "members"],
+      });
+      handleModalClose();
+    },
+  });
 
   const handleProfileModalOpen = (member: TeamMember) =>
     setActiveModal({ type: "profile", member });
   const handleLeaveModalOpen = () => setActiveModal({ type: "leave" });
+  const handleRemoveModalOpen = (member: TeamMember) =>
+    setActiveModal({ type: "remove", member });
   const handleModalClose = () => setActiveModal(null);
 
   const handleLeaveTeam = async () => {
@@ -60,6 +118,11 @@ export default function TeamMembersList({
       Alert.alert("알림", message);
       handleModalClose();
     }
+  };
+
+  const handleRemoveMember = () => {
+    if (!teamId || activeModal?.type !== "remove") return;
+    removeMemberMutate(activeModal.member.memberId);
   };
 
   return (
@@ -94,6 +157,14 @@ export default function TeamMembersList({
             <NemoText level="body2" style={{ color: globalGray700 }}>
               {member.positionName}
             </NemoText>
+
+            {isOwner && !member.isOwner && (
+              <View style={{ position: "absolute", right: 8 }}>
+                <Pressable onPress={() => handleRemoveModalOpen(member)}>
+                  <RemoveMemberIcon size={24} />
+                </Pressable>
+              </View>
+            )}
           </Pressable>
         ))}
       </View>
@@ -127,11 +198,29 @@ export default function TeamMembersList({
         {activeModal && activeModal.type === "leave" && (
           <>
             <AlertModal.Title>팀 나가기</AlertModal.Title>
-            <AlertModal.Text>팀에서 나갈까요?</AlertModal.Text>
+            <AlertModal.Text>
+              {`${teamData?.teamName}에서 나갈까요?`}
+            </AlertModal.Text>
             <AlertModal.Actions
               type="double"
               confirmLabel="나가기"
               onConfirm={handleLeaveTeam}
+              cancelLabel="취소하기"
+              onCancel={handleModalClose}
+            />
+          </>
+        )}
+
+        {activeModal && activeModal.type === "remove" && (
+          <>
+            <AlertModal.Title>멤버를 내보내기</AlertModal.Title>
+            <AlertModal.Text>
+              {`${activeModal.member.displayName}님을 팀에서 내보낼까요?`}
+            </AlertModal.Text>
+            <AlertModal.Actions
+              type="double"
+              confirmLabel="내보내기"
+              onConfirm={handleRemoveMember}
               cancelLabel="취소하기"
               onCancel={handleModalClose}
             />
