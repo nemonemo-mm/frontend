@@ -26,6 +26,7 @@ export interface TodoRequest {
   teamId: number;
   title: string;
   description: string;
+  status: "TODO";
   endAt: string;
   place: string;
   url: string;

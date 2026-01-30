@@ -7,16 +7,14 @@ import {
   usePositions,
 } from "@/features/position/hooks/usePositions";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
-import Chips from "@/shared/ui/molecules/Chips";
+import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
+import Chips, { ChipText } from "@/shared/ui/molecules/Chips";
 import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
-import CalendarModal, {
-  formatAlarm,
-  InitialState,
-} from "@/shared/ui/templates/CalendarModal";
+import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
-import { convertDateAndTimeToString } from "@/shared/utils/convertDateAndTimeToString";
+import { formatAlarm } from "@/shared/utils/format";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -42,7 +40,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
 
   const positionsQuery = usePositions(teamId);
 
-  const [currentPosition, setCurrentPositions] = useState<TabsText[]>([]);
+  const [currentPosition, setCurrentPositions] = useState<ChipText[]>([]);
   useEffect(() => {
     if (positionsQuery.data) {
       setCurrentPositions(convertPositions(positionsQuery.data));
@@ -78,27 +76,25 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     setIsOpenAddScheduleModal(true);
   };
 
-  const handleConfirmModal = (data: { id: string; state: InitialState }) => {
-    const status = data.id == "schedule" ? "SCHEDULE" : "TODO";
+  const handleConfirmModal = (data: {
+    id: string;
+    state: InitialCalendarState;
+  }) => {
     const {
       title,
       description,
       url,
-      startAt,
-      startAtTime,
-      endAt,
-      endAtTime,
+      start,
+      end,
       person,
       position,
       repeat,
       alarm,
       isAllDay,
     } = data.state;
-    const start = convertDateAndTimeToString(startAt, startAtTime);
-    const end = convertDateAndTimeToString(endAt, endAtTime);
     const positionIds = position
       .filter((pos) => pos.isActive)
-      .map((pos) => pos.id);
+      .map((pos) => pos.positionId);
     const attendeeMemberIds = person
       .filter((per) => per.isActive)
       .map((per) => per.id);
@@ -123,13 +119,13 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
 
     const alarmLabel: string = formatAlarm(alarm);
 
-    if (status == "SCHEDULE") {
+    if (data.id == "schedule") {
       const req = {
         teamId,
         title,
         description,
-        startAt: start,
-        endAt: end,
+        startAt: start.toISOString(),
+        endAt: end.toISOString(),
         isAllDay,
         place: "",
         url,
@@ -153,7 +149,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         teamId,
         title,
         description,
-        endAt: end,
+        endAt: end.toISOString(),
         place: "",
         url,
         assigneeMemberIds: attendeeMemberIds,
@@ -166,7 +162,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
       });
     }
   };
-  const handlePositionChips = (next: TabsText[]) => {
+  const handlePositionChips = (next: ChipText[]) => {
     setCurrentPositions(next);
   };
   const handleSelectDate = (date: Date) => {
@@ -189,7 +185,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         />
         {isOpenListModal && (
           <ScheduleListModal
-            positions={currentPosition}
             selectedDate={selectedDate}
             closeModal={() => setIsOpenListModal(false)}
             confirmModal={handleSelectDate}
@@ -198,7 +193,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         {isOpenAddScheduleModal && (
           <CalendarModal
             selectedDate={selectedDate}
-            positions={currentPosition}
             confirmModal={handleConfirmModal}
             closeModal={() => {
               setIsOpenAddScheduleModal(false);

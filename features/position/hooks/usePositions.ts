@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { GetPosition } from "../api/position";
 import type { PositionResponse } from "../types/position.model";
 
-export type PositionChip = {
-  positionId: number;
-  positionName: string;
-};
+export interface PositionChip extends PositionResponse {
+  isActive: boolean;
+}
 
 function toPositionChip(position: PositionResponse): PositionChip {
   return {
     ...position,
+    isActive: false,
   };
 }
 
