@@ -1,3 +1,4 @@
+import { PositionChip } from "@/features/position/hooks/usePositions";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { globalGray200, globalGray700 } from "..";
@@ -7,27 +8,40 @@ import NemoTextLabel from "../molecules/NemoTextLabel";
 import PersonPositionModal from "../templates/PersonPositionModal";
 
 interface PositionFormProps {
-  positions: ChipText[];
+  disabled?: boolean;
+  positions: PositionChip[];
   onPosition: (pos: ChipText[]) => void;
 }
 
-const PositionForm = ({ positions, onPosition }: PositionFormProps) => {
+const PositionForm = ({
+  disabled,
+  positions,
+  onPosition,
+}: PositionFormProps) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const positionLabel =
     positions.filter((pos) => pos.isActive).length > 0
       ? positions.filter((pos) => pos.isActive).length
       : "지정없음";
+
+  const position = positions.map((pos) => {
+    return {
+      id: pos.positionId,
+      content: pos.positionName,
+      isActive: pos.isActive,
+    };
+  });
   return (
     <View style={styles.optionContainer}>
       <NemoTextLabel>포지션</NemoTextLabel>
-      <Pressable onPress={() => setIsOpenModal(true)}>
+      <Pressable onPress={() => !disabled && setIsOpenModal(true)}>
         <NemoText level="body3" style={{ color: globalGray700 }}>
           {positionLabel}
         </NemoText>
       </Pressable>
       {isOpenModal && (
         <PersonPositionModal
-          initialValue={positions}
+          initialValue={position}
           closeModal={() => setIsOpenModal(false)}
           confirmModal={onPosition}
         />

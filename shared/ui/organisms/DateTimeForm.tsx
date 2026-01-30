@@ -11,6 +11,7 @@ type Time = { hour: number; min: number };
 
 type DateTimeFormProps =
   | {
+      disabled?: boolean;
       label: string;
       date: Date;
       onDate: () => void;
@@ -18,6 +19,7 @@ type DateTimeFormProps =
       onTime?: undefined;
     }
   | {
+      disabled?: boolean;
       label: string;
       date: Date;
       onDate: (date: Date) => void;
@@ -26,6 +28,7 @@ type DateTimeFormProps =
     };
 
 const DateTimeForm = ({
+  disabled,
   label,
   date,
   time,
@@ -40,12 +43,12 @@ const DateTimeForm = ({
       <View style={styles.row}>
         <DateButton
           selectedDate={date}
-          handlePressDate={() => setIsOpenDateModal(true)}
+          handlePressDate={() => !disabled && setIsOpenDateModal(true)}
         />
         {time && (
           <TimeButton
             selectedTime={time}
-            handlePressTime={() => setIsOpenTimeModal(true)}
+            handlePressTime={() => !disabled && setIsOpenTimeModal(true)}
           />
         )}
       </View>

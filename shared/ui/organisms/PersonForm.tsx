@@ -7,11 +7,12 @@ import NemoTextLabel from "../molecules/NemoTextLabel";
 import PersonPositionModal from "../templates/PersonPositionModal";
 
 interface PersonFormProps {
+  disabled?: boolean;
   persons: ChipText[];
   onPerson: (per: ChipText[]) => void;
 }
 
-const PersonForm = ({ persons, onPerson }: PersonFormProps) => {
+const PersonForm = ({ disabled, persons, onPerson }: PersonFormProps) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const personLabel =
     persons.filter((per) => per.isActive).length > 0
@@ -20,7 +21,7 @@ const PersonForm = ({ persons, onPerson }: PersonFormProps) => {
   return (
     <View style={styles.optionContainer}>
       <NemoTextLabel>참석자</NemoTextLabel>
-      <Pressable onPress={() => setIsOpenModal(true)}>
+      <Pressable onPress={() => !disabled && setIsOpenModal(true)}>
         <NemoText level="body3" style={{ color: globalGray700 }}>
           {personLabel}
         </NemoText>
