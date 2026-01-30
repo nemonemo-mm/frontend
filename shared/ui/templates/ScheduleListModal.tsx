@@ -1,20 +1,32 @@
-import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
-import { useTeamTodos } from "@/features/calendar/hooks/useTodos";
-import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
-import { TodoResponse } from "@/features/calendar/types/todo.model";
-import { CalendarSchedule } from "@/shared/types/Calendar";
+import {
+  useScheduleMutations,
+  useTeamSchedules,
+} from "@/features/calendar/hooks/useSchedules";
+import {
+  useTeamTodos,
+  useTodoMutations,
+} from "@/features/calendar/hooks/useTodos";
+import {
+  ScheduleRequest,
+  SchedulesResponse,
+} from "@/features/calendar/types/schedule.model";
+import {
+  TodoRequest,
+  TodoResponse,
+} from "@/features/calendar/types/todo.model";
+import { convertDateAndTimeToString } from "@/shared/utils/convertDateAndTimeToString";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, View } from "react-native";
 import { globalGray700, globalGray900 } from "..";
 import NemoText from "../atoms/NemoText";
+import { WeekDayType } from "../molecules/NemoDayButton";
 import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
-import CalendarModal from "./CalendarModal";
+import CalendarModal, { formatAlarm, InitialState } from "./CalendarModal";
 
 interface ScheduleListModalProps {
-  list: CalendarSchedule[];
   positions: TabsText[];
   selectedDate: Date;
   closeModal: () => void;
@@ -45,7 +57,6 @@ type FlatItem =
       data: TodoResponse;
     };
 const ScheduleListModal = ({
-  list,
   selectedDate,
   positions,
   closeModal,
@@ -53,10 +64,107 @@ const ScheduleListModal = ({
 }: ScheduleListModalProps) => {
   const formattedDate = formatDate(selectedDate);
 
-  const handleAddSchedule = () => {
+  const handleAddSchedule = (): void => {
     confirmModal(selectedDate);
     setIsOpenCalendarModal(true);
   };
+  const { updateSchedule } = useScheduleMutations();
+  const { updateTodo } = useTodoMutations();
+  const { teamId: id } = useLocalSearchParams();
+  const teamId = parseInt(id as string);
+  const handlePatchSchedule = (
+    data: {
+      id: string;
+      state: InitialState;
+    },
+    patch: boolean
+  ) => {
+    if (patch) {
+      try {
+        const status = data.id == "schedule" ? "SCHEDULE" : "TODO";
+        const {
+          title,
+          description,
+          url,
+          startAt,
+          startAtTime,
+          endAt,
+          endAtTime,
+          person,
+          position,
+          repeat,
+          alarm,
+          isAllDay,
+        } = data.state;
+        const start = convertDateAndTimeToString(startAt, startAtTime);
+        const end = convertDateAndTimeToString(endAt, endAtTime);
+        const positionIds = position
+          .filter((pos) => pos.isActive)
+          .map((pos) => pos.id);
+        const attendeeMemberIds = person
+          .filter((per) => per.isActive)
+          .map((per) => per.id);
+        const repeatType = repeat?.period ?? "NONE";
+        let repeatEndDate = null;
+        let repeatInterval: number | null = null;
+        let repeatWeekDays: WeekDayType[] | null = null;
+        let repeatUseDate: boolean = false;
+        if (repeat) {
+          repeatEndDate = repeat.endAt.toISOString();
+          if (repeat.period == "daily") {
+            repeatInterval = repeat.interval;
+          }
+          if (repeat.period == "weekly") {
+            repeatInterval = repeat.interval;
+            repeatWeekDays = repeat.weekdays;
+          }
+          if (repeat.period == "monthly" || repeat.period == "yearly") {
+            repeatUseDate = repeat.useDate;
+          }
+        }
+
+        const alarmLabel: string = formatAlarm(alarm);
+
+        if (status == "SCHEDULE") {
+          const req = {
+            teamId,
+            title,
+            description,
+            startAt: start,
+            endAt: end,
+            isAllDay,
+            place: "",
+            url,
+            repeatType,
+            repeatInterval,
+            repeatWeekDays,
+            repeatUseDate,
+            repeatEndDate,
+            positionIds,
+            attendeeMemberIds,
+            alarm: alarmLabel,
+          } as ScheduleRequest;
+
+          updateSchedule.mutate({ scheduleId: data.state.id!, body: req });
+        } else {
+          const req = {
+            teamId,
+            title,
+            description,
+            endAt: end,
+            place: "",
+            url,
+            assigneeMemberIds: attendeeMemberIds,
+            positionIds,
+          } as TodoRequest;
+          updateTodo.mutate({ todoId: data.state.id!, body: req });
+        }
+      } catch (e) {}
+    }
+    confirmModal(selectedDate);
+    setIsOpenCalendarModal(true);
+  };
+
   const [isOpenCalendarModal, setIsOpenCalendarModal] = useState(false);
   const start = new Date(
     selectedDate.getFullYear(),
@@ -77,14 +185,14 @@ const ScheduleListModal = ({
     59,
     999
   ).toISOString();
-  const { teamId } = useLocalSearchParams();
-  const todayScheduleQuery = useTeamSchedules(parseInt(teamId as string), {
+
+  const todayScheduleQuery = useTeamSchedules(teamId, {
     start,
     end,
   });
   const todaySchedule = todayScheduleQuery.data;
 
-  const todayTodoQuery = useTeamTodos(parseInt(teamId as string), {
+  const todayTodoQuery = useTeamTodos(teamId, {
     start,
     end,
   });
@@ -113,7 +221,19 @@ const ScheduleListModal = ({
         }) as const
     ),
   ];
+  const [type, setType] = useState<"schedule" | "todo">("schedule");
 
+  const [data, setData] = useState<SchedulesResponse | TodoResponse>();
+  const handlePressSchedule = (d: SchedulesResponse) => () => {
+    setIsOpenCalendarModal(true);
+    setType("schedule");
+    setData(d);
+  };
+  const handlePressTodo = (d: TodoResponse) => () => {
+    setIsOpenCalendarModal(true);
+    setType("todo");
+    setData(d);
+  };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
       <BottomModal.Container style={{ minHeight: 660 }}>
@@ -148,7 +268,10 @@ const ScheduleListModal = ({
                 const isAllDay = s.isAllDay;
 
                 return (
-                  <Pressable style={styles.row}>
+                  <Pressable
+                    style={styles.row}
+                    onPress={handlePressSchedule(s)}
+                  >
                     <View
                       style={[
                         styles.border,
@@ -169,7 +292,7 @@ const ScheduleListModal = ({
               const endDate = new Date(t.endAt);
 
               return (
-                <Pressable style={styles.row}>
+                <Pressable style={styles.row} onPress={handlePressTodo(t)}>
                   <View
                     style={[
                       styles.border,
@@ -193,10 +316,12 @@ const ScheduleListModal = ({
       </BottomModal.Container>
       {isOpenCalendarModal && (
         <CalendarModal
+          data={data}
+          type={type}
           positions={positions}
           selectedDate={selectedDate}
           closeModal={() => setIsOpenCalendarModal(false)}
-          confirmModal={handleAddSchedule}
+          confirmModal={handlePatchSchedule}
         />
       )}
     </Modal>
