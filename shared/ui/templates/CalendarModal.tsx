@@ -35,7 +35,7 @@ interface CalendarModalProps {
 
 export const reducer = (
   state: InitialCalendarState,
-  action: { type: string; payload: any }
+  action: { type: string; payload: any },
 ) => {
   switch (action.type) {
     case "SET_ISALLDAY":
@@ -91,14 +91,13 @@ const CalendarModal = ({
     },
   ];
   const [currentSegment, setCurrentSegment] = useState<"schedule" | "todo">(
-    type
+    type,
   );
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-
   const handleModalSegments = (
-    segment: { id: string; content: string; isActive: boolean }[]
+    segment: { id: string; content: string; isActive: boolean }[],
   ) => {
     const activeSegment = segment.find((s) => s.isActive);
     if (
@@ -154,6 +153,7 @@ const CalendarModal = ({
               <CalendarTodoForm />
             )}
           </CalendarFormContext.Provider>
+        </View>
         <View>
           <View style={style.container}>
             <View style={style.optionContainer}>

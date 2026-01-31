@@ -8,7 +8,7 @@ interface AlertModalInputProps extends TextInputProps {
 
 const AlertModalInput = ({ ...props }: AlertModalInputProps) => {
   return (
-    <View>
+    <View style={{ width: "100%" }}>
       <Input variant="modal" {...props} />
     </View>
   );

@@ -5,22 +5,37 @@ import { useAddPositionModal } from "@/features/position/hooks/useAddPositionMod
 import { PositionResponse } from "@/features/position/types/position.model";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { TeamDetail } from "@/features/team/types/team.model";
-import { globalGray700 } from "@/shared/ui";
+import { globalGray700, globalRed600 } from "@/shared/ui";
 import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import AlertModal from "@/shared/ui/organisms/AlertModal";
 import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { teamDisband } from "../api/delete";
+import { teamListUp } from "../api/list";
 
 interface TeamManagementProps {
   teamId: number | null;
 }
 
+type ActiveModal = { type: "disband" } | null;
+
 export default function TeamManagement({ teamId }: TeamManagementProps) {
   const { isVisible, open, close } = useAddPositionModal();
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const queryClient = useQueryClient();
 
   // 팀 상세 정보 조회
   const {
@@ -53,6 +68,40 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const handleAddPosition = (positionName: string, colorHex: string) => {
     // TODO: 포지션 추가 API 연동
     console.log("포지션 추가:", positionName, colorHex);
+  };
+
+  const handleDisbandModalOpen = () => {
+    setActiveModal({ type: "disband" });
+  };
+
+  const handleDisbandModalClose = () => {
+    setActiveModal(null);
+  };
+
+  const handleDisbandTeam = async () => {
+    try {
+      await teamDisband(teamId!);
+      handleDisbandModalClose();
+
+      // 1. 서버에서 최신 팀 목록 다시 가져오기
+      const updatedTeams = await queryClient.fetchQuery({
+        queryKey: ["teamList"],
+        queryFn: teamListUp,
+      });
+
+      // 2. 남은 팀이 있는지 확인하여 이동
+      if (updatedTeams && updatedTeams.length > 0) {
+        // 해체한 팀이 아닌 다른 팀(첫 번째 팀)으로 이동
+        const nextTeam =
+          updatedTeams.find((t) => t.teamId !== teamId) || updatedTeams[0];
+        router.replace(`/(tabs)/${nextTeam.teamId}/calendar`);
+      } else {
+        // 팀이 하나도 없으면 명시적으로 팀이 없는 상태의 경로로 이동
+        router.replace("/(tabs)/home");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const isLoading = isLoadingTeam || isLoadingPositions;
@@ -144,6 +193,35 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         </View>
       </ScrollView>
 
+      <View style={styles.footer}>
+        <Pressable onPress={handleDisbandModalOpen}>
+          <NemoText level="caption" style={{ color: globalRed600 }}>
+            팀 해체하기
+          </NemoText>
+        </Pressable>
+      </View>
+
+      <AlertModal
+        visible={activeModal !== null}
+        onClose={handleDisbandModalClose}
+      >
+        {activeModal && activeModal.type === "disband" && (
+          <>
+            <AlertModal.Title>팀 해체하기</AlertModal.Title>
+            <AlertModal.Text>
+              {`'${teamDetail.teamName}' 팀을 해체할까요?`}
+            </AlertModal.Text>
+            <AlertModal.Actions
+              type="double"
+              confirmLabel="해체하기"
+              onConfirm={handleDisbandTeam}
+              cancelLabel="취소하기"
+              onCancel={handleDisbandModalClose}
+            />
+          </>
+        )}
+      </AlertModal>
+
       <AddPositionModal
         visible={isVisible}
         closeModal={close}
@@ -180,5 +258,9 @@ const styles = StyleSheet.create({
   },
   inviteCodeContainer: {
     marginTop: 16,
+  },
+  footer: {
+    alignItems: "center",
+    paddingVertical: 20,
   },
 });

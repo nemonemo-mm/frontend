@@ -4,8 +4,8 @@ import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
 import { useTeamTodos } from "@/features/calendar/hooks/useTodos";
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
-import { teamListUp } from "@/features/team/api/list";
-import { TeamDetail } from "@/features/team/types/team.model";
+import { useTeamDetail } from "@/features/team/hooks/useTeamDetail";
+import { useTeamList } from "@/features/team/hooks/useTeamList";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
@@ -13,11 +13,10 @@ import { globalGray700 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
-import SideModal, { Teams } from "@/shared/ui/templates/SideModal";
+import SideModal from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Slot, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 const tabTexts: TabsText[] = [
@@ -117,15 +116,9 @@ export default function CalendarTodosScreen() {
   const calendarSchedules = convertSchedules(schedulesQuery.data);
   const calendarTodos = convertTodos(todosQuery.data);
 
-  const [info, setInfo] = useState<TeamDetail | null>(null);
-
-  useEffect(() => {
-    const fetchTeamInfo = async () => {
-      const teamInfo = await AsyncStorage.getItem("currentTeam");
-      setInfo(teamInfo ? JSON.parse(teamInfo) : null);
-    };
-    fetchTeamInfo();
-  }, [teamId]);
+  const { data: teamDetail } = useTeamDetail(
+    teamId ? parseInt(teamId as string) : null,
+  );
 
   const [selectedDate, setSelectedDate] = useState(today);
   const selectDate = useCallback((date: Date) => {
@@ -154,16 +147,7 @@ export default function CalendarTodosScreen() {
 
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   // 사이드바 연동
-
-  const [teams, setTeams] = useState<Teams>([]);
-
-  useEffect(() => {
-    const initTeams = async () => {
-      const data = await teamListUp();
-      if (data) setTeams(data);
-    };
-    initTeams();
-  }, []);
+  const { data: teams = [] } = useTeamList();
 
   const handlePressTeamName = () => {
     setIsOpenSidebar(true);
@@ -191,7 +175,7 @@ export default function CalendarTodosScreen() {
           >
             <GroupIcon />
             <NemoText level="h3" style={{ marginLeft: 4 }}>
-              {info?.teamName}
+              {teamDetail?.teamName}
             </NemoText>
           </Pressable>
           <View style={{ margin: "auto" }} />
@@ -214,7 +198,7 @@ export default function CalendarTodosScreen() {
                 title="공지 작성"
                 description="팀에 공유할 공지 내용을 입력해주세요"
                 placeholder="아직 작성된 공지가 없어요"
-                defaultValue={info?.notice}
+                defaultValue={teamDetail?.notice}
               />
             </View>
             <Tabs texts={tabTexts} handler={handleTab} />
