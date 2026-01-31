@@ -166,18 +166,6 @@ const ScheduleListModal = ({
     confirmModal(selectedDate);
   };
 
-  const handleDeleteSchedule = () => {
-    if (!selectedItem) return;
-
-    if ("isAllDay" in selectedItem) {
-      deleteSchedule.mutate({ scheduleId: selectedItem.id });
-    } else {
-      deleteTodo.mutate({ todoId: selectedItem.id });
-    }
-
-    setSelectedItem(null);
-  };
-
   const start = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
@@ -317,7 +305,6 @@ const ScheduleListModal = ({
           selectedDate={selectedDate}
           closeModal={() => setSelectedItem(null)}
           onPatch={handlePatchSchedule}
-          onDelete={handleDeleteSchedule}
         />
       )}
     </Modal>
