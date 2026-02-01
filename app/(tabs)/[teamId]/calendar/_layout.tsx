@@ -50,6 +50,7 @@ const convertSchedules = (
       endDate: new Date(item.endAt),
       colorHex: item.representativeColorHex,
       status: "SCHEDULE",
+      positionIds: item.positionIds,
     };
   });
 };
@@ -64,6 +65,7 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
       endDate: new Date(item.endAt),
       colorHex: item.representativeColorHex,
       status: "TODO",
+      positionIds: item.positionIds,
     };
   });
 };
@@ -134,7 +136,7 @@ export default function CalendarTodosScreen() {
   }, [schedulesQuery]);
 
   const callTodos = useCallback(() => {
-    todosQuery.refetch();
+    todosQuery.refetch({});
   }, [todosQuery]);
   const contextValue = {
     currentYearMonth,

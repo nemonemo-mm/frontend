@@ -61,8 +61,8 @@ const ScheduleListModal = ({
     confirmModal(selectedDate);
     // setSelectedItem(null);
   };
-  const { updateSchedule, deleteSchedule } = useScheduleMutations();
-  const { updateTodo, deleteTodo } = useTodoMutations();
+  const { updateSchedule } = useScheduleMutations();
+  const { updateTodo } = useTodoMutations();
   const { teamId: id } = useLocalSearchParams();
   const teamId = parseInt(id as string);
 
