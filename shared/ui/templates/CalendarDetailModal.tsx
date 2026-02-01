@@ -1,3 +1,5 @@
+import { useScheduleMutations } from "@/features/calendar/hooks/useSchedules";
+import { useTodoMutations } from "@/features/calendar/hooks/useTodos";
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { usePositions } from "@/features/position/hooks/usePositions";
@@ -12,6 +14,7 @@ import { useReducer, useState } from "react";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
+import AlertModal from "../organisms/AlertModal";
 import BottomModal from "../organisms/BottomModal";
 import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
 import CalendarTodoForm from "../organisms/CalendarTodoForm";
@@ -26,7 +29,6 @@ interface CalendarDetailModalProps {
     id: "schedule" | "todo";
     state: InitialCalendarState;
   }) => void;
-  onDelete: () => void;
 }
 
 const CalendarDetailModal = ({
@@ -35,7 +37,6 @@ const CalendarDetailModal = ({
   selectedDate,
   closeModal,
   onPatch,
-  onDelete,
 }: CalendarDetailModalProps) => {
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
   const positions = usePositions(parseInt(teamId)).data;
@@ -48,6 +49,23 @@ const CalendarDetailModal = ({
   });
   const [state, dispatch] = useReducer(reducer, initialState);
   const { title } = state;
+  const { deleteSchedule } = useScheduleMutations();
+  const { deleteTodo } = useTodoMutations();
+
+  const [isClickedDeleteButton, setIsClickedDeleteButton] = useState(false);
+  const handleDeleteButton = () => {
+    setIsClickedDeleteButton(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if ("isAllDay" in data) {
+      deleteSchedule.mutate({ scheduleId: data.id });
+    } else {
+      deleteTodo.mutate({ todoId: data.id });
+    }
+    setIsClickedDeleteButton(false);
+    closeModal();
+  };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
       <BottomModal.Container style={{ minHeight: 660 }}>
@@ -63,7 +81,7 @@ const CalendarDetailModal = ({
             >
               <Feather name="edit-2" size={20} color={globalGray700} />
             </Pressable>
-            <Pressable onPress={onDelete}>
+            <Pressable onPress={handleDeleteButton}>
               <Ionicons name="trash-outline" size={20} color={globalGray700} />
             </Pressable>
           </View>
@@ -98,6 +116,22 @@ const CalendarDetailModal = ({
           confirmModal={onPatch}
           selectedDate={selectedDate}
         />
+      )}
+      {isClickedDeleteButton && (
+        <AlertModal
+          visible={isClickedDeleteButton}
+          onClose={() => setIsClickedDeleteButton(false)}
+        >
+          <AlertModal.Title>스케줄 삭제</AlertModal.Title>
+          <AlertModal.Text>현재 스케줄을 삭제하시겠어요?</AlertModal.Text>
+          <AlertModal.Actions
+            type="double"
+            cancelLabel="취소하기"
+            onCancel={() => setIsClickedDeleteButton(false)}
+            confirmLabel="삭제하기"
+            onConfirm={handleConfirmDelete}
+          />
+        </AlertModal>
       )}
     </Modal>
   );

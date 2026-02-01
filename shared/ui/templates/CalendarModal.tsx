@@ -35,7 +35,7 @@ interface CalendarModalProps {
 
 export const reducer = (
   state: InitialCalendarState,
-  action: { type: string; payload: any },
+  action: { type: string; payload: any }
 ) => {
   switch (action.type) {
     case "SET_ISALLDAY":
@@ -91,13 +91,13 @@ const CalendarModal = ({
     },
   ];
   const [currentSegment, setCurrentSegment] = useState<"schedule" | "todo">(
-    type,
+    type
   );
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleModalSegments = (
-    segment: { id: string; content: string; isActive: boolean }[],
+    segment: { id: string; content: string; isActive: boolean }[]
   ) => {
     const activeSegment = segment.find((s) => s.isActive);
     if (
@@ -132,28 +132,6 @@ const CalendarModal = ({
           texts={segmentTexts}
           handler={handleModalSegments}
         />
-        <View>
-          <View style={style.container}>
-            <View style={style.optionContainer}>
-              <TextInput
-                placeholderTextColor={globalGray600}
-                value={state.title}
-                onChangeText={(text: string) =>
-                  dispatch({ type: "SET_TITLE", payload: text })
-                }
-                placeholder="제목을 입력하세요"
-                style={[style.input]}
-              />
-            </View>
-          </View>
-          <CalendarFormContext.Provider value={{ state, dispatch }}>
-            {currentSegment == "schedule" ? (
-              <CalendarScheduleForm />
-            ) : (
-              <CalendarTodoForm />
-            )}
-          </CalendarFormContext.Provider>
-        </View>
         <View>
           <View style={style.container}>
             <View style={style.optionContainer}>
