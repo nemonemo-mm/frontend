@@ -43,7 +43,6 @@ const ModalEditableField = ({
   };
   const handleClickConfirm = () => {
     setIsOpenEditModal(false);
-    setCurrentInput(defaultValue ?? "");
     onConfirm(currentInput);
   };
 
