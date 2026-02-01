@@ -38,6 +38,7 @@ const MyInfo = ({}: MyInfoProps) => {
           title="프로필명 변경"
           placeholder=""
           defaultValue="userName"
+          onConfirm={() => {}}
         />
       </View>
       <View style={styles.footer}>

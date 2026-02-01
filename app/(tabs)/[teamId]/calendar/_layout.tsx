@@ -1,5 +1,9 @@
 import GroupIcon from "@/assets/icons/group";
 import TeamSetting from "@/assets/icons/teamSetting";
+import {
+  useLatestNotice,
+  useNoticeMutations,
+} from "@/features/calendar/hooks/useNotice";
 import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
 import { useTeamTodos } from "@/features/calendar/hooks/useTodos";
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
@@ -16,7 +20,7 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
 import { Slot, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 const tabTexts: TabsText[] = [
@@ -35,7 +39,7 @@ const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
 const convertSchedules = (
-  data: SchedulesResponse[] | undefined,
+  data: SchedulesResponse[] | undefined
 ): CalendarSchedule[] => {
   if (!data) return [];
   return data.map((item) => {
@@ -45,7 +49,7 @@ const convertSchedules = (
       startDate: new Date(item.startAt),
       endDate: new Date(item.endAt),
       colorHex: item.representativeColorHex,
-      status: "SCHEDULES",
+      status: "SCHEDULE",
     };
   });
 };
@@ -59,7 +63,7 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
       startDate: new Date(item.endAt),
       endDate: new Date(item.endAt),
       colorHex: item.representativeColorHex,
-      status: "TODOS",
+      status: "TODO",
     };
   });
 };
@@ -79,24 +83,24 @@ export default function CalendarTodosScreen() {
     route.replace(
       nextPath as
         | `/(${string})/${string}/calendar`
-        | `/(${string})/${string}/calendar/todos`,
+        | `/(${string})/${string}/calendar/todos`
     );
   };
 
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
-    month,
+    month
   );
   const schedulesQuery = useTeamSchedules(parseInt(teamId as string), {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1,
+      1
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0,
+      0
     ).toISOString(),
   });
 
@@ -104,12 +108,12 @@ export default function CalendarTodosScreen() {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1,
+      1
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0,
+      0
     ).toISOString(),
   });
 
@@ -117,7 +121,7 @@ export default function CalendarTodosScreen() {
   const calendarTodos = convertTodos(todosQuery.data);
 
   const { data: teamDetail } = useTeamDetail(
-    teamId ? parseInt(teamId as string) : null,
+    teamId ? parseInt(teamId as string) : null
   );
 
   const [selectedDate, setSelectedDate] = useState(today);
@@ -159,6 +163,55 @@ export default function CalendarTodosScreen() {
     route.push(`/(team)/members?teamId=${teamId}`);
   };
 
+  const noticeQuery = useLatestNotice(parseInt(teamId as string));
+
+  const callNotice = useCallback(() => noticeQuery.refetch(), [noticeQuery]);
+
+  const [notice, setNotice] = useState(noticeQuery.data?.content ?? "");
+
+  useEffect(() => {
+    setNotice(noticeQuery.data?.content ?? "");
+  }, [teamId, noticeQuery.data]);
+  const { createNotice, updateNotice, deleteNotice } = useNoticeMutations();
+  const handleConfirmNotice = (newNotice: string) => {
+    setNotice(newNotice);
+    if (!noticeQuery.data)
+      createNotice.mutate(
+        {
+          teamId: parseInt(teamId as string),
+          body: { content: newNotice },
+        },
+        {
+          onSuccess: () => callNotice(),
+          onError: (e) => console.log(e),
+        }
+      );
+    else {
+      if (newNotice.trim() == "") {
+        deleteNotice.mutate(
+          {
+            teamId: parseInt(teamId as string),
+            noticeId: noticeQuery.data.id,
+          },
+          {
+            onSuccess: () => callNotice(),
+            onError: (e) => console.log(e),
+          }
+        );
+      } else
+        updateNotice.mutate(
+          {
+            teamId: parseInt(teamId as string),
+            noticeId: noticeQuery.data.id,
+            body: { content: newNotice },
+          },
+          {
+            onSuccess: () => callNotice(),
+            onError: (e) => console.log(e),
+          }
+        );
+    }
+  };
   return (
     <SafeAreaView>
       <CalendarContext.Provider value={contextValue}>
@@ -198,7 +251,8 @@ export default function CalendarTodosScreen() {
                 title="공지 작성"
                 description="팀에 공유할 공지 내용을 입력해주세요"
                 placeholder="아직 작성된 공지가 없어요"
-                defaultValue={teamDetail?.notice}
+                defaultValue={notice}
+                onConfirm={handleConfirmNotice}
               />
             </View>
             <Tabs texts={tabTexts} handler={handleTab} />

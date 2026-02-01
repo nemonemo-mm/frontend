@@ -12,7 +12,7 @@ export interface CalendarSchedule {
   startDate: Date;
   endDate: Date;
   colorHex: string;
-  status: "TODOS" | "SCHEDULES";
+  status: "TODO" | "SCHEDULE";
 }
 export interface WeekSchedule {
   schedule: CalendarSchedule;

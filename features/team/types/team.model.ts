@@ -59,5 +59,4 @@ export interface TeamDetail {
   teamImageUrl: string;
   createdAt: string;
   updatedAt: string;
-  notice: string;
 }
