@@ -17,6 +17,7 @@ interface ModalEditableFieldProps {
   description?: string;
   placeholder?: string;
   defaultValue?: string;
+  onConfirm: (v: string) => void;
 }
 
 const ModalEditableField = ({
@@ -24,9 +25,9 @@ const ModalEditableField = ({
   description,
   placeholder = "",
   defaultValue,
+  onConfirm,
 }: ModalEditableFieldProps) => {
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
-  const [value, setValue] = useState(defaultValue ?? placeholder ?? "");
 
   const [currentInput, setCurrentInput] = useState(defaultValue ?? "");
 
@@ -38,13 +39,14 @@ const ModalEditableField = ({
     setIsOpenEditModal(true);
   };
   const handleClickCancel = () => {
-    setValue(value);
     setIsOpenEditModal(false);
   };
   const handleClickConfirm = () => {
-    setValue(currentInput);
     setIsOpenEditModal(false);
+    setCurrentInput(defaultValue ?? "");
+    onConfirm(currentInput);
   };
+
   return (
     <>
       <Pressable
@@ -55,7 +57,7 @@ const ModalEditableField = ({
           level="h2"
           style={{ color: globalGray900, textAlign: "left", maxWidth: "90%" }}
         >
-          {value}
+          {defaultValue && defaultValue !== "" ? defaultValue : placeholder}
         </NemoText>
         <Feather name="edit-2" size={16} color={globalGray700} />
       </Pressable>
