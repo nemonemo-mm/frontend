@@ -56,6 +56,9 @@ const ModalEditableField = ({
         <NemoText
           level="h2"
           style={{ color: globalGray900, textAlign: "left", maxWidth: "90%" }}
+          ellipsizeMode="tail"
+          lineBreakMode="tail"
+          numberOfLines={1}
         >
           {defaultValue && defaultValue !== "" ? defaultValue : placeholder}
         </NemoText>
