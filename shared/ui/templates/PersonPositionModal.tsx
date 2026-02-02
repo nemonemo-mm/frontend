@@ -3,13 +3,12 @@ import { useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Chips, { ChipText } from "../molecules/Chips";
-import { TabsText } from "../molecules/Tabs";
 import BottomModal from "../organisms/BottomModal";
 
 interface PersonPositionModalProps {
   initialValue: ChipText[];
   closeModal: () => void;
-  confirmModal: (data: TabsText[]) => void;
+  confirmModal: (data: ChipText[]) => void;
 }
 
 const PersonPositionModal = ({
