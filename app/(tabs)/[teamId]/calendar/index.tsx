@@ -98,7 +98,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
       .map((pos) => pos.positionId);
     const attendeeMemberIds = person
       .filter((per) => per.isActive)
-      .map((per) => per.id);
+      .map((per) => per.memberId);
     const repeatType = repeat?.period ?? "NONE";
     let repeatEndDate = null;
     let repeatInterval: number | null = null;
