@@ -169,6 +169,11 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     callSchedules();
     callTodos();
   };
+
+  const handleConfirmListModal = (date: Date) => {
+    selectDate(date);
+    setIsOpenAddScheduleModal(true);
+  };
   const handleSelectDate = (date: Date) => {
     selectDate(date);
     setIsOpenListModal(true);
@@ -218,7 +223,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
           <ScheduleListModal
             selectedDate={selectedDate}
             closeModal={() => setIsOpenListModal(false)}
-            confirmModal={handleSelectDate}
+            confirmModal={handleConfirmListModal}
           />
         )}
         {isOpenAddScheduleModal && (
