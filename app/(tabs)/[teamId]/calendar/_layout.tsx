@@ -23,18 +23,7 @@ import { Slot, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-const tabTexts: TabsText[] = [
-  {
-    id: 0,
-    content: "캘린더",
-    isActive: true,
-  },
-  {
-    id: 1,
-    content: "스케줄/투두",
-    isActive: false,
-  },
-];
+
 const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
@@ -69,13 +58,33 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
     };
   });
 };
+
 export default function CalendarTodosScreen() {
   const route = useRouter();
 
   const { teamId } = useLocalSearchParams();
+  const [tabTexts, setTabTexts] = useState<TabsText[]>([
+    { id: 0, content: "캘린더", isActive: true },
+    { id: 1, content: "스케줄/투두", isActive: false },
+  ]);
+
+  useEffect(() => {
+    // teamId 바뀌면 항상 첫 탭으로 초기화
+    setTabTexts([
+      { id: 0, content: "캘린더", isActive: true },
+      { id: 1, content: "스케줄/투두", isActive: false },
+    ]);
+  }, [teamId]);
 
   const handleTab = (id: number) => {
     if (!teamId) return;
+
+    setTabTexts((prev) =>
+      prev.map((tab) => ({
+        ...tab,
+        isActive: tab.id === id,
+      }))
+    );
 
     const nextPath =
       id === 0
