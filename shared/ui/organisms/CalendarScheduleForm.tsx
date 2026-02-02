@@ -142,7 +142,14 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         <PositionForm
           disabled={readonly}
           positions={position}
-          onPosition={(v) => dispatch({ type: "SET_POSITION", payload: v })}
+          onPosition={(prev) => (next) => {
+            const activeIds = next.filter((n) => n.isActive).map((n) => n.id);
+            const n = prev.map((pos) => ({
+              ...pos,
+              isActive: activeIds.includes(pos.positionId),
+            }));
+            dispatch({ type: "SET_POSITION", payload: n });
+          }}
         />
         <View style={[styles.optionContainer, styles.optionInput]}>
           <TextInput
