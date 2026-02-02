@@ -32,32 +32,88 @@ interface CalendarModalProps {
   }) => void;
   closeModal: () => void;
 }
+const toStartOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0);
+
+const addHours = (date: Date, hours: number) =>
+  new Date(date.getTime() + hours * 60 * 60 * 1000);
 
 export const reducer = (
   state: InitialCalendarState,
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
-    case "SET_ISALLDAY":
-      return { ...state, isAllDay: action.payload };
-    case "SET_START":
-      return { ...state, start: action.payload };
-    case "SET_END":
-      return { ...state, end: action.payload };
+    case "SET_ISALLDAY": {
+      const isAllDay = action.payload;
+
+      if (!isAllDay) {
+        return { ...state, isAllDay };
+      }
+
+      const startOfDay = toStartOfDay(state.start);
+
+      return {
+        ...state,
+        isAllDay,
+        start: startOfDay,
+        end: startOfDay,
+      };
+    }
+
+    case "SET_START": {
+      const nextStart: Date = action.payload;
+      let nextEnd = state.end;
+
+      // 종료가 시작보다 빠르면 → 시작 + 1시간
+      if (nextEnd < nextStart) {
+        nextEnd = addHours(nextStart, 1);
+      }
+
+      return {
+        ...state,
+        start: nextStart,
+        end: nextEnd,
+      };
+    }
+
+    case "SET_END": {
+      const nextEnd: Date = action.payload;
+
+      // 종료가 시작보다 빠르면 → 시작 + 1시간
+      if (nextEnd < state.start) {
+        return {
+          ...state,
+          end: addHours(state.start, 1),
+        };
+      }
+
+      return {
+        ...state,
+        end: nextEnd,
+      };
+    }
+
     case "SET_PERSON":
       return { ...state, person: action.payload };
+
     case "SET_POSITION":
       return { ...state, position: action.payload };
+
     case "SET_TITLE":
       return { ...state, title: action.payload };
+
     case "SET_ALARM":
       return { ...state, alarm: action.payload };
+
     case "SET_REPEAT":
       return { ...state, repeat: action.payload };
+
     case "SET_MEMO":
       return { ...state, description: action.payload };
+
     case "SET_URL":
       return { ...state, url: action.payload };
+
     default:
       return state;
   }

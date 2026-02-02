@@ -8,6 +8,7 @@ import {
 } from "@/features/position/hooks/usePositions";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
+import Chip from "@/shared/ui/atoms/Chip";
 import Chips, { ChipText } from "@/shared/ui/molecules/Chips";
 import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import { TabsText } from "@/shared/ui/molecules/Tabs";
@@ -17,7 +18,7 @@ import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
 import { formatAlarm } from "@/shared/utils/format";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 
 interface CalendarScreenProps {}
 
@@ -28,7 +29,7 @@ const convertPositions = (
   return positions.map((pos, index) => ({
     id: pos.positionId ?? index,
     content: pos.positionName ?? "",
-    isActive: false,
+    isActive: true,
   }));
 };
 const CalendarScreen = ({}: CalendarScreenProps) => {
@@ -163,22 +164,57 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     }
   };
   const handlePositionChips = (next: ChipText[]) => {
-    setCurrentPositions(next);
+    setIsAll((prev) => next.every((n) => n.isActive));
+    setCurrentPositions((prev) => next);
+    callSchedules();
+    callTodos();
+  };
+
+  const handleConfirmListModal = (date: Date) => {
+    selectDate(date);
+    setIsOpenAddScheduleModal(true);
   };
   const handleSelectDate = (date: Date) => {
     selectDate(date);
     setIsOpenListModal(true);
   };
+  const [isAll, setIsAll] = useState(true);
+  const handlePressIsAll = () => {
+    setIsAll(true);
+    setCurrentPositions((prev) => prev.map((p) => ({ ...p, isActive: true })));
+    callSchedules();
+    callTodos();
+  };
+
+  const activePositionIds = currentPosition
+    .filter((p) => p.isActive)
+    .map((p) => p.id);
+  const filteredSchedules = schedules.filter((s) =>
+    s.positionIds?.some((id) => activePositionIds.includes(id))
+  );
+
+  const filteredTodos = todos.filter((t) =>
+    t.positionIds?.some((id) => activePositionIds.includes(id))
+  );
 
   return (
     <View>
       <View>
-        <Chips texts={currentPosition} handler={handlePositionChips} />
+        <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
+          <Chip active={isAll} onPress={handlePressIsAll}>
+            전체
+          </Chip>
+          <Chips texts={currentPosition} handler={handlePositionChips} />
+        </View>
         <Calendar
           year={currentYearMonth.year}
           month={currentYearMonth.month + 1}
           days={days}
-          schedules={[...schedules, ...todos]}
+          schedules={
+            isAll
+              ? [...schedules, ...todos]
+              : [...filteredSchedules, ...filteredTodos]
+          }
           onCalendarMonth={handleCalendarMonth}
           onAddSchedule={handleAddSchedule}
           onSelectDate={handleSelectDate}
@@ -187,7 +223,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
           <ScheduleListModal
             selectedDate={selectedDate}
             closeModal={() => setIsOpenListModal(false)}
-            confirmModal={handleSelectDate}
+            confirmModal={handleConfirmListModal}
           />
         )}
         {isOpenAddScheduleModal && (
@@ -203,19 +239,5 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-  },
-  layout: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  noticeInput: {
-    position: "relative",
-    marginBottom: 24,
-  },
-});
 
 export default CalendarScreen;

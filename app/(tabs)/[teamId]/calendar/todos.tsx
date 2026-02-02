@@ -8,6 +8,7 @@ import Checkbox from "@/shared/ui/atoms/Checkbox";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek";
+import { getWeekByDate } from "@/shared/utils/getWeekByDate";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -52,17 +53,9 @@ const Todos = ({}: TodosProps) => {
     init();
   }, [teamId]);
 
-  const { days, schedules, todos, selectedDate, selectDate } = calendarContext;
+  const { schedules, todos, selectedDate, selectDate } = calendarContext;
 
-  const thisWeek = days
-    .filter((day) =>
-      day.some(
-        (d) =>
-          d.fullDate.getDate() == today.getDate() &&
-          d.fullDate.getMonth() == today.getMonth()
-      )
-    )
-    .flat();
+  const thisWeek = getWeekByDate(new Date(Date.now()));
   const start = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),

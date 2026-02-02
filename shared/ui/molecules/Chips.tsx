@@ -24,7 +24,7 @@ const Chips = ({ texts, handler }: ChipsProps) => {
     <View style={style.chips}>
       {texts.map((text) => (
         <Chip
-          key={text.id}
+          key={`chip-${text.id}`}
           active={text.isActive}
           onPress={() => handleSetActive(text.id)}
         >

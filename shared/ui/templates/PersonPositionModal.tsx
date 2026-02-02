@@ -18,8 +18,8 @@ const PersonPositionModal = ({
   confirmModal,
 }: PersonPositionModalProps) => {
   const [contents, setContents] = useState<ChipText[]>(initialValue);
-  const handleChips = (chips: ChipText[]) => {
-    setContents(chips.filter((chip) => chip.isActive));
+  const handleChips = (next: ChipText[]) => {
+    setContents(next);
   };
 
   const handleConfirmModal = () => {

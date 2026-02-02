@@ -18,6 +18,31 @@ const isSameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
+const packSchedulesIntoLanes = (items: ReturnType<typeof getWeekSchedules>) => {
+  const lanes: (typeof items)[] = [];
+
+  items.forEach((item) => {
+    let placed = false;
+
+    for (const lane of lanes) {
+      const last = lane[lane.length - 1];
+
+      // 겹치지 않으면 같은 레인 사용
+      if (item.startIndex > last.startIndex + last.span - 1) {
+        lane.push(item);
+        placed = true;
+        break;
+      }
+    }
+
+    if (!placed) {
+      lanes.push([item]);
+    }
+  });
+
+  return lanes;
+};
+
 /* ---------- constants ---------- */
 const WEEK_WIDTH = 355;
 const DAY_WIDTH = WEEK_WIDTH / 7;
@@ -25,6 +50,8 @@ const DATES_HEIGHT = 18;
 
 const LANE_HEIGHT = 16;
 const LANE_GAP = 4;
+
+const MAX_LANES = 4;
 
 /* ---------- props ---------- */
 interface CalendarSchedulesProps {
@@ -48,11 +75,11 @@ const CalendarWeek = ({
   }
 
   const { selectedDate } = calendarContext;
+  const packedLanes = packSchedulesIntoLanes(
+    getWeekSchedules(dates, schedules)
+  );
 
-  const weekSchedules = getWeekSchedules(dates, schedules);
-  const lanesCount = Math.min(weekSchedules.length, 4);
-
-  const totalHeight = DATES_HEIGHT + lanesCount * (LANE_HEIGHT + LANE_GAP);
+  const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
     const { locationX } = event.nativeEvent;
@@ -119,15 +146,14 @@ const CalendarWeekSchedules = ({
     );
   }
 
-  const { selectedDate } = calendarContext;
-
   const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
-  const selectedIndex = selectedDate
-    ? dates.findIndex((d) => isSameDay(d.fullDate, selectedDate))
-    : -1;
+
+  const packedLanes = packSchedulesIntoLanes(weekSchedules);
+  const visibleLanes = packedLanes.slice(0, 4);
+  const hasOverflow = packedLanes.length > MAX_LANES - 1;
 
   // ✅ 레인 개수만큼 높이 확보
-  const lanesCount = Math.min(weekSchedules.length, 4); // 4줄만 보여줄 거면
+  const lanesCount = visibleLanes.length;
 
   return (
     <View
@@ -136,30 +162,54 @@ const CalendarWeekSchedules = ({
         { height: lanesCount * (LANE_HEIGHT + LANE_GAP) },
       ]}
     >
-      {weekSchedules.slice(0, 4).map((s, rowIndex) => {
-        const start = s.startIndex;
+      {visibleLanes.map((lane, rowIndex) => {
+        const isLastLane = rowIndex === MAX_LANES - 1;
 
-        return (
-          <View
-            key={`${s.schedule.status}-${s.schedule.id}`}
-            style={[
-              styles.scheduleWrapper,
-              {
-                left: start * DAY_WIDTH,
-                width: s.span * DAY_WIDTH,
-                top: rowIndex * (LANE_HEIGHT + LANE_GAP),
-                // ✅ “배경”이 보이게 wrapper에만 배경
-                backgroundColor: s.schedule.colorHex + "30",
-              },
-            ]}
-          >
-            <ScheduleLane
-              startThisWeek={s.startsThisWeek}
-              title={s.schedule.title}
-              lineColor={s.schedule.colorHex}
-            />
-          </View>
-        );
+        return lane.map((s, idx) => {
+          // 마지막 레인 + 초과 일정이 있으면 ...만 표시
+          if (isLastLane && hasOverflow && idx === 0) {
+            return (
+              <View
+                key={`${s.schedule.status}-${s.schedule.id}`}
+                style={[
+                  styles.scheduleWrapper,
+                  {
+                    left: s.startIndex * DAY_WIDTH,
+                    width: s.span * DAY_WIDTH,
+                    top: rowIndex * (LANE_HEIGHT + LANE_GAP),
+                    backgroundColor: "transparent",
+                  },
+                ]}
+              >
+                <NemoText level="body3">...</NemoText>
+              </View>
+            );
+          }
+
+          // 초과 일정은 렌더링 안 함
+          if (isLastLane && hasOverflow) return null;
+
+          return (
+            <View
+              key={`${s.schedule.status}-${s.schedule.id}`}
+              style={[
+                styles.scheduleWrapper,
+                {
+                  left: s.startIndex * DAY_WIDTH,
+                  width: s.span * DAY_WIDTH,
+                  top: rowIndex * (LANE_HEIGHT + LANE_GAP),
+                  backgroundColor: s.schedule.colorHex + "30",
+                },
+              ]}
+            >
+              <ScheduleLane
+                startThisWeek={s.startsThisWeek}
+                title={s.schedule.title}
+                lineColor={s.schedule.colorHex}
+              />
+            </View>
+          );
+        });
       })}
     </View>
   );

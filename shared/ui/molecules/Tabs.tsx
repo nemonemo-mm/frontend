@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Tab from "../atoms/Tab";
 
@@ -14,22 +13,13 @@ interface TabsProps {
 }
 
 const Tabs = ({ texts, handler }: TabsProps) => {
-  const [items, setItems] = useState(texts);
-
   const handlePressTab = (id: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, isActive: true }
-          : { ...item, isActive: false }
-      )
-    );
     handler(id);
   };
 
   return (
     <View style={style.tabs}>
-      {items.map((text) => (
+      {texts.map((text) => (
         <Tab
           key={text.id}
           isActive={text.isActive}

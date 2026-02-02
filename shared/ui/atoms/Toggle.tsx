@@ -1,11 +1,5 @@
-import { useRef, useState } from "react";
-import {
-  Animated,
-  GestureResponderEvent,
-  Pressable,
-  PressableProps,
-  StyleSheet,
-} from "react-native";
+import { useRef } from "react";
+import { Animated, Pressable, PressableProps, StyleSheet } from "react-native";
 import { globalGray250, globalGray50, globalGreen300 } from "..";
 
 interface ToggleProps extends PressableProps {
@@ -14,28 +8,28 @@ interface ToggleProps extends PressableProps {
 }
 
 const Toggle = ({ value, handler, ...props }: ToggleProps) => {
-  const [toggle, setToggle] = useState(value);
+  const animation = useRef(new Animated.Value(value ? 1 : 0)).current;
 
-  const animation = useRef(new Animated.Value(0)).current;
   const translateX = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 16],
   });
-  const handlePressToggle = (e: GestureResponderEvent) => {
-    e.preventDefault();
-    setToggle((prev) => !prev);
 
-    handler(toggle);
-    const nextValue = !toggle;
+  const handlePressToggle = () => {
+    const next = !value;
+
+    handler(next);
+
     Animated.timing(animation, {
-      toValue: nextValue ? 1 : 0,
+      toValue: next ? 1 : 0,
       duration: 150,
       useNativeDriver: true,
     }).start();
   };
+
   return (
     <Pressable
-      style={[style.toggle, toggle && style.pressedToggle]}
+      style={[style.toggle, value && style.pressedToggle]}
       onPress={handlePressToggle}
       {...props}
     >
