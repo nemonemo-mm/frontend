@@ -4,6 +4,10 @@ import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { usePositions } from "@/features/position/hooks/usePositions";
 import {
+  toMemberChip,
+  useTeamMembers,
+} from "@/features/team/hooks/useTeamMembers";
+import {
   CalendarFormContext,
   createInitialState,
   InitialCalendarState,
@@ -41,9 +45,15 @@ const CalendarDetailModal = ({
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
   const positions = usePositions(parseInt(teamId)).data;
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
+
+  const personQuery = useTeamMembers(parseInt(teamId));
+  const members = personQuery.data?.members?.map((member) =>
+    toMemberChip(member)
+  );
   const initialState = createInitialState({
     data,
     type,
+    persons: members ?? [],
     positions: positions ?? [],
     selectedDate,
   });
