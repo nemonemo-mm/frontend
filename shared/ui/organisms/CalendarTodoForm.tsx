@@ -56,7 +56,14 @@ const CalendarTodoForm = ({}: CalendarTodoFormProps) => {
         <PersonForm
           disabled={readonly}
           persons={person}
-          onPerson={(v) => dispatch({ type: "SET_PERSON", payload: v })}
+          onPerson={(prev) => (next) => {
+            const activeIds = next.filter((n) => n.isActive).map((n) => n.id);
+            const n = prev.map((pos) => ({
+              ...pos,
+              isActive: activeIds.includes(pos.memberId),
+            }));
+            dispatch({ type: "SET_PERSON", payload: n });
+          }}
         />
         <PositionForm
           disabled={readonly}
