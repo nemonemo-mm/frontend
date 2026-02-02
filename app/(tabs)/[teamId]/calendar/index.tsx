@@ -195,7 +195,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   return (
     <View>
       <View>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+        <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
           <Chip active={isAll} onPress={handlePressIsAll}>
             전체
           </Chip>
