@@ -10,7 +10,7 @@ import PersonPositionModal from "../templates/PersonPositionModal";
 interface PositionFormProps {
   disabled?: boolean;
   positions: PositionChip[];
-  onPosition: (pos: ChipText[]) => void;
+  onPosition: (v: PositionChip[]) => (pos: ChipText[]) => void;
 }
 
 const PositionForm = ({
@@ -19,9 +19,11 @@ const PositionForm = ({
   onPosition,
 }: PositionFormProps) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const activePositions = positions.filter((pos) => pos.isActive);
+
   const positionLabel =
-    positions.filter((pos) => pos.isActive).length > 0
-      ? positions.filter((pos) => pos.isActive).length
+    activePositions.length > 0
+      ? `${activePositions[0].positionName} ${activePositions.length - 1 > 0 ? "+" + (activePositions.length - 1) : ""}`
       : "지정없음";
 
   const position = positions.map((pos) => {
@@ -43,7 +45,7 @@ const PositionForm = ({
         <PersonPositionModal
           initialValue={position}
           closeModal={() => setIsOpenModal(false)}
-          confirmModal={onPosition}
+          confirmModal={onPosition(positions)}
         />
       )}
     </View>
