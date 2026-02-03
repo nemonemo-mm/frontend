@@ -1,5 +1,8 @@
 import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
-import { useTeamTodos } from "@/features/calendar/hooks/useTodos";
+import {
+  useTeamTodos,
+  useTodoMutations,
+} from "@/features/calendar/hooks/useTodos";
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { TeamDetail } from "@/features/team/types/team.model";
@@ -88,6 +91,22 @@ const Todos = ({}: TodosProps) => {
   });
   const todayTodos = todayTodoQuery.data;
 
+  const { updateTodoStatus } = useTodoMutations();
+
+  const handleCheckTodo = (todoId: number) => (v: boolean) => {
+    updateTodoStatus.mutate(
+      {
+        todoId,
+        body: { status: v ? "DONE" : "TODO" },
+      },
+      {
+        onSuccess: () => {
+          todayTodoQuery.refetch();
+        },
+      }
+    );
+  };
+
   const sections: Section[] = [
     {
       key: "schedule",
@@ -144,14 +163,25 @@ const Todos = ({}: TodosProps) => {
                 {!!t.assigneeMemberUserName && (
                   <NemoText level="body2">{t.assigneeMemberUserName}</NemoText>
                 )}
-                <NemoText level="body1">{t.title}</NemoText>
+                <NemoText
+                  level="body1"
+                  style={{
+                    textDecorationLine:
+                      t.status == "DONE" ? "line-through" : "none",
+                  }}
+                >
+                  {t.title}
+                </NemoText>
                 {!!t.description && (
                   <NemoText level="body2">{t.description}</NemoText>
                 )}
               </View>
 
               <View style={{ marginLeft: "auto" }} />
-              <Checkbox value={true} handler={() => {}} />
+              <Checkbox
+                value={t.status == "DONE"}
+                handler={handleCheckTodo(t.id)}
+              />
             </View>
           ))
         )}

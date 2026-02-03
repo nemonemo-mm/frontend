@@ -12,8 +12,10 @@ const Checkbox = ({ value, handler }: CheckBoxProps) => {
   const [check, setCheck] = useState(value);
 
   const handlePressCheckBox = () => {
-    setCheck((prev) => !prev);
-    handler(check);
+    setCheck((prev) => {
+      handler(!prev);
+      return !prev;
+    });
   };
   return (
     <Pressable onPress={handlePressCheckBox}>

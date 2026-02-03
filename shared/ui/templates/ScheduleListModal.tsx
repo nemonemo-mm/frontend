@@ -90,7 +90,7 @@ const ScheduleListModal = ({
         .map((pos) => pos.positionId);
       const attendeeMemberIds = person
         .filter((per) => per.isActive)
-        .map((per) => per.id);
+        .map((per) => per.memberId);
       const repeatType = repeat?.period ?? "NONE";
       let repeatEndDate = "";
       let repeatInterval: number = 0;
@@ -151,7 +151,7 @@ const ScheduleListModal = ({
           assigneeMemberIds: attendeeMemberIds,
           positionIds,
         } as TodoRequest;
-        console.log(req);
+
         updateTodo.mutate(
           { todoId: state.id!, body: req },
           {
@@ -161,9 +161,9 @@ const ScheduleListModal = ({
           }
         );
       }
-    } catch (e) {}
-
-    confirmModal(selectedDate);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const start = new Date(

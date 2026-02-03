@@ -1,5 +1,9 @@
 import { apiClient } from "@/shared/utils/http";
-import { TodoRequest, TodoResponse } from "../types/todo.model";
+import {
+  TodoRequest,
+  TodoResponse,
+  TodoStatusRequest,
+} from "../types/todo.model";
 
 export async function getTeamTodo(
   teamId: number,
@@ -36,6 +40,17 @@ export async function changeTodo(
 ): Promise<TodoResponse> {
   const { data } = await apiClient.patch<TodoResponse>(
     `/todos/${todoId}`,
+    body
+  );
+  return data;
+}
+
+export async function changeTodoStatus(
+  todoId: number,
+  body: TodoStatusRequest
+): Promise<TodoResponse> {
+  const { data } = await apiClient.patch<TodoResponse>(
+    `/todos/${todoId}/status`,
     body
   );
   return data;

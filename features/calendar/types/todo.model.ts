@@ -4,7 +4,7 @@ export interface TodoResponse {
   teamName: string;
   title: string;
   description: string;
-  status: "TODO";
+  status: "TODO" | "DONE";
   endAt: string;
   place: string;
   url: string;
@@ -26,11 +26,15 @@ export interface TodoRequest {
   teamId: number;
   title: string;
   description: string;
-  status: "TODO";
+  status: "TODO" | "DONE";
   endAt: string;
   place: string;
   url: string;
 
   assigneeMemberIds: number[];
   positionIds: number[];
+}
+
+export interface TodoStatusRequest {
+  status: "TODO" | "DONE";
 }
