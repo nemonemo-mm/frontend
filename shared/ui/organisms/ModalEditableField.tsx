@@ -17,6 +17,7 @@ interface ModalEditableFieldProps {
   description?: string;
   placeholder?: string;
   defaultValue?: string;
+  maxLength?: number;
   onConfirm: (v: string) => void;
 }
 
@@ -25,6 +26,7 @@ const ModalEditableField = ({
   description,
   placeholder = "",
   defaultValue,
+  maxLength,
   onConfirm,
 }: ModalEditableFieldProps) => {
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
@@ -74,6 +76,7 @@ const ModalEditableField = ({
             placeholder={placeholder}
             value={currentInput}
             onChangeText={handleCurrentInput}
+            maxLength={maxLength}
           />
           <AlertModal.Actions
             type="double"

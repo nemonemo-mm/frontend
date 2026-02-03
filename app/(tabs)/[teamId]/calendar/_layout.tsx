@@ -263,6 +263,7 @@ export default function CalendarTodosScreen() {
                 description="팀에 공유할 공지 내용을 입력해주세요"
                 placeholder="아직 작성된 공지가 없어요"
                 defaultValue={notice}
+                maxLength={26}
                 onConfirm={handleConfirmNotice}
               />
             </View>
