@@ -32,7 +32,7 @@ export async function UpdatePosition(
   positionId: number,
   body: PositionUpdateRequest
 ) {
-  const { data } = await apiClient.put<PositionUpdateResponse>(
+  const { data } = await apiClient.patch<PositionUpdateResponse>(
     `/teams/${teamId}/positions/${positionId}`,
     body
   );
