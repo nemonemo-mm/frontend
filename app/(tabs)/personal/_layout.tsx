@@ -2,6 +2,7 @@ import { useMySchedules } from "@/features/calendar/hooks/useSchedules";
 import { useMyTodos } from "@/features/calendar/hooks/useTodos";
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
+import { useUser } from "@/features/users/hooks/useUser";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
@@ -57,7 +58,7 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
 
 export default function CalendarTodosScreen() {
   const route = useRouter();
-
+  const user = useUser().data;
   const [tabTexts, setTabTexts] = useState<TabsText[]>([
     { id: 0, content: "캘린더", isActive: true },
     { id: 1, content: "스케줄/투두", isActive: false },
@@ -148,9 +149,9 @@ export default function CalendarTodosScreen() {
     <SafeAreaView>
       <CalendarContext.Provider value={contextValue}>
         <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
-          <ProfileImage size={64} />
-          <NemoText level="h3" style={{ marginLeft: 4 }}>
-            userName
+          <ProfileImage size={32} uri={user?.userImageUrl} />
+          <NemoText level="h3" style={{ marginLeft: 8 }}>
+            {user?.userName}
           </NemoText>
           <View style={{ margin: "auto" }} />
           <Pressable onPress={handlePressAlarm}>
