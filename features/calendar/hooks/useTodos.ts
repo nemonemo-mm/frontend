@@ -1,13 +1,23 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   addTodo,
   changeTodo,
+  changeTodoStatus,
   deleteTodo as deleteTodoRequest,
   getMyTodo,
   getTeamTodo,
 } from "../api/todo";
-import type { TodoRequest, TodoResponse } from "../types/todo.model";
+import type {
+  TodoRequest,
+  TodoResponse,
+  TodoStatusRequest,
+} from "../types/todo.model";
 
 export type TodoQueryParams = {
   start: string;
@@ -51,12 +61,20 @@ type UpdateTodoPayload = {
   body: TodoRequest;
 };
 
+type UpdateTodoStatusPayload = {
+  todoId: number;
+  body: TodoStatusRequest;
+};
+
 type DeleteTodoPayload = {
   todoId: number;
   teamId?: number | null;
 };
 
-function invalidateTodoQueries(queryClient: QueryClient, teamId?: number | null) {
+function invalidateTodoQueries(
+  queryClient: QueryClient,
+  teamId?: number | null
+) {
   if (typeof teamId === "number" && teamId > 0) {
     queryClient.invalidateQueries({
       queryKey: ["teams", teamId, "todos"],
@@ -93,6 +111,14 @@ export function useTodoMutations() {
     },
   });
 
+  const updateTodoStatus = useMutation({
+    mutationFn: (payload: UpdateTodoStatusPayload) =>
+      changeTodoStatus(payload.todoId, payload.body),
+    onSuccess: (res, _) => {
+      invalidateTodoQueries(queryClient, res.id);
+    },
+  });
+
   const deleteTodo = useMutation({
     mutationFn: (payload: DeleteTodoPayload) =>
       deleteTodoRequest(payload.todoId),
@@ -104,6 +130,7 @@ export function useTodoMutations() {
   return {
     createTodo,
     updateTodo,
+    updateTodoStatus,
     deleteTodo,
   };
 }
