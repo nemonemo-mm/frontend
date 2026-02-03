@@ -7,6 +7,7 @@ export interface APISchedule {
 }
 
 export interface CalendarSchedule {
+  teamId: number;
   id: number;
   title: string;
   startDate: Date;

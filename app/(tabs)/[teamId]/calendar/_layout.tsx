@@ -33,6 +33,7 @@ const convertSchedules = (
   if (!data) return [];
   return data.map((item) => {
     return {
+      teamId: item.teamId,
       id: item.id,
       title: item.title,
       startDate: new Date(item.startAt),
@@ -48,6 +49,7 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
   if (!data) return [];
   return data.map((item) => {
     return {
+      teamId: item.teamId,
       id: item.id,
       title: item.title,
       startDate: new Date(item.endAt),
