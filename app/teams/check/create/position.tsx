@@ -80,7 +80,7 @@ export default function PositionScreen() {
       <AddPositionModal
         visible={isVisible}
         closeModal={close}
-        onAddPosition={handleAddPosition}
+        onSubmit={handleAddPosition}
       />
 
       <View style={styles.bottomSection}>
