@@ -59,7 +59,7 @@ const Input = ({
           {...props}
         />
         {rightIcon && (
-          <View style={{ marginRight: 12 }}>
+          <View>
             <Pressable onPress={onPressRightIcon}>{rightIcon}</Pressable>
           </View>
         )}
