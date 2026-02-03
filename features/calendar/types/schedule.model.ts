@@ -46,6 +46,7 @@ export interface SchedulesResponse {
   representativeColorHex: string;
   repeatSummary: string;
   parentScheduleId: number;
+  attendeeMemberIds: number[];
 }
 
 export interface ScheduleRequest {

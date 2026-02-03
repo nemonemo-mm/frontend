@@ -1,3 +1,4 @@
+import { MemberChip } from "@/features/team/hooks/useTeamMembers";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { globalGray200, globalGray700 } from "..";
@@ -8,16 +9,26 @@ import PersonPositionModal from "../templates/PersonPositionModal";
 
 interface PersonFormProps {
   disabled?: boolean;
-  persons: ChipText[];
-  onPerson: (per: ChipText[]) => void;
+  persons: MemberChip[];
+  onPerson: (per: MemberChip[]) => (per: ChipText[]) => void;
 }
 
 const PersonForm = ({ disabled, persons, onPerson }: PersonFormProps) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const activeMembers = persons.filter((pos) => pos.isActive);
   const personLabel =
-    persons.filter((per) => per.isActive).length > 0
-      ? persons.filter((per) => per.isActive).length
+    activeMembers.length > 0
+      ? `${activeMembers[0].displayName} ${activeMembers.length - 1 > 0 ? "+" + (activeMembers.length - 1) : ""}`
       : "지정없음";
+
+  const member = persons.map((pos) => {
+    return {
+      id: pos.memberId,
+      content: pos.displayName,
+      isActive: pos.isActive,
+    };
+  });
   return (
     <View style={styles.optionContainer}>
       <NemoTextLabel>참석자</NemoTextLabel>
@@ -28,9 +39,9 @@ const PersonForm = ({ disabled, persons, onPerson }: PersonFormProps) => {
       </Pressable>
       {isOpenModal && (
         <PersonPositionModal
-          initialValue={persons}
+          initialValue={member}
           closeModal={() => setIsOpenModal(false)}
-          confirmModal={onPerson}
+          confirmModal={onPerson(persons)}
         />
       )}
     </View>
