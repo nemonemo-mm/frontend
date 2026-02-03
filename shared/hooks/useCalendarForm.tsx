@@ -68,6 +68,7 @@ export const createInitialState = ({
 
     return {
       ...base,
+      id: data.id,
       person,
       position,
       isAllDay: s.isAllDay ?? false,
@@ -95,6 +96,7 @@ export const createInitialState = ({
 
   return {
     ...base,
+    id: data.id,
     person,
     position,
     end: new Date(t.endAt),
