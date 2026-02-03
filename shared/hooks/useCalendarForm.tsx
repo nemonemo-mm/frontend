@@ -98,17 +98,18 @@ export const createInitialState = ({
 
   // todo 편집
   const t = data as TodoResponse;
-  const person = persons
-    .filter((per) =>
+  const person = persons.map((per) => ({
+    ...per,
+    isActive:
       "assignees" in data && data.assignees
         ? data.assignees.some((assignee) => assignee.memberId === per.memberId)
-        : false
-    )
-    .map((per) => ({ ...per, isActive: true }));
+        : false,
+  }));
 
-  const position = positions
-    .filter((pos) => data.positionIds.includes(pos.positionId))
-    .map((pos) => ({ ...pos, isActive: true }));
+  const position = positions.map((pos) => ({
+    ...pos,
+    isActive: data.positionIds.includes(pos.positionId),
+  }));
 
   return {
     ...base,
