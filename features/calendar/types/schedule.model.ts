@@ -44,6 +44,11 @@ export interface SchedulesResponse {
   updatedAt: string;
   positionIds: number[];
   representativeColorHex: string;
+  repeatType: string;
+  repeatInterval: number | null;
+  repeatWeekDays: WeekDayType[];
+  repeatUseDate: boolean;
+  repeatEndDate: string;
   repeatSummary: string;
   parentScheduleId: number;
   attendeeMemberIds: number[];

@@ -3,6 +3,7 @@ import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { PositionChip } from "@/features/position/hooks/usePositions";
 import { MemberChip } from "@/features/team/hooks/useTeamMembers";
 import { createContext } from "react";
+import { WeekDayType } from "../ui/molecules/NemoDayButton";
 import { AlarmState } from "../ui/templates/AlarmModal";
 import { RepeatState } from "../ui/templates/RepeatModal";
 
@@ -65,9 +66,24 @@ export const createInitialState = ({
     const position = positions
       .filter((pos) => data.positionIds.includes(pos.positionId))
       .map((pos) => ({ ...pos, isActive: true }));
-
+    const {
+      repeatType,
+      repeatEndDate,
+      repeatInterval,
+      repeatUseDate,
+      repeatWeekDays,
+    } = s;
+    const repeat: RepeatState | null = createRepeatState({
+      repeatType,
+      repeatEndDate,
+      repeatInterval,
+      repeatUseDate,
+      repeatWeekDays,
+    });
+    // const {alarm} =s;
     return {
       ...base,
+      id: data.id,
       person,
       position,
       isAllDay: s.isAllDay ?? false,
@@ -76,25 +92,28 @@ export const createInitialState = ({
       title: s.title ?? "",
       description: s.description ?? "",
       url: s.url ?? "",
+      repeat,
     };
   }
 
   // todo 편집
   const t = data as TodoResponse;
-  const person = persons
-    .filter((per) =>
+  const person = persons.map((per) => ({
+    ...per,
+    isActive:
       "assignees" in data && data.assignees
         ? data.assignees.some((assignee) => assignee.memberId === per.memberId)
-        : false
-    )
-    .map((per) => ({ ...per, isActive: true }));
+        : false,
+  }));
 
-  const position = positions
-    .filter((pos) => data.positionIds.includes(pos.positionId))
-    .map((pos) => ({ ...pos, isActive: true }));
+  const position = positions.map((pos) => ({
+    ...pos,
+    isActive: data.positionIds.includes(pos.positionId),
+  }));
 
   return {
     ...base,
+    id: data.id,
     person,
     position,
     end: new Date(t.endAt),
@@ -102,3 +121,57 @@ export const createInitialState = ({
     description: t.description ?? "",
   };
 };
+
+function createRepeatState(params: {
+  repeatType: string | null;
+  repeatEndDate: string | null;
+  repeatInterval?: number | null;
+  repeatWeekDays?: WeekDayType[] | null;
+  repeatUseDate?: boolean | null;
+}): RepeatState | null {
+  const {
+    repeatType,
+    repeatEndDate,
+    repeatInterval,
+    repeatWeekDays,
+    repeatUseDate,
+  } = params;
+
+  if (!repeatType && repeatType == "NONE") return null;
+  if (!repeatEndDate) return null;
+  const endAt = new Date(repeatEndDate);
+
+  switch (repeatType) {
+    case "daily":
+      return {
+        period: "daily",
+        interval: repeatInterval ?? 1,
+        endAt,
+      };
+
+    case "weekly":
+      return {
+        period: "weekly",
+        interval: repeatInterval ?? 1,
+        weekdays: repeatWeekDays ?? [],
+        endAt,
+      };
+
+    case "monthly":
+      return {
+        period: "monthly",
+        useDate: repeatUseDate ?? false,
+        endAt,
+      };
+
+    case "yearly":
+      return {
+        period: "yearly",
+        useDate: repeatUseDate ?? false,
+        endAt,
+      };
+
+    default:
+      return null;
+  }
+}

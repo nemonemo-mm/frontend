@@ -151,7 +151,6 @@ const ScheduleListModal = ({
           assigneeMemberIds: attendeeMemberIds,
           positionIds,
         } as TodoRequest;
-
         updateTodo.mutate(
           { todoId: state.id!, body: req },
           {
