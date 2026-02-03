@@ -87,7 +87,8 @@ export const reducer = (
       if (nextEnd < state.start) {
         return {
           ...state,
-          end: addHours(state.start, 1),
+          start: addHours(state.end, 0),
+          end: nextEnd,
         };
       }
 
