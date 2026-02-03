@@ -10,7 +10,7 @@ import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import { Feather } from "@expo/vector-icons";
-import { Slot, useLocalSearchParams, useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -58,7 +58,6 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
 export default function CalendarTodosScreen() {
   const route = useRouter();
 
-  const { teamId } = useLocalSearchParams();
   const [tabTexts, setTabTexts] = useState<TabsText[]>([
     { id: 0, content: "캘린더", isActive: true },
     { id: 1, content: "스케줄/투두", isActive: false },
@@ -70,7 +69,7 @@ export default function CalendarTodosScreen() {
       { id: 0, content: "캘린더", isActive: true },
       { id: 1, content: "스케줄/투두", isActive: false },
     ]);
-  }, [teamId]);
+  }, []);
 
   const handleTab = (id: number) => {
     setTabTexts((prev) =>
