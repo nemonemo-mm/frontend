@@ -170,7 +170,9 @@ export default function CalendarTodosScreen() {
     setIsOpenSidebar(true);
   };
   //todo: 알림 페이지 연동
-  const handlePressAlarm = () => {};
+  const handlePressAlarm = () => {
+    route.push("/(team)/alarm");
+  };
 
   const handlePressTeamSettings = () => {
     route.push(`/(team)/members?teamId=${teamId}`);
