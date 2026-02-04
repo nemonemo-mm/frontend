@@ -1,19 +1,30 @@
+import ChevronRightIcon from "@/assets/icons/chevron-right";
 import CopyIcon from "@/assets/icons/copy";
+import EditIcon from "@/assets/icons/edit";
 import GroupIcon from "@/assets/icons/group";
-import { GetPosition } from "@/features/position/api/position";
+import {
+  AddPosition,
+  DeletePosition,
+  GetPosition,
+  UpdatePosition,
+} from "@/features/position/api/position";
 import { useAddPositionModal } from "@/features/position/hooks/useAddPositionModal";
 import { PositionResponse } from "@/features/position/types/position.model";
 import { teamDetailInfo } from "@/features/team/api/detail";
+import { uploadTeamImage } from "@/features/team/api/image";
 import { TeamDetail } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import ImageUploadModal from "@/shared/ui/molecules/ImageUploadModal";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
 import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import * as Clipboard from "expo-clipboard";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -30,11 +41,21 @@ interface TeamManagementProps {
   teamId: number | null;
 }
 
-type ActiveModal = { type: "disband" } | null;
+type ActiveModal =
+  | { type: "disband" }
+  | { type: "positionDeleteConfirm"; position: PositionResponse }
+  | { type: "positionDeleteNotAllowed"; position: PositionResponse }
+  | null;
 
 export default function TeamManagement({ teamId }: TeamManagementProps) {
   const { isVisible, open, close } = useAddPositionModal();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [editingPosition, setEditingPosition] =
+    useState<PositionResponse | null>(null);
+  const [isImageSheetOpen, setIsImageSheetOpen] = useState(false);
+  const [localTeamImageUri, setLocalTeamImageUri] = useState<string | null>(
+    null
+  );
   const queryClient = useQueryClient();
 
   // 팀 상세 정보 조회
@@ -65,9 +86,151 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
     }
   };
 
+  const addPositionMutation = useMutation({
+    mutationFn: (payload: { positionName: string; colorHex: string }) => {
+      return AddPosition(teamId!, {
+        positionName: payload.positionName,
+        colorHex: payload.colorHex,
+      });
+    },
+    onSuccess: async () => {
+      // 목록 갱신
+      await queryClient.invalidateQueries({ queryKey: ["positions", teamId] });
+      close(); // 모달 닫기 (useAddPositionModal의 close)
+    },
+    onError: (e) => {
+      if (axios.isAxiosError(e)) {
+        const contentType =
+          (e.config?.headers as any)?.get?.("Content-Type") ??
+          (e.config?.headers as any)?.["Content-Type"] ??
+          (e.config?.headers as any)?.["content-type"];
+        console.log("AddPosition 400 debug:", {
+          status: e.response?.status,
+          data: e.response?.data,
+          requestData: e.config?.data,
+          url: e.config?.url,
+          method: e.config?.method,
+          contentType,
+        });
+        return;
+      }
+      console.log(e);
+      // 여기에 토스트/모달 에러 처리
+    },
+  });
+
+  const updatePositionMutation = useMutation({
+    mutationFn: (payload: {
+      positionId: number;
+      positionName: string;
+      colorHex: string;
+    }) => {
+      return UpdatePosition(teamId!, payload.positionId, {
+        positionName: payload.positionName,
+        colorHex: payload.colorHex,
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["positions", teamId] });
+      handleClosePositionModal();
+    },
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  const deletePositionMutation = useMutation({
+    mutationFn: (payload: { positionId: number }) => {
+      return DeletePosition(teamId!, payload.positionId);
+    },
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ["positions", teamId] });
+      const previousPositions = queryClient.getQueryData<PositionResponse[]>([
+        "positions",
+        teamId,
+      ]);
+
+      queryClient.setQueryData<PositionResponse[]>(
+        ["positions", teamId],
+        (old) => (old ?? []).filter((p) => p.positionId !== payload.positionId)
+      );
+
+      return { previousPositions };
+    },
+    onError: (e, _payload, context) => {
+      if (context?.previousPositions) {
+        queryClient.setQueryData<PositionResponse[]>(
+          ["positions", teamId],
+          context.previousPositions
+        );
+      }
+      setActiveModal(null);
+      handleClosePositionModal();
+      console.log(e);
+    },
+    onSuccess: async () => {
+      setActiveModal(null);
+      handleClosePositionModal();
+      await queryClient.invalidateQueries({ queryKey: ["positions", teamId] });
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["positions", teamId] });
+    },
+  });
+
   const handleAddPosition = (positionName: string, colorHex: string) => {
-    // TODO: 포지션 추가 API 연동
-    console.log("포지션 추가:", positionName, colorHex);
+    addPositionMutation.mutate({ positionName, colorHex });
+  };
+
+  const handleOpenCreatePosition = () => {
+    setEditingPosition(null);
+    open();
+  };
+
+  const handleOpenEditPosition = (position: PositionResponse) => {
+    setEditingPosition(position);
+    open();
+  };
+
+  const handleClosePositionModal = () => {
+    setEditingPosition(null);
+    close();
+  };
+
+  const handleHidePositionModal = () => {
+    close();
+  };
+
+  const handleDeletePosition = () => {
+    if (!editingPosition) return;
+    if (editingPosition.isDefault) {
+      setActiveModal({
+        type: "positionDeleteNotAllowed",
+        position: editingPosition,
+      });
+      return;
+    }
+    setActiveModal({
+      type: "positionDeleteConfirm",
+      position: editingPosition,
+    });
+    handleHidePositionModal();
+  };
+
+  const handleConfirmDeletePosition = () => {
+    if (!editingPosition) return;
+    setActiveModal(null);
+    handleClosePositionModal();
+    deletePositionMutation.mutate({ positionId: editingPosition.positionId });
+  };
+
+  const handleEditPosition = (positionName: string, colorHex: string) => {
+    if (!editingPosition) return;
+    updatePositionMutation.mutate({
+      positionId: editingPosition.positionId,
+      positionName,
+      colorHex,
+    });
   };
 
   const handleDisbandModalOpen = () => {
@@ -107,6 +270,60 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const isLoading = isLoadingTeam || isLoadingPositions;
   const isError = isErrorTeam || isErrorPositions;
 
+  const uploadTeamImageMutation = useMutation({
+    mutationFn: (image: string) => uploadTeamImage(teamId!, image),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] });
+    },
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  const handlePickCamera = async () => {
+    if (!teamId) return;
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalTeamImageUri(asset.uri);
+      if (asset.base64) {
+        uploadTeamImageMutation.mutate(asset.base64);
+      }
+    }
+    setIsImageSheetOpen(false);
+  };
+
+  const handlePickLibrary = async () => {
+    if (!teamId) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalTeamImageUri(asset.uri);
+      if (asset.base64) {
+        uploadTeamImageMutation.mutate(asset.base64);
+      }
+    }
+    setIsImageSheetOpen(false);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
@@ -130,10 +347,18 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* 상단 팀 이미지 */}
         <View style={styles.topSection}>
-          {teamDetail.teamImageUrl ? (
-            <ProfileImage size={90} uri={teamDetail.teamImageUrl} />
+          {localTeamImageUri || teamDetail.teamImageUrl ? (
+            <ProfileImage
+              size={90}
+              uri={localTeamImageUri ?? teamDetail.teamImageUrl}
+            />
           ) : (
-            <GroupIcon width={90} height={84} />
+            <View style={styles.teamImageContainer}>
+              <Pressable onPress={() => setIsImageSheetOpen(true)}>
+                <GroupIcon width={90} height={84} />
+                <EditIcon size={24} style={styles.editIcon} />
+              </Pressable>
+            </View>
           )}
         </View>
 
@@ -150,31 +375,42 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
 
           {teamDetail.description && (
             <View>
-              <Input
-                placeholder="팀 소개"
-                label="팀 소개"
-                value={teamDetail.description}
-                editable={false}
-              />
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(team)/edit-Introduction",
+                    params: { teamId: String(teamId) },
+                  })
+                }
+              >
+                <Input
+                  placeholder="팀 소개"
+                  label="팀 소개"
+                  value={teamDetail.description}
+                  editable={false}
+                  containerPointerEvents="none"
+                  rightIcon={<ChevronRightIcon size={16} />}
+                />
+              </Pressable>
             </View>
           )}
 
           {/* 팀 내 포지션 */}
           {positions && positions.length > 0 && (
             <View style={styles.chipsContainer}>
-              <NemoText level="body1">팀 내 포지션</NemoText>
+              <NemoText level="body1">포지션 관리하기</NemoText>
               <View style={styles.chipsWrapper}>
                 {positions.map((position) => (
                   <Chip
                     key={position.positionId}
                     active={false}
-                    onPress={() => {}}
+                    onPress={() => handleOpenEditPosition(position)}
                   >
                     <NemoText level="body2">{position.positionName}</NemoText>
                   </Chip>
                 ))}
-                <Chip active={true} onPress={open}>
-                  <NemoText level="body2">포지션 추가</NemoText>
+                <Chip active={true} onPress={handleOpenCreatePosition}>
+                  <NemoText level="body2">추가하기</NemoText>
                 </Chip>
               </View>
             </View>
@@ -220,12 +456,54 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
             />
           </>
         )}
+        {activeModal && activeModal.type === "positionDeleteNotAllowed" && (
+          <>
+            <AlertModal.Title>삭제할 수 없어요</AlertModal.Title>
+            <AlertModal.Text>기본 포지션은 삭제할 수 없습니다.</AlertModal.Text>
+            <AlertModal.Actions
+              type="single"
+              confirmLabel="확인"
+              onConfirm={handleDisbandModalClose}
+            />
+          </>
+        )}
+        {activeModal && activeModal.type === "positionDeleteConfirm" && (
+          <>
+            <AlertModal.Title>포지션 삭제</AlertModal.Title>
+            <AlertModal.Text>
+              {`'${activeModal.position.positionName}' 포지션을 삭제하시겠어요?`}
+            </AlertModal.Text>
+            <AlertModal.Actions
+              type="double"
+              confirmLabel="삭제하기"
+              onConfirm={handleConfirmDeletePosition}
+              cancelLabel="취소하기"
+              onCancel={handleDisbandModalClose}
+            />
+          </>
+        )}
       </AlertModal>
+
+      <ImageUploadModal
+        visible={isImageSheetOpen}
+        onClose={() => setIsImageSheetOpen(false)}
+        onPressCamera={handlePickCamera}
+        onPressLibrary={handlePickLibrary}
+      />
 
       <AddPositionModal
         visible={isVisible}
-        closeModal={close}
-        onAddPosition={handleAddPosition}
+        closeModal={handleClosePositionModal}
+        mode={editingPosition ? "edit" : "create"}
+        initialPositionName={editingPosition?.positionName}
+        initialColorHex={editingPosition?.colorHex}
+        onSubmit={editingPosition ? handleEditPosition : handleAddPosition}
+        onDelete={editingPosition ? handleDeletePosition : undefined}
+        isSubmitting={
+          addPositionMutation.isPending ||
+          updatePositionMutation.isPending ||
+          deletePositionMutation.isPending
+        }
       />
     </>
   );
@@ -242,6 +520,14 @@ const styles = StyleSheet.create({
   },
   topSection: {
     alignItems: "center",
+  },
+  teamImageContainer: {
+    position: "relative",
+  },
+  editIcon: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
   },
   formContainer: {
     gap: 12,

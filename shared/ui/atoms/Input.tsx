@@ -5,6 +5,7 @@ import {
   TextInput,
   TextInputProps,
   View,
+  ViewProps,
 } from "react-native";
 import {
   globalGray0,
@@ -22,6 +23,7 @@ interface InputProps extends TextInputProps {
   variant?: InputVariant;
   rightIcon?: React.ReactNode;
   onPressRightIcon?: () => void;
+  containerPointerEvents?: ViewProps["pointerEvents"];
 }
 
 const Input = ({
@@ -30,6 +32,8 @@ const Input = ({
   variant = "default",
   rightIcon,
   onPressRightIcon,
+  style,
+  containerPointerEvents,
   ...props
 }: InputProps) => {
   const containerStyle =
@@ -39,7 +43,7 @@ const Input = ({
     variant === "modal" ? styles.inputModal : styles.inputDefault;
 
   return (
-    <View>
+    <View pointerEvents={containerPointerEvents}>
       {label && variant === "default" && (
         <Text style={styles.label}>{label}</Text>
       )}
@@ -55,11 +59,11 @@ const Input = ({
       >
         <TextInput
           placeholderTextColor={globalGray600}
-          style={[styles.inputBase, textStyle]}
+          style={[styles.inputBase, textStyle, style]}
           {...props}
         />
         {rightIcon && (
-          <View style={{ marginRight: 12 }}>
+          <View>
             <Pressable onPress={onPressRightIcon}>{rightIcon}</Pressable>
           </View>
         )}

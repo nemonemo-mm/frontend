@@ -35,3 +35,18 @@ export interface PositionAddResponse {
   positionName: string;
   colorHex: string;
 }
+
+export interface PositionUpdateRequest {
+  positionName: string;
+  colorHex: string;
+}
+
+export interface PositionUpdateResponse {
+  teamId: number;
+  createdAt: string;
+  updatedAt: string;
+  positionName: string;
+  colorHex: string;
+  positionId: number;
+  isDefault: boolean;
+}

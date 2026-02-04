@@ -25,6 +25,10 @@ export default {
     infoPlist: {
       NSCameraUsageDescription:
         "프로필 사진 촬영/업로드를 위해 카메라 접근 권한이 필요합니다.",
+      NSPhotoLibraryUsageDescription:
+        "프로필 사진 선택/업로드를 위해 사진 보관함 접근 권한이 필요합니다.",
+      NSPhotoLibraryAddUsageDescription:
+        "프로필 사진 저장을 위해 사진 보관함 접근 권한이 필요합니다.",
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true,
       },
