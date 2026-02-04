@@ -1,3 +1,4 @@
+import { deleteAccount } from "@/features/auth/api/auth";
 import { useUser, useUserMutations } from "@/features/users/hooks/useUser";
 import {
   globalGray0,
@@ -12,8 +13,11 @@ import {
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import ImageUploadModal from "@/shared/ui/molecules/ImageUploadModal";
+import AlertModal from "@/shared/ui/organisms/AlertModal";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -28,6 +32,29 @@ const MyInfo = () => {
 
   const [isImageSheetOpen, setIsImageSheetOpen] = useState(false);
   const [localImageUri, setLocalImageUri] = useState<string | null>(null);
+
+  const [activeModal, setActiveModal] = useState<
+    "deleteConfirm" | "deleteForbidden" | null
+  >(null);
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => {
+      route.replace("/auth");
+    },
+    onError: (error) => {
+      // 403: 명세상 권한 없음
+      // 500: 실제 서버에서 팀장이 탈퇴 시 발생 중인 에러
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 403 || error.response?.status === 500)
+      ) {
+        setActiveModal("deleteForbidden");
+      } else {
+        console.error(error);
+      }
+    },
+  });
 
   const handleConfirmUserName = (newUserName: string) => {
     updateName.mutate(newUserName, {
@@ -109,10 +136,38 @@ const MyInfo = () => {
       />
 
       <View style={styles.footer}>
-        <NemoText level="body1" style={{ color: globalRed600 }}>
-          탈퇴하기
-        </NemoText>
+        <Pressable onPress={() => setActiveModal("deleteConfirm")}>
+          <NemoText level="body1" style={{ color: globalRed600 }}>
+            탈퇴하기
+          </NemoText>
+        </Pressable>
       </View>
+
+      <AlertModal visible={!!activeModal} onClose={() => setActiveModal(null)}>
+        {activeModal === "deleteConfirm" && (
+          <>
+            <AlertModal.Title>탈퇴할까요?</AlertModal.Title>
+            <AlertModal.Actions
+              type="double"
+              confirmLabel="탈퇴하기"
+              onConfirm={() => deleteAccountMutation.mutate()}
+              cancelLabel="취소"
+              onCancel={() => setActiveModal(null)}
+            />
+          </>
+        )}
+        {activeModal === "deleteForbidden" && (
+          <>
+            <AlertModal.Title>탈퇴 실패</AlertModal.Title>
+            <AlertModal.Text>팀장은 탈퇴할 수 없습니다.</AlertModal.Text>
+            <AlertModal.Actions
+              type="single"
+              confirmLabel="확인"
+              onConfirm={() => setActiveModal(null)}
+            />
+          </>
+        )}
+      </AlertModal>
     </SafeAreaView>
   );
 };
