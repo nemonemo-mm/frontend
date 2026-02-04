@@ -78,6 +78,12 @@ export default {
         },
       },
     ],
+    [
+      "expo-image-picker",
+      {
+        photosPermission: "“Nemonemo” would like to access the camera.",
+      },
+    ],
     "expo-secure-store",
   ],
   experiments: {
