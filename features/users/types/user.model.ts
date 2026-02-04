@@ -4,3 +4,8 @@ export interface UserResponse {
   userEmail: string;
   userImageUrl: string;
 }
+
+export interface UserProfileResponse {
+  userId: number;
+  imageUrl: string;
+}

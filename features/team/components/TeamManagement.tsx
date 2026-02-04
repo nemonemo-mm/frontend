@@ -271,7 +271,8 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const isError = isErrorTeam || isErrorPositions;
 
   const uploadTeamImageMutation = useMutation({
-    mutationFn: (image: string) => uploadTeamImage(teamId!, image),
+    mutationFn: (image: ImagePicker.ImagePickerAsset) =>
+      uploadTeamImage(teamId!, image),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] });
     },
@@ -296,7 +297,9 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       const asset = result.assets[0];
       setLocalTeamImageUri(asset.uri);
       if (asset.base64) {
-        uploadTeamImageMutation.mutate(asset.base64);
+        uploadTeamImageMutation.mutate(asset, {
+          onError: (e) => console.log(e),
+        });
       }
     }
     setIsImageSheetOpen(false);
@@ -309,7 +312,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 0.8,
       base64: true,
     });
@@ -318,7 +321,9 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       const asset = result.assets[0];
       setLocalTeamImageUri(asset.uri);
       if (asset.base64) {
-        uploadTeamImageMutation.mutate(asset.base64);
+        uploadTeamImageMutation.mutate(asset, {
+          onError: (e) => console.log(e),
+        });
       }
     }
     setIsImageSheetOpen(false);
@@ -348,10 +353,15 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         {/* 상단 팀 이미지 */}
         <View style={styles.topSection}>
           {localTeamImageUri || teamDetail.teamImageUrl ? (
-            <ProfileImage
-              size={90}
-              uri={localTeamImageUri ?? teamDetail.teamImageUrl}
-            />
+            <View style={styles.teamImageContainer}>
+              <Pressable onPress={() => setIsImageSheetOpen(true)}>
+                <ProfileImage
+                  size={90}
+                  uri={localTeamImageUri ?? teamDetail.teamImageUrl}
+                />
+                <EditIcon size={24} style={styles.editIcon} />
+              </Pressable>
+            </View>
           ) : (
             <View style={styles.teamImageContainer}>
               <Pressable onPress={() => setIsImageSheetOpen(true)}>
