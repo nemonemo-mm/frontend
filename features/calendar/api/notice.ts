@@ -27,7 +27,7 @@ export async function updateNotice(
   noticeId: number,
   body: NoticeRequest
 ): Promise<NoticeResponse> {
-  const { data } = await apiClient.post<NoticeResponse>(
+  const { data } = await apiClient.patch<NoticeResponse>(
     `/teams/${teamId}/notices/${noticeId}`,
     body
   );
