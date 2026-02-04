@@ -1,4 +1,5 @@
 import { apiClient } from "@/shared/utils/http";
+import { ImagePickerAsset } from "expo-image-picker";
 import { UserProfileResponse, UserResponse } from "../types/user.model";
 
 export async function getMe(): Promise<UserResponse> {
@@ -12,8 +13,20 @@ export async function changeMyName(userName: string): Promise<UserResponse> {
 }
 
 export async function changeMyProfileImage(
-  body: File
+  body: ImagePickerAsset
 ): Promise<UserProfileResponse> {
-  const { data } = await apiClient.post("/images/users/me/profile", body);
+  const formData = new FormData();
+
+  formData.append("image", {
+    uri: body.uri,
+    name: body.fileName ?? "profile.jpg",
+    type: "image/jpeg", // 여기 중요
+  } as any);
+
+  const { data } = await apiClient.post("/images/users/me/profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return data;
 }
