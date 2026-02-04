@@ -15,7 +15,6 @@ import { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
-import { formatAlarm } from "@/shared/utils/format";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
@@ -117,9 +116,14 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         repeatUseDate = repeat.useDate;
       }
     }
-
-    const alarmLabel: string = formatAlarm(alarm);
-
+    const notificationMinutes: number[] = alarm
+      ? Object.entries(alarm)
+          .map(([key, value]) => {
+            if (value) return parseInt(key);
+            else return null;
+          })
+          .filter((val): val is number => val !== null)
+      : [];
     if (data.id == "schedule") {
       const req = {
         teamId,
@@ -137,7 +141,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         repeatEndDate,
         positionIds,
         attendeeMemberIds,
-        alarm: alarmLabel,
+        notificationMinutes,
       } as ScheduleRequest;
 
       createSchedule.mutate(req, {

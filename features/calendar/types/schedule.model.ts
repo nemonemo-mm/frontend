@@ -52,6 +52,7 @@ export interface SchedulesResponse {
   repeatSummary: string;
   parentScheduleId: number;
   attendeeMemberIds: number[];
+  notificationMinutes: number[];
 }
 
 export interface ScheduleRequest {
@@ -64,11 +65,11 @@ export interface ScheduleRequest {
   place: string;
   url: string;
   repeatType: string;
-  repeatInterval: number | null;
+  repeatInterval: number;
   repeatWeekDays: WeekDayType[];
   repeatUseDate: boolean;
   repeatEndDate: string;
   positionIds: number[];
   attendeeMemberIds: number[];
-  alarm: string;
+  notificationMinutes: number[];
 }

@@ -15,7 +15,7 @@ import {
   TodoResponse,
 } from "@/features/calendar/types/todo.model";
 import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
-import { formatAlarm } from "@/shared/utils/format";
+import { convertAlarmToNumberArray } from "@/shared/utils/convertAlarmToNumberArray";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -110,7 +110,7 @@ const ScheduleListModal = ({
         }
       }
 
-      const alarmLabel: string = formatAlarm(alarm);
+      const notificationMinutes: number[] = convertAlarmToNumberArray(alarm);
 
       if (id == "schedule") {
         const req = {
@@ -129,7 +129,7 @@ const ScheduleListModal = ({
           repeatEndDate,
           positionIds,
           attendeeMemberIds,
-          alarm: alarmLabel,
+          notificationMinutes,
         } as ScheduleRequest;
 
         updateSchedule.mutate(
