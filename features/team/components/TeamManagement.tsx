@@ -1,4 +1,6 @@
+import ChevronRightIcon from "@/assets/icons/chevron-right";
 import CopyIcon from "@/assets/icons/copy";
+import EditIcon from "@/assets/icons/edit";
 import GroupIcon from "@/assets/icons/group";
 import {
   AddPosition,
@@ -9,17 +11,20 @@ import {
 import { useAddPositionModal } from "@/features/position/hooks/useAddPositionModal";
 import { PositionResponse } from "@/features/position/types/position.model";
 import { teamDetailInfo } from "@/features/team/api/detail";
+import { uploadTeamImage } from "@/features/team/api/image";
 import { TeamDetail } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import ImageUploadModal from "@/shared/ui/molecules/ImageUploadModal";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
 import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import * as Clipboard from "expo-clipboard";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -47,6 +52,10 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [editingPosition, setEditingPosition] =
     useState<PositionResponse | null>(null);
+  const [isImageSheetOpen, setIsImageSheetOpen] = useState(false);
+  const [localTeamImageUri, setLocalTeamImageUri] = useState<string | null>(
+    null
+  );
   const queryClient = useQueryClient();
 
   // 팀 상세 정보 조회
@@ -261,6 +270,60 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const isLoading = isLoadingTeam || isLoadingPositions;
   const isError = isErrorTeam || isErrorPositions;
 
+  const uploadTeamImageMutation = useMutation({
+    mutationFn: (image: string) => uploadTeamImage(teamId!, image),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] });
+    },
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  const handlePickCamera = async () => {
+    if (!teamId) return;
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalTeamImageUri(asset.uri);
+      if (asset.base64) {
+        uploadTeamImageMutation.mutate(asset.base64);
+      }
+    }
+    setIsImageSheetOpen(false);
+  };
+
+  const handlePickLibrary = async () => {
+    if (!teamId) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalTeamImageUri(asset.uri);
+      if (asset.base64) {
+        uploadTeamImageMutation.mutate(asset.base64);
+      }
+    }
+    setIsImageSheetOpen(false);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
@@ -284,10 +347,18 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* 상단 팀 이미지 */}
         <View style={styles.topSection}>
-          {teamDetail.teamImageUrl ? (
-            <ProfileImage size={90} uri={teamDetail.teamImageUrl} />
+          {localTeamImageUri || teamDetail.teamImageUrl ? (
+            <ProfileImage
+              size={90}
+              uri={localTeamImageUri ?? teamDetail.teamImageUrl}
+            />
           ) : (
-            <GroupIcon width={90} height={84} />
+            <View style={styles.teamImageContainer}>
+              <Pressable onPress={() => setIsImageSheetOpen(true)}>
+                <GroupIcon width={90} height={84} />
+                <EditIcon size={24} style={styles.editIcon} />
+              </Pressable>
+            </View>
           )}
         </View>
 
@@ -304,12 +375,23 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
 
           {teamDetail.description && (
             <View>
-              <Input
-                placeholder="팀 소개"
-                label="팀 소개"
-                value={teamDetail.description}
-                editable={false}
-              />
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(team)/edit-Introduction",
+                    params: { teamId: String(teamId) },
+                  })
+                }
+              >
+                <Input
+                  placeholder="팀 소개"
+                  label="팀 소개"
+                  value={teamDetail.description}
+                  editable={false}
+                  containerPointerEvents="none"
+                  rightIcon={<ChevronRightIcon size={16} />}
+                />
+              </Pressable>
             </View>
           )}
 
@@ -402,6 +484,13 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         )}
       </AlertModal>
 
+      <ImageUploadModal
+        visible={isImageSheetOpen}
+        onClose={() => setIsImageSheetOpen(false)}
+        onPressCamera={handlePickCamera}
+        onPressLibrary={handlePickLibrary}
+      />
+
       <AddPositionModal
         visible={isVisible}
         closeModal={handleClosePositionModal}
@@ -431,6 +520,14 @@ const styles = StyleSheet.create({
   },
   topSection: {
     alignItems: "center",
+  },
+  teamImageContainer: {
+    position: "relative",
+  },
+  editIcon: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
   },
   formContainer: {
     gap: 12,
