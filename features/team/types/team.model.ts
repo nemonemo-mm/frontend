@@ -42,7 +42,7 @@ export interface TeamMembersResponse {
   members: TeamMember[];
 }
 
-export interface TemaList {
+export interface TeamList {
   teamId: number;
   teamName: string;
   description: string;

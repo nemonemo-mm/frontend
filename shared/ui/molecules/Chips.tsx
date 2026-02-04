@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import Chip from "../atoms/Chip";
 
 export type ChipText = {
@@ -22,23 +22,31 @@ const Chips = ({ texts, handler }: ChipsProps) => {
 
   return (
     <View style={style.chips}>
-      {texts.map((text) => (
-        <Chip
-          key={`chip-${text.id}`}
-          active={text.isActive}
-          onPress={() => handleSetActive(text.id)}
-        >
-          {text.content == "MEMBER" ? "전체" : text.content}
-        </Chip>
-      ))}
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={texts}
+        keyExtractor={(text) => `chip-${text.id}`}
+        renderItem={({ item }) => (
+          <Chip
+            key={`chip-${item.id}`}
+            active={item.isActive}
+            onPress={() => handleSetActive(item.id)}
+          >
+            {item.content}
+          </Chip>
+        )}
+        contentContainerStyle={{
+          gap: 8,
+        }}
+      />
     </View>
   );
 };
 
 const style = StyleSheet.create({
   chips: {
-    flexDirection: "row",
-    gap: 8,
+    width: 300,
   },
 });
 
