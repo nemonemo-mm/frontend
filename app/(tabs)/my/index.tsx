@@ -1,3 +1,4 @@
+import { useUser } from "@/features/users/hooks/useUser";
 import {
   globalGray0,
   globalGray200,
@@ -13,13 +14,15 @@ import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface MyScreenProps {}
 
 const MyScreen = ({}: MyScreenProps) => {
   const route = useRouter();
+  const user = useUser().data;
   return (
-    <View>
+    <SafeAreaView>
       <View style={styles.header}>
         <NemoText
           level="h3"
@@ -30,12 +33,12 @@ const MyScreen = ({}: MyScreenProps) => {
       </View>
       <View style={styles.main}>
         <View style={styles.profileSection}>
-          <ProfileImage size={64} />
+          <ProfileImage uri={user?.userImageUrl} size={64} />
           <NemoText
             level="h2"
             style={{ color: globalGray900, textAlign: "center" }}
           >
-            userName
+            {user?.userName}
           </NemoText>
         </View>
         <View style={styles.linkSection}>
@@ -103,7 +106,7 @@ const MyScreen = ({}: MyScreenProps) => {
           </Pressable>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
