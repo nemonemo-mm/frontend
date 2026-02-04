@@ -13,16 +13,14 @@ interface AlarmModalProps {
 }
 
 export type AlarmState = {
-  ten: boolean;
-  thirty: boolean;
-  sixty: boolean;
-  off: boolean;
+  10: boolean;
+  30: boolean;
+  60: boolean;
 };
 const initialState: AlarmState = {
-  off: true,
-  ten: false,
-  thirty: false,
-  sixty: false,
+  10: false,
+  30: false,
+  60: false,
 };
 
 type Action = { type: "SELECT"; key: keyof AlarmState } | { type: "RESET" };
@@ -31,11 +29,8 @@ const reducer = (state: AlarmState, action: Action): AlarmState => {
   switch (action.type) {
     case "SELECT":
       return {
-        ten: false,
-        thirty: false,
-        sixty: false,
-        off: false,
-        [action.key]: true,
+        ...state,
+        [action.key as number]: !state[action.key],
       };
     case "RESET":
       return initialState;
@@ -50,10 +45,18 @@ const AlarmModal = ({
   confirmModal,
 }: AlarmModalProps) => {
   const [state, dispatch] = useReducer(reducer, initialValue ?? initialState);
-  const { off, ten, thirty, sixty } = state;
+  const ten = state[10];
+  const thirty = state[30];
+  const sixty = state[60];
 
-  const handleAlarmState = (id: keyof typeof initialState) => {
-    if (id == "off") dispatch({ type: "RESET" });
+  const off = !ten && !thirty && !sixty;
+  console.log(ten, thirty, sixty, off);
+
+  const handleAlarmState = (id: keyof AlarmState | "off") => {
+    if (id == "off") {
+      dispatch({ type: "RESET" });
+      return;
+    }
     dispatch({ type: "SELECT", key: id });
   };
 
@@ -76,18 +79,15 @@ const AlarmModal = ({
         <View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">10분</NemoText>
-            <Checkbox value={ten} handler={() => handleAlarmState("ten")} />
+            <Checkbox value={ten} handler={() => handleAlarmState(10)} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">30분</NemoText>
-            <Checkbox
-              value={thirty}
-              handler={() => handleAlarmState("thirty")}
-            />
+            <Checkbox value={thirty} handler={() => handleAlarmState(30)} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">1시간</NemoText>
-            <Checkbox value={sixty} handler={() => handleAlarmState("sixty")} />
+            <Checkbox value={sixty} handler={() => handleAlarmState(60)} />
           </View>
           <View style={style.checkboxContainer}>
             <NemoText level="body2">끔</NemoText>

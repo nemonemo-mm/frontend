@@ -72,6 +72,7 @@ export const createInitialState = ({
       repeatInterval,
       repeatUseDate,
       repeatWeekDays,
+      notificationMinutes,
     } = s;
     const repeat: RepeatState | null = createRepeatState({
       repeatType,
@@ -80,7 +81,9 @@ export const createInitialState = ({
       repeatUseDate,
       repeatWeekDays,
     });
-    // const {alarm} =s;
+
+    const alarm: AlarmState | null = createAlarmState(notificationMinutes);
+
     return {
       ...base,
       id: data.id,
@@ -93,6 +96,7 @@ export const createInitialState = ({
       description: s.description ?? "",
       url: s.url ?? "",
       repeat,
+      alarm,
     };
   }
 
@@ -174,4 +178,19 @@ function createRepeatState(params: {
     default:
       return null;
   }
+}
+
+function createAlarmState(alarm: number[] | null): AlarmState {
+  if (!alarm) {
+    return {
+      10: false,
+      30: false,
+      60: false,
+    };
+  }
+  return {
+    10: alarm.includes(10),
+    30: alarm.includes(30),
+    60: alarm.includes(60),
+  };
 }

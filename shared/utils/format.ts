@@ -28,10 +28,11 @@ export const formatRepeat = (repeat: RepeatState | null): string => {
 };
 
 export const formatAlarm = (alarm: AlarmState | null) => {
-  let result: string = "";
-  if (!alarm || alarm.off) result = "끔";
-  else if (alarm.ten) result = "10분전";
-  else if (alarm.thirty) result = "30분전";
-  else if (alarm.sixty) result = "1시간전";
+  console.log(alarm);
+  let result: string = "끔";
+  if (!alarm) result = "끔";
+  else if (alarm["10"]) result = "10분전";
+  else if (alarm["30"]) result = "30분전";
+  else if (alarm["60"]) result = "1시간전";
   return result;
 };
