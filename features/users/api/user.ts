@@ -1,5 +1,5 @@
+import { getMimeType } from "@/features/team/utils/getMimeType";
 import { apiClient } from "@/shared/utils/http";
-import { ImagePickerAsset } from "expo-image-picker";
 import { UserProfileResponse, UserResponse } from "../types/user.model";
 
 export async function getMe(): Promise<UserResponse> {
@@ -13,15 +13,14 @@ export async function changeMyName(userName: string): Promise<UserResponse> {
 }
 
 export async function changeMyProfileImage(
-  body: ImagePickerAsset
+  imageUri: string
 ): Promise<UserProfileResponse> {
   const formData = new FormData();
-
-  formData.append("image", {
-    uri: body.uri,
-    name: body.fileName ?? "profile.jpg",
-    type: "image/jpeg", // 여기 중요
-  } as any);
+  formData.append("file", {
+    uri: imageUri,
+    name: `${imageUri}`,
+    type: getMimeType(imageUri),
+  } as unknown as Blob);
 
   const { data } = await apiClient.post("/images/users/me/profile", formData, {
     headers: {

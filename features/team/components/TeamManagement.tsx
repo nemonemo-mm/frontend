@@ -271,8 +271,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const isError = isErrorTeam || isErrorPositions;
 
   const uploadTeamImageMutation = useMutation({
-    mutationFn: (image: ImagePicker.ImagePickerAsset) =>
-      uploadTeamImage(teamId!, image),
+    mutationFn: (imageUri: string) => uploadTeamImage(teamId!, imageUri),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] });
     },
@@ -290,17 +289,12 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
-      base64: true,
     });
 
     if (!result.canceled) {
       const asset = result.assets[0];
       setLocalTeamImageUri(asset.uri);
-      if (asset.base64) {
-        uploadTeamImageMutation.mutate(asset, {
-          onError: (e) => console.log(e),
-        });
-      }
+      uploadTeamImageMutation.mutate(asset.uri);
     }
     setIsImageSheetOpen(false);
   };
@@ -312,19 +306,14 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
+      allowsEditing: true,
       quality: 0.8,
-      base64: true,
     });
 
     if (!result.canceled) {
       const asset = result.assets[0];
       setLocalTeamImageUri(asset.uri);
-      if (asset.base64) {
-        uploadTeamImageMutation.mutate(asset, {
-          onError: (e) => console.log(e),
-        });
-      }
+      uploadTeamImageMutation.mutate(asset.uri);
     }
     setIsImageSheetOpen(false);
   };

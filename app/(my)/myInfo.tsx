@@ -77,7 +77,7 @@ const MyInfo = ({}: MyInfoProps) => {
       return;
     }
 
-    updateProfileImage.mutate(asset, {
+    updateProfileImage.mutate(asset.uri, {
       onSuccess: () => userQuery.refetch(),
       onError: (e) => console.log(e),
     });
