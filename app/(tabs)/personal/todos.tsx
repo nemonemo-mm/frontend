@@ -6,6 +6,7 @@ import {
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { TeamDetail } from "@/features/team/types/team.model";
+import { useUser } from "@/features/users/hooks/useUser";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import Checkbox from "@/shared/ui/atoms/Checkbox";
 import NemoText from "@/shared/ui/atoms/NemoText";
@@ -14,7 +15,6 @@ import CalendarWeek from "@/shared/ui/molecules/CalendarWeek";
 import { getWeekByDate } from "@/shared/utils/getWeekByDate";
 import { useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-
 interface TodosProps {}
 type Section =
   | {
@@ -117,10 +117,15 @@ const Todos = ({}: TodosProps) => {
       data: todayTodos ?? [],
     },
   ];
+
+  const user = useUser().data;
+
   const renderSection = ({ item }: { item: Section }) => {
     return (
       <View style={styles.container}>
-        <NemoText level="h2">userName의 {item.title}</NemoText>
+        <NemoText level="h2">
+          {user?.userName}의 {item.title}
+        </NemoText>
 
         {item.data.length === 0 ? (
           <View style={styles.emptyContainer}>
