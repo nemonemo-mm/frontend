@@ -5,7 +5,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { ImagePickerAsset } from "expo-image-picker";
 import { changeMyName, changeMyProfileImage, getMe } from "../api/user";
 import type { UserResponse } from "../types/user.model";
 
@@ -18,7 +17,7 @@ export function useUser() {
 
 type ChangeNamePayload = string;
 
-type ChangeProfileImagePayload = ImagePickerAsset;
+type ChangeProfileImagePayload = string;
 
 function invalidateUserCache(queryClient: QueryClient) {
   queryClient.invalidateQueries({
