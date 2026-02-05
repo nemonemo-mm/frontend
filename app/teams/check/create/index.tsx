@@ -4,7 +4,7 @@ import CtaButton from "@/shared/ui/molecules/CtaButton";
 import NemoInput from "@/shared/ui/molecules/NemoInput";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileSetupScreen() {
@@ -43,7 +43,9 @@ export default function ProfileSetupScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <ChevronLeftIcon />
+        <Pressable onPress={() => router.back()}>
+          <ChevronLeftIcon />
+        </Pressable>
       </View>
 
       {/* 상단 텍스트 및 프로필 이미지 영역 */}
