@@ -3,6 +3,7 @@ import Svg, { Path, SvgProps } from "react-native-svg";
 
 interface GroupIconProps extends SvgProps {
   size?: number;
+  uri?: string;
   strokeColor?: string;
   fillColor?: string;
 }
@@ -11,6 +12,7 @@ const GroupIcon = ({
   size = 56,
   strokeColor = "#89A889",
   fillColor = "#F4F6F0",
+  uri,
   ...props
 }: GroupIconProps) => (
   <Svg
