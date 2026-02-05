@@ -12,13 +12,13 @@ import {
   InitialCalendarState,
 } from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-import { useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -38,6 +38,7 @@ import {
 } from "..";
 import NemoText from "../atoms/NemoText";
 import Segments from "../molecules/Segments";
+import AlertModal from "../organisms/AlertModal";
 import BottomModal from "../organisms/BottomModal";
 import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
 import CalendarTodoForm from "../organisms/CalendarTodoForm";
@@ -63,13 +64,6 @@ export const reducer = (
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
-    case "SET_TEAMID": {
-      if (!action.payload) {
-        //todo: 팀 선택 경고 띄우기
-        return state;
-      }
-      return { ...state, teamId: action.payload };
-    }
     case "SET_ISALLDAY": {
       const isAllDay = action.payload;
 
@@ -141,6 +135,8 @@ export const reducer = (
 
     case "SET_URL":
       return { ...state, url: action.payload };
+    case "RESET":
+      return action.payload;
 
     default:
       return state;
@@ -157,10 +153,13 @@ const CalendarModal = ({
   confirmModal,
   closeModal,
 }: CalendarModalProps) => {
-  const { teamId } = useLocalSearchParams<{ teamId: string }>();
-  const positionQuery = usePositions(parseInt(teamId));
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
+    data?.teamId ?? null
+  );
 
-  const personQuery = useTeamMembers(parseInt(teamId));
+  const positionQuery = usePositions(selectedTeamId);
+
+  const personQuery = useTeamMembers(selectedTeamId);
   const members = personQuery.data?.members?.map((member) =>
     toMemberChip(member)
   );
@@ -201,7 +200,28 @@ const CalendarModal = ({
     }
   };
 
+  useEffect(() => {
+    if (!selectedTeamId) return;
+
+    dispatch({
+      type: "RESET",
+      payload: createInitialState({
+        data,
+        type,
+        positions: positionQuery.data ?? [],
+        persons: members ?? [],
+        selectedDate,
+      }),
+    });
+  }, [selectedTeamId]);
+
+  const [isTitleWritten, setIsTitleWritten] = useState(true);
+
   const handleConfirmModal = () => {
+    if (!state.title) {
+      setIsTitleWritten(false);
+      return;
+    }
     const newData = {
       id: currentSegment,
       state,
@@ -226,9 +246,8 @@ const CalendarModal = ({
   };
   const teamLists = useTeamList().data;
   const handlePressTeam = (id: number) => () => {
-    dispatch({ type: "SET_TEAMID", payload: id });
     animateIcon(!isOpenTeamList ? 1 : 0);
-
+    setSelectedTeamId(id);
     setIsOpenTeamList(false);
   };
 
@@ -242,7 +261,7 @@ const CalendarModal = ({
   };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ minHeight: 660 }}>
+      <BottomModal.Container style={{ height: 660 }}>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
@@ -256,21 +275,21 @@ const CalendarModal = ({
           texts={segmentTexts}
           handler={handleModalSegments}
         />
-        <View>
+        <ScrollView>
           <View style={style.container}>
             <Pressable
               onPress={handleToggleTeamList}
               style={style.optionContainer}
             >
-              {state.teamId ? (
+              {selectedTeamId ? (
                 <NemoText level="body2" style={{ color: globalGray900 }}>
                   {
-                    teamLists?.find((list) => list.teamId == state.teamId)
+                    teamLists?.find((list) => list.teamId == selectedTeamId)
                       .teamName
                   }
                 </NemoText>
               ) : (
-                <NemoText level="body2" style={{ color: globalGray400 }}>
+                <NemoText level="body2" style={{ color: globalGray900 }}>
                   팀을 선택해주세요
                 </NemoText>
               )}
@@ -282,24 +301,34 @@ const CalendarModal = ({
           <View style={style.container}>
             <View style={style.optionContainer}>
               <TextInput
-                placeholderTextColor={globalGray600}
+                editable={!!selectedTeamId}
+                placeholderTextColor={
+                  !selectedTeamId ? globalGray400 : globalGray600
+                }
                 value={state.title}
                 onChangeText={(text: string) =>
                   dispatch({ type: "SET_TITLE", payload: text })
                 }
-                placeholder="제목을 입력하세요"
+                placeholder={"제목을 입력하세요"}
                 style={[style.input]}
               />
             </View>
           </View>
-          <CalendarFormContext.Provider value={{ state, dispatch }}>
+          <CalendarFormContext.Provider
+            value={{
+              state,
+              dispatch,
+              readonly: !selectedTeamId,
+              teamId: selectedTeamId,
+            }}
+          >
             {currentSegment == "schedule" ? (
               <CalendarScheduleForm />
             ) : (
               <CalendarTodoForm />
             )}
           </CalendarFormContext.Provider>
-        </View>
+        </ScrollView>
       </BottomModal.Container>
       {isOpenTeamList && (
         <Modal
@@ -344,6 +373,17 @@ const CalendarModal = ({
           />
         </Modal>
       )}
+      <AlertModal
+        visible={!isTitleWritten}
+        onClose={() => setIsTitleWritten(true)}
+      >
+        <AlertModal.Title>제목을 입력해주세요</AlertModal.Title>
+        <AlertModal.Actions
+          type="single"
+          confirmLabel="돌아가기"
+          onConfirm={() => setIsTitleWritten(true)}
+        />
+      </AlertModal>
     </Modal>
   );
 };
