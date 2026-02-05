@@ -1,5 +1,6 @@
 import GroupIcon from "@/assets/icons/group";
 import { teamDetailInfo } from "@/features/team/api/detail";
+import { useUser } from "@/features/users/hooks/useUser";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -34,6 +35,7 @@ interface SideModalProps {
 
 const SideModal = ({ teams, closeModal }: SideModalProps) => {
   const route = useRouter();
+  const { data: user } = useUser();
 
   const handlePressTeam = (id: number) => async () => {
     const teamInfo = await teamDetailInfo(id);
@@ -55,8 +57,8 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
         >
           <View>
             <View style={{ margin: "auto", gap: 12, marginBottom: 30 }}>
-              <ProfileImage size={64} />
-              <NemoText level="body1">userName</NemoText>
+              <ProfileImage size={64} uri={user?.userImageUrl} />
+              <NemoText level="body1">{user?.userName}</NemoText>
             </View>
             <View style={styles.border} />
             <View style={styles.groupContainer}>
