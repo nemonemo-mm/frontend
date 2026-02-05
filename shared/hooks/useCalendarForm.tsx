@@ -24,6 +24,7 @@ export interface InitialCalendarState {
 }
 // CalendarFormContext.ts
 export const CalendarFormContext = createContext<{
+  teamId: number | null;
   readonly?: boolean;
   state: InitialCalendarState;
   dispatch: React.Dispatch<any>;
