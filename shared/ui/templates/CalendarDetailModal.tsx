@@ -108,7 +108,12 @@ const CalendarDetailModal = ({
             <NemoText level="h2">{title}</NemoText>
           </View>
           <CalendarFormContext.Provider
-            value={{ readonly: true, state, dispatch }}
+            value={{
+              readonly: true,
+              state,
+              dispatch,
+              teamId: parseInt(teamId),
+            }}
           >
             {type == "schedule" ? (
               <CalendarScheduleForm />
