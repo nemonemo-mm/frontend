@@ -6,10 +6,10 @@ import { ScheduleRequest } from "@/features/calendar/types/schedule.model";
 import { TodoRequest } from "@/features/calendar/types/todo.model";
 import useCalendar from "@/shared/hooks/useCalendar";
 import type { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
-import { globalGray50, globalGreen300 } from "@/shared/ui";
+import { globalGray50, globalGreen300, globalGreen400 } from "@/shared/ui";
 import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
-import { Feather } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useCallback, useState } from "react";
 const today = new Date(Date.now());
@@ -204,7 +204,17 @@ export default function TabsLayout() {
           options={{
             title: "",
             tabBarIcon: ({ color }) => (
-              <Feather name="plus-circle" size={24} color={color} />
+              <Entypo
+                name="circle-with-plus"
+                size={24}
+                color={globalGreen400}
+                style={{
+                  transform: [{ translateY: -10 }, { scale: 2 }],
+                  backgroundColor: globalGray50,
+                  borderRadius: 9999,
+                  padding: 0.1,
+                }}
+              />
             ),
           }}
         />
