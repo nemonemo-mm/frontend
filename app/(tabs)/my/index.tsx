@@ -1,3 +1,5 @@
+import { logout } from "@/features/auth/api/auth";
+import { clearTokens } from "@/features/auth/utils/tokenStorage";
 import { useUser } from "@/features/users/hooks/useUser";
 import {
   globalGray0,
@@ -11,8 +13,11 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import AlertModal from "@/shared/ui/organisms/AlertModal";
 import { AntDesign } from "@expo/vector-icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,6 +26,27 @@ interface MyScreenProps {}
 const MyScreen = ({}: MyScreenProps) => {
   const route = useRouter();
   const user = useUser().data;
+
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const queryClient = useQueryClient();
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      await clearTokens();
+      queryClient.clear();
+      route.replace("/auth");
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+    setIsOpenModal(false);
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.header}>
@@ -93,9 +119,10 @@ const MyScreen = ({}: MyScreenProps) => {
             </NemoText>
             <AntDesign name="right" size={16} color={globalGray700} />
           </Pressable>
+
           <Pressable
             style={[styles.linkContainer, styles.link]}
-            onPress={() => {}}
+            onPress={() => setIsOpenModal(true)}
           >
             <NemoText
               level="h2"
@@ -106,6 +133,17 @@ const MyScreen = ({}: MyScreenProps) => {
           </Pressable>
         </View>
       </View>
+
+      <AlertModal visible={isOpenModal} onClose={() => setIsOpenModal(false)}>
+        <AlertModal.Title>로그아웃 할까요?</AlertModal.Title>
+        <AlertModal.Actions
+          type="double"
+          confirmLabel="로그아웃"
+          onConfirm={() => handleLogout()}
+          cancelLabel="취소하기"
+          onCancel={() => setIsOpenModal(false)}
+        />
+      </AlertModal>
     </SafeAreaView>
   );
 };

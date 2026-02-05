@@ -15,6 +15,10 @@ export async function socialLogin(
   return data;
 }
 
+export async function logout() {
+  await apiClient.post("/auth/logout");
+}
+
 export async function deleteAccount() {
   await apiClient.delete("/auth/user");
 }
