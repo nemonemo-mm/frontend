@@ -1,10 +1,9 @@
+import { deleteAccount } from "@/features/auth/api/auth";
 import { useUser, useUserMutations } from "@/features/users/hooks/useUser";
 import {
-  globalBmRadius,
   globalGray0,
   globalGray200,
   globalGray700,
-  globalGray900,
   globalRed600,
   globalSpacingLg,
   globalSpacingMd,
@@ -13,74 +12,94 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
+import ImageUploadModal from "@/shared/ui/molecules/ImageUploadModal";
+import AlertModal from "@/shared/ui/organisms/AlertModal";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, Modal, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface MyInfoProps {}
-
-const typeList = [
-  { id: 1, name: "카메라" },
-  { id: 2, name: "사진 보관함" },
-];
-const CLOSE_MESSAGE = "닫기";
-
-const MyInfo = ({}: MyInfoProps) => {
+const MyInfo = () => {
   const route = useRouter();
   const userQuery = useUser();
   const user = userQuery.data;
   const { updateName, updateProfileImage } = useUserMutations();
+
+  const [isImageSheetOpen, setIsImageSheetOpen] = useState(false);
+  const [localImageUri, setLocalImageUri] = useState<string | null>(null);
+
+  const [activeModal, setActiveModal] = useState<
+    "deleteConfirm" | "deleteForbidden" | null
+  >(null);
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => {
+      route.replace("/auth");
+    },
+    onError: (error) => {
+      // 403: 명세상 권한 없음
+      // 500: 실제 서버에서 팀장이 탈퇴 시 발생 중인 에러
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 403 || error.response?.status === 500)
+      ) {
+        setActiveModal("deleteForbidden");
+      } else {
+        console.error(error);
+      }
+    },
+  });
+
   const handleConfirmUserName = (newUserName: string) => {
     updateName.mutate(newUserName, {
       onSuccess: () => userQuery.refetch(),
     });
   };
 
-  const [isPressEditProfile, setIsPressEditProfile] = useState(false);
-
   const handlePressEditProfile = () => {
-    setIsPressEditProfile(true);
+    setIsImageSheetOpen(true);
   };
 
-  const handlePressItem = (target: string) => async () => {
-    if (target === "카메라") {
-      await pickImage(true);
-    }
+  const handlePickCamera = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) return;
 
-    if (target === "사진 보관함") {
-      await pickImage(false);
-    }
-
-    setIsPressEditProfile(false);
-  };
-
-  const pickImage = async (fromCamera: boolean) => {
-    const result = fromCamera
-      ? await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.8,
-        })
-      : await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.8,
-        });
-
-    if (result.canceled) return;
-
-    const asset = result.assets[0];
-
-    if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
-      return;
-    }
-
-    updateProfileImage.mutate(asset.uri, {
-      onSuccess: () => userQuery.refetch(),
-      onError: (e) => console.log(e),
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
     });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalImageUri(asset.uri);
+      updateProfileImage.mutate(asset.uri);
+    }
+    setIsImageSheetOpen(false);
+  };
+
+  const handlePickLibrary = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setLocalImageUri(asset.uri);
+      updateProfileImage.mutate(asset.uri);
+    }
+    setIsImageSheetOpen(false);
   };
 
   return (
@@ -96,7 +115,7 @@ const MyInfo = ({}: MyInfoProps) => {
           style={styles.profileSection}
           onPress={handlePressEditProfile}
         >
-          <ProfileImage uri={user?.userImageUrl} size={64} />
+          <ProfileImage uri={localImageUri ?? user?.userImageUrl} size={64} />
           <View style={styles.editBtn}>
             <Feather name="edit-2" size={16} color={globalGray700} />
           </View>
@@ -108,48 +127,47 @@ const MyInfo = ({}: MyInfoProps) => {
           onConfirm={handleConfirmUserName}
         />
       </View>
-      <Modal
-        visible={isPressEditProfile}
-        backdropColor={globalGray0 + "50"}
-        style={{
-          padding: 20,
-          justifyContent: "flex-start",
-          backgroundColor: globalGray0,
-          borderRadius: globalBmRadius,
-        }}
-      >
-        <FlatList
-          data={typeList}
-          keyExtractor={(item) => `item-${item.id}`}
-          renderItem={({ item }) => (
-            <Pressable onPress={handlePressItem(item.name)}>
-              <View style={[styles.link, styles.list]}>
-                <NemoText level="body2" style={{ color: globalGray900 }}>
-                  {item.name}
-                </NemoText>
-              </View>
-              <View style={styles.border} />
-            </Pressable>
-          )}
-          ListFooterComponent={() => (
-            <Pressable
-              onPress={() => setIsPressEditProfile(false)}
-              style={[styles.link, styles.list]}
-            >
-              <NemoText level="body2">{CLOSE_MESSAGE}</NemoText>
-            </Pressable>
-          )}
-          style={[
-            styles.linkContainer,
-            { maxHeight: 150, margin: "auto", width: 355 },
-          ]}
-        />
-      </Modal>
+
+      <ImageUploadModal
+        visible={isImageSheetOpen}
+        onClose={() => setIsImageSheetOpen(false)}
+        onPressCamera={handlePickCamera}
+        onPressLibrary={handlePickLibrary}
+      />
+
       <View style={styles.footer}>
-        <NemoText level="body1" style={{ color: globalRed600 }}>
-          탈퇴하기
-        </NemoText>
+        <Pressable onPress={() => setActiveModal("deleteConfirm")}>
+          <NemoText level="body1" style={{ color: globalRed600 }}>
+            탈퇴하기
+          </NemoText>
+        </Pressable>
       </View>
+
+      <AlertModal visible={!!activeModal} onClose={() => setActiveModal(null)}>
+        {activeModal === "deleteConfirm" && (
+          <>
+            <AlertModal.Title>탈퇴할까요?</AlertModal.Title>
+            <AlertModal.Actions
+              type="double"
+              confirmLabel="탈퇴하기"
+              onConfirm={() => deleteAccountMutation.mutate()}
+              cancelLabel="취소"
+              onCancel={() => setActiveModal(null)}
+            />
+          </>
+        )}
+        {activeModal === "deleteForbidden" && (
+          <>
+            <AlertModal.Title>탈퇴 실패</AlertModal.Title>
+            <AlertModal.Text>팀장은 탈퇴할 수 없습니다.</AlertModal.Text>
+            <AlertModal.Actions
+              type="single"
+              confirmLabel="확인"
+              onConfirm={() => setActiveModal(null)}
+            />
+          </>
+        )}
+      </AlertModal>
     </SafeAreaView>
   );
 };
