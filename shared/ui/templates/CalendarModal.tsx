@@ -1,6 +1,7 @@
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { usePositions } from "@/features/position/hooks/usePositions";
+import { useTeamList } from "@/features/team/hooks/useTeamList";
 import {
   toMemberChip,
   useTeamMembers,
@@ -12,15 +13,30 @@ import {
 } from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useReducer, useState } from "react";
-import { Modal, StyleSheet, TextInput, View } from "react-native";
+import { useReducer, useRef, useState } from "react";
 import {
+  Animated,
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import {
+  globalBmRadius,
+  globalGray0,
   globalGray200,
+  globalGray400,
   globalGray600,
   globalGray700,
+  globalGray900,
   globalGreen700,
+  globalSpacingMd,
+  globalSpacingSm,
   globalSpacingXs,
 } from "..";
+import NemoText from "../atoms/NemoText";
 import Segments from "../molecules/Segments";
 import BottomModal from "../organisms/BottomModal";
 import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
@@ -47,6 +63,13 @@ export const reducer = (
   action: { type: string; payload: any }
 ) => {
   switch (action.type) {
+    case "SET_TEAMID": {
+      if (!action.payload) {
+        //todo: 팀 선택 경고 띄우기
+        return state;
+      }
+      return { ...state, teamId: action.payload };
+    }
     case "SET_ISALLDAY": {
       const isAllDay = action.payload;
 
@@ -124,6 +147,9 @@ export const reducer = (
   }
 };
 
+const DEFAULT_TEAM_MESSAGE = "아직 생성된 팀이 없습니다";
+const CLOSE_MESSAGE = "닫기";
+
 const CalendarModal = ({
   type = "schedule",
   data,
@@ -183,6 +209,37 @@ const CalendarModal = ({
     confirmModal(newData);
     closeModal();
   };
+
+  const [isOpenTeamList, setIsOpenTeamList] = useState(false);
+  const rotation = useRef(new Animated.Value(0)).current;
+  const animateIcon = (toValue: number) =>
+    Animated.timing(rotation, {
+      toValue,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+  const handleToggleTeamList = () => {
+    animateIcon(!isOpenTeamList ? 1 : 0);
+
+    setIsOpenTeamList(true);
+  };
+  const teamLists = useTeamList().data;
+  const handlePressTeam = (id: number) => () => {
+    dispatch({ type: "SET_TEAMID", payload: id });
+    animateIcon(!isOpenTeamList ? 1 : 0);
+
+    setIsOpenTeamList(false);
+  };
+
+  const rotateInterpolate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  const animatedStyle = {
+    transform: [{ rotate: rotateInterpolate }],
+  };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
       <BottomModal.Container style={{ minHeight: 660 }}>
@@ -200,6 +257,28 @@ const CalendarModal = ({
           handler={handleModalSegments}
         />
         <View>
+          <View style={style.container}>
+            <Pressable
+              onPress={handleToggleTeamList}
+              style={style.optionContainer}
+            >
+              {state.teamId ? (
+                <NemoText level="body2" style={{ color: globalGray900 }}>
+                  {
+                    teamLists?.find((list) => list.teamId == state.teamId)
+                      .teamName
+                  }
+                </NemoText>
+              ) : (
+                <NemoText level="body2" style={{ color: globalGray400 }}>
+                  팀을 선택해주세요
+                </NemoText>
+              )}
+              <Animated.View style={animatedStyle}>
+                <AntDesign name="down" size={16} color={globalGray700} />
+              </Animated.View>
+            </Pressable>
+          </View>
           <View style={style.container}>
             <View style={style.optionContainer}>
               <TextInput
@@ -222,6 +301,49 @@ const CalendarModal = ({
           </CalendarFormContext.Provider>
         </View>
       </BottomModal.Container>
+      {isOpenTeamList && (
+        <Modal
+          backdropColor={globalGray0 + "50"}
+          style={{
+            padding: 20,
+            justifyContent: "flex-start",
+            backgroundColor: globalGray0,
+            borderRadius: globalBmRadius,
+          }}
+        >
+          <FlatList
+            data={teamLists}
+            keyExtractor={(item) => item.teamId}
+            renderItem={({ item }) => (
+              <Pressable onPress={handlePressTeam(item.teamId)}>
+                <View style={[style.link, style.list]}>
+                  <NemoText level="body2" style={{ color: globalGray900 }}>
+                    {item.teamName}
+                  </NemoText>
+                </View>
+                <View style={style.border} />
+              </Pressable>
+            )}
+            ListFooterComponent={() => (
+              <Pressable
+                onPress={() => setIsOpenTeamList(false)}
+                style={[style.link, style.list]}
+              >
+                <NemoText level="body2">{CLOSE_MESSAGE}</NemoText>
+              </Pressable>
+            )}
+            ListEmptyComponent={
+              <NemoText level="body2" style={{ color: globalGray400 }}>
+                {DEFAULT_TEAM_MESSAGE}
+              </NemoText>
+            }
+            style={[
+              style.linkContainer,
+              { maxHeight: 250, margin: "auto", width: 355 },
+            ]}
+          />
+        </Modal>
+      )}
     </Modal>
   );
 };
@@ -263,6 +385,30 @@ const style = StyleSheet.create({
     paddingVertical: 7,
     paddingHorizontal: 12,
     marginLeft: 6,
+  },
+  border: {
+    height: 1,
+    backgroundColor: globalGray200,
+  },
+  linkContainer: {
+    borderRadius: globalSpacingSm,
+    backgroundColor: globalGray0,
+    marginBottom: globalSpacingMd,
+    overflow: "hidden",
+  },
+  link: {
+    paddingHorizontal: globalSpacingXs,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: globalGray0,
+    height: 48,
+  },
+  listContainer: {},
+
+  list: {
+    justifyContent: "center",
+    width: "100%",
   },
 });
 
