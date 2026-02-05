@@ -72,9 +72,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     if (direction == -1) goPrevMonth();
     else goNextMonth();
   };
-  const handleAddSchedule = () => {
-    setIsOpenAddScheduleModal(true);
-  };
 
   const handleConfirmModal = (data: {
     id: string;
@@ -220,7 +217,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
               : [...filteredSchedules, ...filteredTodos]
           }
           onCalendarMonth={handleCalendarMonth}
-          onAddSchedule={handleAddSchedule}
           onSelectDate={handleSelectDate}
         />
         {isOpenListModal && (
