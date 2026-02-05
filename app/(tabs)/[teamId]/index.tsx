@@ -35,6 +35,9 @@ const GroupScreen = ({}: GroupScreenProps) => {
         const id = Number(teamId);
         if (Number.isNaN(id)) return;
 
+        // id가 0이면 빈 상태이므로 조회하지 않음
+        if (id === 0) return;
+
         const teamInfo = await teamDetailInfo(id);
         await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
 
