@@ -64,40 +64,47 @@ const AlarmModal = ({
     closeModal();
   };
   return (
-    <Modal backdropColor={globalGray700 + "20"} animationType="slide">
-      <BottomModal.Container>
-        <BottomModal.Header>
-          <BottomModal.LeftButton onPress={closeModal}>
-            <AntDesign name="close" size={20} color={globalGray700} />
-          </BottomModal.LeftButton>
-          <BottomModal.Title>알림</BottomModal.Title>
-          <BottomModal.RightButton onPress={handleConfirmModal}>
-            <AntDesign name="check" size={20} color={globalGreen700} />
-          </BottomModal.RightButton>
-        </BottomModal.Header>
-        <View>
-          <View style={style.checkboxContainer}>
-            <NemoText level="body2">10분</NemoText>
-            <Checkbox value={ten} handler={() => handleAlarmState(10)} />
+    <Modal transparent animationType="slide" onRequestClose={closeModal}>
+      <View style={style.backdrop}>
+        <BottomModal.Container style={{ paddingBottom: 35 }}>
+          <BottomModal.Header>
+            <BottomModal.LeftButton onPress={closeModal}>
+              <AntDesign name="close" size={20} color={globalGray700} />
+            </BottomModal.LeftButton>
+            <BottomModal.Title>알림</BottomModal.Title>
+            <BottomModal.RightButton onPress={handleConfirmModal}>
+              <AntDesign name="check" size={20} color={globalGreen700} />
+            </BottomModal.RightButton>
+          </BottomModal.Header>
+          <View>
+            <View style={style.checkboxContainer}>
+              <NemoText level="body2">10분</NemoText>
+              <Checkbox value={ten} handler={() => handleAlarmState(10)} />
+            </View>
+            <View style={style.checkboxContainer}>
+              <NemoText level="body2">30분</NemoText>
+              <Checkbox value={thirty} handler={() => handleAlarmState(30)} />
+            </View>
+            <View style={style.checkboxContainer}>
+              <NemoText level="body2">1시간</NemoText>
+              <Checkbox value={sixty} handler={() => handleAlarmState(60)} />
+            </View>
+            <View style={style.checkboxContainer}>
+              <NemoText level="body2">끔</NemoText>
+              <Checkbox value={off} handler={() => handleAlarmState("off")} />
+            </View>
           </View>
-          <View style={style.checkboxContainer}>
-            <NemoText level="body2">30분</NemoText>
-            <Checkbox value={thirty} handler={() => handleAlarmState(30)} />
-          </View>
-          <View style={style.checkboxContainer}>
-            <NemoText level="body2">1시간</NemoText>
-            <Checkbox value={sixty} handler={() => handleAlarmState(60)} />
-          </View>
-          <View style={style.checkboxContainer}>
-            <NemoText level="body2">끔</NemoText>
-            <Checkbox value={off} handler={() => handleAlarmState("off")} />
-          </View>
-        </View>
-      </BottomModal.Container>
+        </BottomModal.Container>
+      </View>
     </Modal>
   );
 };
 const style = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: globalGray700 + "20",
+  },
   checkboxContainer: {
     height: 48,
     flexDirection: "row",
