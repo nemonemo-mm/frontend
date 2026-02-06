@@ -1,3 +1,4 @@
+import ChevronLeftIcon from "@/assets/icons/chevron-left";
 import {
   globalGray0,
   globalGray150,
@@ -7,7 +8,7 @@ import {
 import Button from "@/shared/ui/atoms/Button";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import { useRouter } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TeamExistenceCheckScreen() {
@@ -15,6 +16,11 @@ export default function TeamExistenceCheckScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()}>
+          <ChevronLeftIcon />
+        </Pressable>
+      </View>
       <View style={styles.container}>
         <NemoText level="h1">팀이 있나요?</NemoText>
       </View>
@@ -44,11 +50,16 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  header: {
+    paddingHorizontal: 20,
+    height: 56,
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 100,
+    paddingTop: 80,
     paddingBottom: 20,
   },
   buttonContainer: {

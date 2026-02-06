@@ -15,6 +15,7 @@ import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
 import { globalGray700 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
+import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
@@ -28,7 +29,7 @@ const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
 const convertSchedules = (
-  data: SchedulesResponse[] | undefined
+  data: SchedulesResponse[] | undefined,
 ): CalendarSchedule[] => {
   if (!data) return [];
   return data.map((item) => {
@@ -85,7 +86,7 @@ export default function CalendarTodosScreen() {
       prev.map((tab) => ({
         ...tab,
         isActive: tab.id === id,
-      }))
+      })),
     );
 
     const nextPath =
@@ -96,24 +97,24 @@ export default function CalendarTodosScreen() {
     route.replace(
       nextPath as
         | `/(${string})/${string}/calendar`
-        | `/(${string})/${string}/calendar/todos`
+        | `/(${string})/${string}/calendar/todos`,
     );
   };
 
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
-    month
+    month,
   );
   const schedulesQuery = useTeamSchedules(parseInt(teamId as string), {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1
+      1,
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0
+      0,
     ).toISOString(),
   });
 
@@ -121,12 +122,12 @@ export default function CalendarTodosScreen() {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1
+      1,
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0
+      0,
     ).toISOString(),
   });
 
@@ -134,7 +135,7 @@ export default function CalendarTodosScreen() {
   const calendarTodos = convertTodos(todosQuery.data);
 
   const { data: teamDetail } = useTeamDetail(
-    teamId ? parseInt(teamId as string) : null
+    teamId ? parseInt(teamId as string) : null,
   );
 
   const [selectedDate, setSelectedDate] = useState(today);
@@ -199,7 +200,7 @@ export default function CalendarTodosScreen() {
         {
           onSuccess: () => callNotice(),
           onError: (e) => console.log(e),
-        }
+        },
       );
     else {
       if (newNotice.trim() == "") {
@@ -211,7 +212,7 @@ export default function CalendarTodosScreen() {
           {
             onSuccess: () => callNotice(),
             onError: (e) => console.log(e),
-          }
+          },
         );
       } else
         updateNotice.mutate(
@@ -223,7 +224,7 @@ export default function CalendarTodosScreen() {
           {
             onSuccess: () => callNotice(),
             onError: (e) => console.log(e),
-          }
+          },
         );
     }
   };
@@ -241,7 +242,11 @@ export default function CalendarTodosScreen() {
             style={[styles.row, styles.layout]}
             onPress={handlePressTeamName}
           >
-            <GroupIcon />
+            {teamDetail?.teamImageUrl ? (
+              <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
+            ) : (
+              <GroupIcon />
+            )}
             <NemoText level="h3" style={{ marginLeft: 4 }}>
               {teamDetail?.teamName}
             </NemoText>
