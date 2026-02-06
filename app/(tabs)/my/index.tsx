@@ -1,5 +1,6 @@
 import { logout } from "@/features/auth/api/auth";
 import { clearTokens } from "@/features/auth/utils/tokenStorage";
+import { getNotificationSettings } from "@/features/notifications/api/notification";
 import { useUser } from "@/features/users/hooks/useUser";
 import {
   globalGray0,
@@ -47,6 +48,19 @@ const MyScreen = ({}: MyScreenProps) => {
     setIsOpenModal(false);
   };
 
+  const handleMyAlarmPress = async () => {
+    try {
+      await queryClient.prefetchQuery({
+        queryKey: ["notificationSettings"],
+        queryFn: getNotificationSettings,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      route.push("/myAlarm");
+    }
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.header}>
@@ -83,7 +97,7 @@ const MyScreen = ({}: MyScreenProps) => {
           <View style={[styles.linkContainer]}>
             <Pressable
               style={styles.link}
-              onPress={() => route.push("/myAlarm")}
+              onPress={handleMyAlarmPress}
             >
               <NemoText
                 level="h2"
