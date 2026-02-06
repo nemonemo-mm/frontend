@@ -1,12 +1,12 @@
 import MainIcon from "@/assets/icons/main";
 import MyPageIcon from "@/assets/icons/mypage";
+import SquaredPlusIcon from "@/assets/icons/squaredPlus";
 import {
   globalGray400,
   globalGray50,
   globalGreen300,
-  globalGreen400,
+  globalSpacingXs,
 } from "@/shared/ui";
-import { Entypo } from "@expo/vector-icons";
 import { Tabs, usePathname, useRouter } from "expo-router";
 export default function TabsLayout() {
   const pathName = usePathname();
@@ -16,7 +16,13 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: globalGreen300,
-          tabBarStyle: { backgroundColor: globalGray50, borderTopWidth: 0 },
+          tabBarStyle: {
+            backgroundColor: globalGray50,
+            borderTopWidth: 0,
+            height: 98, // ← 여기
+            paddingBottom: 20, // 아이콘 아래 여백
+            paddingTop: 20, // 아이콘 위 여백
+          },
           headerStyle: {
             backgroundColor: globalGray50,
           },
@@ -48,17 +54,16 @@ export default function TabsLayout() {
           options={{
             title: "",
             tabBarIcon: () => (
-              <Entypo
-                name="circle-with-plus"
+              <SquaredPlusIcon
                 size={24}
                 color={
-                  pathName.startsWith("/my") ? globalGray400 : globalGreen400
+                  pathName.startsWith("/my") ? globalGray400 : globalGreen300
                 }
                 style={{
-                  transform: [{ translateY: -10 }, { scale: 2 }],
+                  transform: [{ translateY: -22 }, { scale: 2.5 }],
+                  borderRadius: globalSpacingXs,
                   backgroundColor: globalGray50,
-                  borderRadius: 9999,
-                  padding: 0.1,
+                  padding: 0.2,
                 }}
               />
             ),

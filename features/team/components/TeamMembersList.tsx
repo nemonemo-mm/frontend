@@ -1,5 +1,6 @@
 import LeaderIcon from "@/assets/icons/leader";
 import RemoveMemberIcon from "@/assets/icons/remove-member";
+import { usePositions } from "@/features/position/hooks/usePositions";
 import { exitTeam, removeMember } from "@/features/team/api/members";
 import type {
   TeamMember,
@@ -9,12 +10,15 @@ import { globalGray700, globalRed600 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
+import PositionListModal from "@/shared/ui/templates/PositionListModal";
+import { AntDesign } from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   Pressable,
   StyleSheet,
   View,
@@ -67,9 +71,9 @@ export default function TeamMembersList({
           {
             ...previousMembers,
             members: previousMembers.members.filter(
-              (m) => m.memberId !== memberId,
+              (m) => m.memberId !== memberId
             ),
-          },
+          }
         );
       }
 
@@ -79,7 +83,7 @@ export default function TeamMembersList({
       if (context?.previousMembers) {
         queryClient.setQueryData(
           ["teams", teamId, "members"],
-          context.previousMembers,
+          context.previousMembers
         );
       }
       Alert.alert("오류", "멤버 삭제 중 문제가 발생했습니다.");
@@ -123,6 +127,39 @@ export default function TeamMembersList({
   const handleRemoveMember = () => {
     if (!teamId || activeModal?.type !== "remove") return;
     removeMemberMutate(activeModal.member.memberId);
+  };
+
+  const positionQuery = usePositions(teamId);
+  const positionList = positionQuery.data;
+  const [isOpenPositionList, setIsOpenPositionList] = useState(false);
+
+  const rotation = useRef(new Animated.Value(0)).current;
+
+  const animateIcon = (toValue: number) =>
+    Animated.timing(rotation, {
+      toValue,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+  const handleTogglePositionList = () => {
+    animateIcon(!isOpenPositionList ? 1 : 0);
+
+    setIsOpenPositionList((prev) => !prev);
+  };
+
+  const handlePressPosition = (id: number) => () => {
+    animateIcon(!isOpenPositionList ? 1 : 0);
+    setIsOpenPositionList(false);
+  };
+
+  const rotateInterpolate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  const animatedStyle = {
+    transform: [{ rotate: rotateInterpolate }],
   };
 
   return (
@@ -185,14 +222,34 @@ export default function TeamMembersList({
               uri={activeModal.member.userImageUrl}
             />
             <AlertModal.Title>
-              {`${activeModal.member.displayName} (${activeModal.member.positionName})`}
+              {`${activeModal.member.displayName}`}
             </AlertModal.Title>
+            <Pressable
+              onPress={handleTogglePositionList}
+              style={{ flexDirection: "row" }}
+            >
+              <AlertModal.Text>
+                {`${activeModal.member.positionName}`}
+              </AlertModal.Text>
+
+              <Animated.View style={animatedStyle}>
+                <AntDesign name="down" size={16} color={globalGray700} />
+              </Animated.View>
+            </Pressable>
             <AlertModal.Actions
               type="single"
               confirmLabel="닫기"
               onConfirm={handleModalClose}
             />
           </>
+        )}
+
+        {isOpenPositionList && (
+          <PositionListModal
+            positionList={positionList ?? []}
+            onPressPosition={handlePressPosition}
+            onPointerDown={handleTogglePositionList}
+          />
         )}
 
         {activeModal && activeModal.type === "leave" && (

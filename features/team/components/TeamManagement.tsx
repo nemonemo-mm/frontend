@@ -395,7 +395,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
           )}
 
           {/* 팀 내 포지션 */}
-          {positions && positions.length > 0 && (
+          {positions && (
             <View style={styles.chipsContainer}>
               <NemoText level="body1">포지션 관리하기</NemoText>
               <View style={styles.chipsWrapper}>

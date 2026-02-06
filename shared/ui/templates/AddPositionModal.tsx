@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { globalGray200, globalGray600, globalGray700 } from "..";
+import { globalGray200, globalGray600, globalGray700, globalRed400 } from "..";
 import NemoText from "../atoms/NemoText";
 import ModalButton from "../molecules/ModalButton";
 import SelectPositionColor from "../molecules/SelectPositionColor";
@@ -37,13 +37,15 @@ const AddPositionModal = ({
 }: AddPositionModalProps) => {
   const [positionName, setPositionName] = useState("");
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
-    undefined,
+    undefined
   );
 
   useEffect(() => {
     if (!visible) return;
     setPositionName(mode === "edit" ? "" : (initialPositionName ?? ""));
-    setSelectedColor(initialColorHex ? initialColorHex.toLowerCase() : undefined);
+    setSelectedColor(
+      initialColorHex ? initialColorHex.toLowerCase() : undefined
+    );
   }, [visible, mode, initialPositionName, initialColorHex]);
 
   const isFormValid =
@@ -51,18 +53,23 @@ const AddPositionModal = ({
   const primaryLabel =
     mode === "create" ? "생성하기" : onSubmit ? "수정하기" : "닫기";
   const title =
-    mode === "edit" && initialPositionName ? initialPositionName : "포지션 추가";
+    mode === "edit" && initialPositionName
+      ? initialPositionName
+      : "포지션 추가";
   const placeholderText =
     mode === "edit"
       ? "수정할 포지션 이름을 입력해 주세요"
       : "포지션 이름을 입력해 주세요";
-
+  const errorMessage =
+    positionName.trim().length > 0
+      ? positionName.length > 10
+        ? "포지션 이름을 10자 이내로 입력해주세요"
+        : !selectedColor
+          ? "포지션 색상을 선택해주세요"
+          : ""
+      : "포지션 이름을 입력해주세요";
   return (
-    <Modal
-      transparent
-      animationType="slide"
-      visible={visible}
-    >
+    <Modal transparent animationType="slide" visible={visible}>
       <View style={style.overlay}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -91,6 +98,11 @@ const AddPositionModal = ({
                   value={positionName}
                   onChangeText={setPositionName}
                 />
+                {errorMessage && (
+                  <NemoText level="body2" style={{ color: globalRed400 }}>
+                    {errorMessage}
+                  </NemoText>
+                )}
               </View>
 
               <View style={{ marginBottom: 20 }}>

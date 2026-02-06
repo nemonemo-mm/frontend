@@ -125,6 +125,7 @@ const CalendarDetailModal = ({
       </BottomModal.Container>
       {isOpenEditModal && (
         <CalendarModal
+          teamId={parseInt(teamId)}
           type={type}
           data={data}
           closeModal={() => setIsOpenEditModal(false)}

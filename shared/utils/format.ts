@@ -30,8 +30,14 @@ export const formatRepeat = (repeat: RepeatState | null): string => {
 export const formatAlarm = (alarm: AlarmState | null) => {
   let result: string = "끔";
   if (!alarm) result = "끔";
-  else if (alarm["10"]) result = "10분전";
-  else if (alarm["30"]) result = "30분전";
-  else if (alarm["60"]) result = "1시간전";
+  else {
+    const times = [];
+    if (alarm["10"]) times.push("10분전");
+    if (alarm["30"]) times.push("30분전");
+    if (alarm["60"]) times.push("1시간전");
+    if (times.length > 1) {
+      result = times.join(", ");
+    } else result = times.join("");
+  }
   return result;
 };
