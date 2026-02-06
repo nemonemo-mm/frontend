@@ -32,7 +32,8 @@ const convertPositions = (
   }));
 };
 const CalendarScreen = ({}: CalendarScreenProps) => {
-  const { teamId: id } = useLocalSearchParams();
+  const { teamId: id, openModal } = useLocalSearchParams();
+
   const teamId = parseInt(id as string);
   const { createSchedule } = useScheduleMutations();
 
@@ -65,8 +66,10 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     goPrevMonth,
     goNextMonth,
   } = calendarContext;
-  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] = useState(false);
+  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] =
+    useState(!!openModal);
   const [isOpenListModal, setIsOpenListModal] = useState(false);
+  // console.log(openModal);
 
   const handleCalendarMonth = (direction: -1 | 1) => {
     if (direction == -1) goPrevMonth();
@@ -255,6 +258,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         )}
         {isOpenAddScheduleModal && (
           <CalendarModal
+            teamId={teamId}
             selectedDate={selectedDate}
             confirmModal={handleConfirmModal}
             closeModal={() => {
