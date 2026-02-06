@@ -20,10 +20,43 @@ interface MyAlarmProps {}
 
 const MyAlarm = ({}: MyAlarmProps) => {
   const route = useRouter();
-  //개인 알림 설정 토글용 설정값입니다. 변수 네이밍은 추후 수정해야함!
+  //개인 알림 설정 토글용 설정값입니다.
   const [isAll, setIsAll] = useState(true);
-  //todo:개인 알림 설정 토글값에 맞춰 다른 토글값 설정
-  //todo: 알림 설정에 대한 모달 붙이기
+
+  // 세부 설정 상태 관리
+  const [detailSettings, setDetailSettings] = useState({
+    scheduleChange: true,
+    todoChange: true,
+    notice: true,
+  });
+
+  // 전체 알림 토글 핸들러
+  const handleAllToggle = () => {
+    setIsAll((prev) => {
+      const next = !prev;
+      // 전체 알림을 끄면 세부 알림도 모두 끔(false) 처리
+      if (!next) {
+        setDetailSettings({
+          scheduleChange: false,
+          todoChange: false,
+          notice: false, // 공지 알림도 포함하여 끔 설정
+        });
+      }
+      return next;
+    });
+  };
+
+  // 개별 토글 핸들러
+  const handleDetailToggle = (key: keyof typeof detailSettings) => {
+    // 전체 알림이 꺼져있으면 조작 불가 (disabled 처리는 UI에서 하지만 로직 방어)
+    if (!isAll) return;
+
+    setDetailSettings((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.header}>
@@ -37,12 +70,7 @@ const MyAlarm = ({}: MyAlarmProps) => {
           <NemoText level="body2" style={{ color: globalGray900 }}>
             개인 알림 허용
           </NemoText>
-          <Toggle
-            value={isAll}
-            handler={() => {
-              setIsAll((prev) => !prev);
-            }}
-          />
+          <Toggle value={isAll} handler={handleAllToggle} />
         </View>
         <View style={[styles.linkContainer]}>
           <View style={styles.link}>
@@ -52,7 +80,11 @@ const MyAlarm = ({}: MyAlarmProps) => {
             >
               스케줄 변경 알림
             </NemoText>
-            <Toggle value={true} handler={() => {}} />
+            <Toggle
+              value={detailSettings.scheduleChange}
+              handler={() => handleDetailToggle("scheduleChange")}
+              disabled={!isAll} // 전체 알림 꺼짐 시 비활성화
+            />
           </View>
           <View style={styles.border} />
           <View style={styles.link}>
@@ -78,7 +110,11 @@ const MyAlarm = ({}: MyAlarmProps) => {
             >
               투두 변경 알림
             </NemoText>
-            <Toggle value={true} handler={() => {}} />
+            <Toggle
+              value={detailSettings.todoChange}
+              handler={() => handleDetailToggle("todoChange")}
+              disabled={!isAll}
+            />
           </View>
           <View style={styles.border} />
           <View style={styles.link}>
@@ -103,7 +139,11 @@ const MyAlarm = ({}: MyAlarmProps) => {
           >
             공지 알림
           </NemoText>
-          <Toggle value={true} handler={() => {}} />
+          <Toggle
+            value={detailSettings.notice}
+            handler={() => handleDetailToggle("notice")}
+            disabled={!isAll}
+          />
         </View>
       </View>
     </SafeAreaView>
