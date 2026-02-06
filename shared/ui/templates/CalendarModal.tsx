@@ -44,6 +44,7 @@ import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
 import CalendarTodoForm from "../organisms/CalendarTodoForm";
 
 interface CalendarModalProps {
+  teamId: number;
   type?: "schedule" | "todo";
   data?: SchedulesResponse | TodoResponse;
   selectedDate: Date;
@@ -147,6 +148,7 @@ const DEFAULT_TEAM_MESSAGE = "아직 생성된 팀이 없습니다";
 const CLOSE_MESSAGE = "닫기";
 
 const CalendarModal = ({
+  teamId,
   type = "schedule",
   data,
   selectedDate,
@@ -154,9 +156,8 @@ const CalendarModal = ({
   closeModal,
 }: CalendarModalProps) => {
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
-    data?.teamId ?? null
+    data?.teamId ?? teamId
   );
-
   const positionQuery = usePositions(selectedTeamId);
 
   const personQuery = useTeamMembers(selectedTeamId);
