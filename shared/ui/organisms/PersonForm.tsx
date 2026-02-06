@@ -31,7 +31,7 @@ const PersonForm = ({ disabled, persons, onPerson }: PersonFormProps) => {
   });
   return (
     <View style={styles.optionContainer}>
-      <NemoTextLabel>참석자</NemoTextLabel>
+      <NemoTextLabel disabled={disabled}>참석자</NemoTextLabel>
       <Pressable onPress={() => !disabled && setIsOpenModal(true)}>
         <NemoText level="body3" style={{ color: globalGray700 }}>
           {personLabel}

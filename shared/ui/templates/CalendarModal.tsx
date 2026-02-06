@@ -1,6 +1,7 @@
 import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
 import { TodoResponse } from "@/features/calendar/types/todo.model";
 import { usePositions } from "@/features/position/hooks/usePositions";
+import { useTeamList } from "@/features/team/hooks/useTeamList";
 import {
   toMemberChip,
   useTeamMembers,
@@ -11,22 +12,39 @@ import {
   InitialCalendarState,
 } from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-import { useReducer, useState } from "react";
-import { Modal, StyleSheet, TextInput, View } from "react-native";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
+  Animated,
+  FlatList,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import {
+  globalBmRadius,
+  globalGray0,
   globalGray200,
+  globalGray400,
   globalGray600,
   globalGray700,
+  globalGray900,
   globalGreen700,
+  globalSpacingMd,
+  globalSpacingSm,
   globalSpacingXs,
 } from "..";
+import NemoText from "../atoms/NemoText";
 import Segments from "../molecules/Segments";
+import AlertModal from "../organisms/AlertModal";
 import BottomModal from "../organisms/BottomModal";
 import CalendarScheduleForm from "../organisms/CalendarScheduleForm";
 import CalendarTodoForm from "../organisms/CalendarTodoForm";
 
 interface CalendarModalProps {
+  teamId: number;
   type?: "schedule" | "todo";
   data?: SchedulesResponse | TodoResponse;
   selectedDate: Date;
@@ -118,23 +136,31 @@ export const reducer = (
 
     case "SET_URL":
       return { ...state, url: action.payload };
+    case "RESET":
+      return action.payload;
 
     default:
       return state;
   }
 };
 
+const DEFAULT_TEAM_MESSAGE = "아직 생성된 팀이 없습니다";
+const CLOSE_MESSAGE = "닫기";
+
 const CalendarModal = ({
+  teamId,
   type = "schedule",
   data,
   selectedDate,
   confirmModal,
   closeModal,
 }: CalendarModalProps) => {
-  const { teamId } = useLocalSearchParams<{ teamId: string }>();
-  const positionQuery = usePositions(parseInt(teamId));
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
+    data?.teamId ?? teamId
+  );
+  const positionQuery = usePositions(selectedTeamId);
 
-  const personQuery = useTeamMembers(parseInt(teamId));
+  const personQuery = useTeamMembers(selectedTeamId);
   const members = personQuery.data?.members?.map((member) =>
     toMemberChip(member)
   );
@@ -175,7 +201,28 @@ const CalendarModal = ({
     }
   };
 
+  useEffect(() => {
+    if (!selectedTeamId) return;
+
+    dispatch({
+      type: "RESET",
+      payload: createInitialState({
+        data,
+        type,
+        positions: positionQuery.data ?? [],
+        persons: members ?? [],
+        selectedDate,
+      }),
+    });
+  }, [selectedTeamId]);
+
+  const [isTitleWritten, setIsTitleWritten] = useState(true);
+
   const handleConfirmModal = () => {
+    if (!state.title) {
+      setIsTitleWritten(false);
+      return;
+    }
     const newData = {
       id: currentSegment,
       state,
@@ -183,9 +230,39 @@ const CalendarModal = ({
     confirmModal(newData);
     closeModal();
   };
+
+  const [isOpenTeamList, setIsOpenTeamList] = useState(false);
+  const rotation = useRef(new Animated.Value(0)).current;
+  const animateIcon = (toValue: number) =>
+    Animated.timing(rotation, {
+      toValue,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+  const handleToggleTeamList = () => {
+    animateIcon(!isOpenTeamList ? 1 : 0);
+
+    setIsOpenTeamList(true);
+  };
+  const teamLists = useTeamList().data;
+  const handlePressTeam = (id: number) => () => {
+    animateIcon(!isOpenTeamList ? 1 : 0);
+    setSelectedTeamId(id);
+    setIsOpenTeamList(false);
+  };
+
+  const rotateInterpolate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  const animatedStyle = {
+    transform: [{ rotate: rotateInterpolate }],
+  };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ minHeight: 660 }}>
+      <BottomModal.Container style={{ height: 660 }}>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
@@ -199,29 +276,115 @@ const CalendarModal = ({
           texts={segmentTexts}
           handler={handleModalSegments}
         />
-        <View>
+        <ScrollView>
+          <View style={style.container}>
+            <Pressable
+              onPress={handleToggleTeamList}
+              style={style.optionContainer}
+            >
+              {selectedTeamId ? (
+                <NemoText level="body2" style={{ color: globalGray900 }}>
+                  {
+                    teamLists?.find((list) => list.teamId == selectedTeamId)
+                      .teamName
+                  }
+                </NemoText>
+              ) : (
+                <NemoText level="body2" style={{ color: globalGray900 }}>
+                  팀을 선택해주세요
+                </NemoText>
+              )}
+              <Animated.View style={animatedStyle}>
+                <AntDesign name="down" size={16} color={globalGray700} />
+              </Animated.View>
+            </Pressable>
+          </View>
           <View style={style.container}>
             <View style={style.optionContainer}>
               <TextInput
-                placeholderTextColor={globalGray600}
+                editable={!!selectedTeamId}
+                placeholderTextColor={
+                  !selectedTeamId ? globalGray400 : globalGray600
+                }
                 value={state.title}
                 onChangeText={(text: string) =>
                   dispatch({ type: "SET_TITLE", payload: text })
                 }
-                placeholder="제목을 입력하세요"
+                placeholder={"제목을 입력하세요"}
                 style={[style.input]}
               />
             </View>
           </View>
-          <CalendarFormContext.Provider value={{ state, dispatch }}>
+          <CalendarFormContext.Provider
+            value={{
+              state,
+              dispatch,
+              readonly: !selectedTeamId,
+              teamId: selectedTeamId,
+            }}
+          >
             {currentSegment == "schedule" ? (
               <CalendarScheduleForm />
             ) : (
               <CalendarTodoForm />
             )}
           </CalendarFormContext.Provider>
-        </View>
+        </ScrollView>
       </BottomModal.Container>
+      {isOpenTeamList && (
+        <Modal
+          backdropColor={globalGray0 + "50"}
+          style={{
+            padding: 20,
+            justifyContent: "flex-start",
+            backgroundColor: globalGray0,
+            borderRadius: globalBmRadius,
+          }}
+        >
+          <FlatList
+            data={teamLists}
+            keyExtractor={(item) => item.teamId}
+            renderItem={({ item }) => (
+              <Pressable onPress={handlePressTeam(item.teamId)}>
+                <View style={[style.link, style.list]}>
+                  <NemoText level="body2" style={{ color: globalGray900 }}>
+                    {item.teamName}
+                  </NemoText>
+                </View>
+                <View style={style.border} />
+              </Pressable>
+            )}
+            ListFooterComponent={() => (
+              <Pressable
+                onPress={() => setIsOpenTeamList(false)}
+                style={[style.link, style.list]}
+              >
+                <NemoText level="body2">{CLOSE_MESSAGE}</NemoText>
+              </Pressable>
+            )}
+            ListEmptyComponent={
+              <NemoText level="body2" style={{ color: globalGray400 }}>
+                {DEFAULT_TEAM_MESSAGE}
+              </NemoText>
+            }
+            style={[
+              style.linkContainer,
+              { maxHeight: 250, margin: "auto", width: 355 },
+            ]}
+          />
+        </Modal>
+      )}
+      <AlertModal
+        visible={!isTitleWritten}
+        onClose={() => setIsTitleWritten(true)}
+      >
+        <AlertModal.Title>제목을 입력해주세요</AlertModal.Title>
+        <AlertModal.Actions
+          type="single"
+          confirmLabel="돌아가기"
+          onConfirm={() => setIsTitleWritten(true)}
+        />
+      </AlertModal>
     </Modal>
   );
 };
@@ -263,6 +426,30 @@ const style = StyleSheet.create({
     paddingVertical: 7,
     paddingHorizontal: 12,
     marginLeft: 6,
+  },
+  border: {
+    height: 1,
+    backgroundColor: globalGray200,
+  },
+  linkContainer: {
+    borderRadius: globalSpacingSm,
+    backgroundColor: globalGray0,
+    marginBottom: globalSpacingMd,
+    overflow: "hidden",
+  },
+  link: {
+    paddingHorizontal: globalSpacingXs,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: globalGray0,
+    height: 48,
+  },
+  listContainer: {},
+
+  list: {
+    justifyContent: "center",
+    width: "100%",
   },
 });
 

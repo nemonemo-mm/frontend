@@ -50,7 +50,6 @@ const AlarmModal = ({
   const sixty = state[60];
 
   const off = !ten && !thirty && !sixty;
-  console.log(ten, thirty, sixty, off);
 
   const handleAlarmState = (id: keyof AlarmState | "off") => {
     if (id == "off") {

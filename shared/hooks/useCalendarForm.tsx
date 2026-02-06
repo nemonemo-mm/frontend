@@ -8,6 +8,7 @@ import { AlarmState } from "../ui/templates/AlarmModal";
 import { RepeatState } from "../ui/templates/RepeatModal";
 
 export interface InitialCalendarState {
+  teamId: number;
   id?: number;
   isAllDay: boolean;
   start: Date;
@@ -23,6 +24,7 @@ export interface InitialCalendarState {
 }
 // CalendarFormContext.ts
 export const CalendarFormContext = createContext<{
+  teamId: number | null;
   readonly?: boolean;
   state: InitialCalendarState;
   dispatch: React.Dispatch<any>;
@@ -43,6 +45,7 @@ export const createInitialState = ({
 }): InitialCalendarState => {
   // 기본값
   const base: InitialCalendarState = {
+    teamId: 0,
     isAllDay: false,
     start: selectedDate,
     end: selectedDate,
@@ -86,6 +89,7 @@ export const createInitialState = ({
 
     return {
       ...base,
+      teamId: data.teamId,
       id: data.id,
       person,
       position,
@@ -117,6 +121,7 @@ export const createInitialState = ({
 
   return {
     ...base,
+    teamId: data.teamId,
     id: data.id,
     person,
     position,
