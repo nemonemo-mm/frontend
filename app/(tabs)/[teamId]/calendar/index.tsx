@@ -9,7 +9,7 @@ import {
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
 import Chip from "@/shared/ui/atoms/Chip";
-import Chips, { ChipText } from "@/shared/ui/molecules/Chips";
+import { ChipText } from "@/shared/ui/molecules/Chips";
 import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
@@ -17,7 +17,7 @@ import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { View } from "react-native";
+import { FlatList, View } from "react-native";
 
 interface CalendarScreenProps {}
 
@@ -32,7 +32,8 @@ const convertPositions = (
   }));
 };
 const CalendarScreen = ({}: CalendarScreenProps) => {
-  const { teamId: id } = useLocalSearchParams();
+  const { teamId: id, openModal } = useLocalSearchParams();
+
   const teamId = parseInt(id as string);
   const { createSchedule } = useScheduleMutations();
 
@@ -65,15 +66,14 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     goPrevMonth,
     goNextMonth,
   } = calendarContext;
-  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] = useState(false);
+  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] =
+    useState(!!openModal);
   const [isOpenListModal, setIsOpenListModal] = useState(false);
+  // console.log(openModal);
 
   const handleCalendarMonth = (direction: -1 | 1) => {
     if (direction == -1) goPrevMonth();
     else goNextMonth();
-  };
-  const handleAddSchedule = () => {
-    setIsOpenAddScheduleModal(true);
   };
 
   const handleConfirmModal = (data: {
@@ -167,13 +167,21 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
       });
     }
   };
-  const handlePositionChips = (next: ChipText[]) => {
-    setIsAll((prev) => next.every((n) => n.isActive));
-    setCurrentPositions((prev) => next);
+
+  const handlePositionChip = (id: number) => () => {
+    setIsAll(false);
+    setCurrentPositions((prev) =>
+      prev.map((chip) =>
+        chip.id === id ? { ...chip, isActive: !chip.isActive } : chip
+      )
+    );
     callSchedules();
     callTodos();
   };
 
+  useEffect(() => {
+    setIsAll(currentPosition.every((v) => v.isActive));
+  }, [currentPosition]);
   const handleConfirmListModal = (date: Date) => {
     selectDate(date);
     setIsOpenAddScheduleModal(true);
@@ -204,11 +212,30 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   return (
     <View>
       <View>
-        <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
+        <View
+          style={{ flexDirection: "row", gap: 8, marginBottom: 16, width: 350 }}
+        >
           <Chip active={isAll} onPress={handlePressIsAll}>
             전체
           </Chip>
-          <Chips texts={currentPosition} handler={handlePositionChips} />
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={currentPosition}
+            keyExtractor={(text) => `chip-${text.id}`}
+            renderItem={({ item }) => (
+              <Chip
+                key={`chip-${item.id}`}
+                active={item.isActive}
+                onPress={handlePositionChip(item.id)}
+              >
+                {item.content}
+              </Chip>
+            )}
+            contentContainerStyle={{
+              gap: 8,
+            }}
+          />
         </View>
         <Calendar
           year={currentYearMonth.year}
@@ -220,7 +247,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
               : [...filteredSchedules, ...filteredTodos]
           }
           onCalendarMonth={handleCalendarMonth}
-          onAddSchedule={handleAddSchedule}
           onSelectDate={handleSelectDate}
         />
         {isOpenListModal && (
@@ -232,6 +258,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
         )}
         {isOpenAddScheduleModal && (
           <CalendarModal
+            teamId={teamId}
             selectedDate={selectedDate}
             confirmModal={handleConfirmModal}
             closeModal={() => {

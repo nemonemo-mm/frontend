@@ -35,7 +35,7 @@ const PositionForm = ({
   });
   return (
     <View style={styles.optionContainer}>
-      <NemoTextLabel>포지션</NemoTextLabel>
+      <NemoTextLabel disabled={disabled}>포지션</NemoTextLabel>
       <Pressable onPress={() => !disabled && setIsOpenModal(true)}>
         <NemoText level="body3" style={{ color: globalGray700 }}>
           {positionLabel}

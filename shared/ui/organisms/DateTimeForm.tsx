@@ -39,7 +39,7 @@ const DateTimeForm = ({
   const [isOpenTimeModal, setIsOpenTimeModal] = useState(false);
   return (
     <View style={styles.optionContainer}>
-      <NemoTextLabel>{label}</NemoTextLabel>
+      <NemoTextLabel disabled={disabled}>{label}</NemoTextLabel>
       <View style={styles.row}>
         <DateButton
           selectedDate={date}

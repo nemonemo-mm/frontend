@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import {
   globalGray200,
+  globalGray400,
   globalGray600,
   globalGray700,
   globalSpacingXs,
@@ -45,7 +46,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
     <View>
       <View style={styles.container}>
         <View style={styles.optionContainer}>
-          <NemoTextLabel>종일</NemoTextLabel>
+          <NemoTextLabel disabled={readonly}>종일</NemoTextLabel>
           <Toggle
             disabled={readonly}
             value={isAllDay}
@@ -117,7 +118,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
       </View>
       <View style={styles.container}>
         <View style={styles.optionContainer}>
-          <NemoTextLabel>알림</NemoTextLabel>
+          <NemoTextLabel disabled={readonly}>알림</NemoTextLabel>
           <Pressable onPress={() => !readonly && setIsOpenAlarmModal(true)}>
             <NemoText level="body3" style={{ color: globalGray700 }}>
               {alarmLabel}
@@ -125,7 +126,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
           </Pressable>
         </View>
         <View style={styles.optionContainer}>
-          <NemoTextLabel>반복</NemoTextLabel>
+          <NemoTextLabel disabled={readonly}>반복</NemoTextLabel>
           <Pressable onPress={() => !readonly && setIsOpenRepeatModal(true)}>
             <NemoText level="body3" style={{ color: globalGray700 }}>
               {repeatLabel}
@@ -160,7 +161,8 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         />
         <View style={[styles.optionContainer, styles.optionInput]}>
           <TextInput
-            placeholderTextColor={globalGray600}
+            editable={!readonly}
+            placeholderTextColor={readonly ? globalGray400 : globalGray600}
             placeholder="메모를 남겨주세요"
             style={[styles.input]}
             value={description}
@@ -171,7 +173,8 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         </View>
         <View style={[styles.optionContainer, styles.optionInput]}>
           <TextInput
-            placeholderTextColor={globalGray600}
+            editable={!readonly}
+            placeholderTextColor={readonly ? globalGray400 : globalGray600}
             placeholder="관련 링크를 추가해 보세요"
             style={[styles.input]}
             value={url}
