@@ -23,7 +23,10 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { useTeamMembers } from "../hooks/useTeamMembers";
+import {
+  useTeamMembers,
+  useTeamMembersMutations,
+} from "../hooks/useTeamMembers";
 
 interface TeamMembersListProps {
   members?: TeamMember[];
@@ -148,8 +151,23 @@ export default function TeamMembersList({
     setIsOpenPositionList((prev) => !prev);
   };
 
-  const handlePressPosition = (id: number) => () => {
+  const { changePosition } = useTeamMembersMutations();
+
+  const handlePressPosition = (memberId: number) => (id: number) => () => {
     animateIcon(!isOpenPositionList ? 1 : 0);
+    if (teamId && memberId) {
+      changePosition.mutate(
+        { teamId, positionId: id, memberId },
+        {
+          onSuccess: (data) => {
+            handleProfileModalOpen({
+              ...data,
+              displayName: data.userName || "",
+            });
+          },
+        }
+      );
+    }
     setIsOpenPositionList(false);
   };
 
@@ -202,6 +220,13 @@ export default function TeamMembersList({
                 </Pressable>
               </View>
             )}
+            {isOpenPositionList && (
+              <PositionListModal
+                positionList={positionList ?? []}
+                onPressPosition={handlePressPosition(member.memberId)}
+                onPointerDown={handleTogglePositionList}
+              />
+            )}
           </Pressable>
         ))}
       </View>
@@ -242,14 +267,6 @@ export default function TeamMembersList({
               onConfirm={handleModalClose}
             />
           </>
-        )}
-
-        {isOpenPositionList && (
-          <PositionListModal
-            positionList={positionList ?? []}
-            onPressPosition={handlePressPosition}
-            onPointerDown={handleTogglePositionList}
-          />
         )}
 
         {activeModal && activeModal.type === "leave" && (
