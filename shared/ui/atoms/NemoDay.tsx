@@ -21,6 +21,7 @@ const style = StyleSheet.create({
   container: {
     paddingVertical: 3,
     paddingHorizontal: 19,
+    width: 355 / 7,
   },
 });
 

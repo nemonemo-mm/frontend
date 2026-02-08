@@ -279,7 +279,9 @@ const ScheduleListModal = ({
                   <View
                     style={[
                       styles.border,
-                      { backgroundColor: t.representativeColorHex },
+                      {
+                        backgroundColor: t.representativeColorHex ?? "#BDBDBD",
+                      },
                     ]}
                   />
                   <NemoText level="body1">{t.title}</NemoText>
@@ -317,7 +319,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   border: {
-    width: 2,
+    width: 3,
     borderRadius: 2,
   },
 });

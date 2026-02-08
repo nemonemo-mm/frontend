@@ -1,16 +1,28 @@
-import { useTeamSchedules } from "@/features/calendar/hooks/useSchedules";
+import {
+  useScheduleMutations,
+  useTeamSchedules,
+} from "@/features/calendar/hooks/useSchedules";
 import {
   useTeamTodos,
   useTodoMutations,
 } from "@/features/calendar/hooks/useTodos";
-import { SchedulesResponse } from "@/features/calendar/types/schedule.model";
-import { TodoResponse } from "@/features/calendar/types/todo.model";
+import {
+  ScheduleRequest,
+  SchedulesResponse,
+} from "@/features/calendar/types/schedule.model";
+import {
+  TodoRequest,
+  TodoResponse,
+} from "@/features/calendar/types/todo.model";
 import { TeamDetail } from "@/features/team/types/team.model";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
+import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
 import Checkbox from "@/shared/ui/atoms/Checkbox";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek";
+import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
+import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import { getWeekByDate } from "@/shared/utils/getWeekByDate";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
@@ -35,7 +47,7 @@ const formatDateString = (date: string): string => {
   const newDate =
     (oldDate.getMonth() + 1).toString().padStart(2, "0") +
     "/" +
-    oldDate.getDate();
+    oldDate.getDate().toString().padStart(2, "0");
 
   return newDate;
 };
@@ -43,7 +55,10 @@ const formatDateString = (date: string): string => {
 const Todos = ({}: TodosProps) => {
   const calendarContext = useContext(CalendarContext);
   const today = new Date(Date.now());
-  const { teamId } = useLocalSearchParams();
+  const { teamId, openModal } = useLocalSearchParams();
+
+  const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] =
+    useState(!!openModal);
   if (!calendarContext) {
     throw new Error("CalendarContext is undefined. Ensure it is provided.");
   }
@@ -56,7 +71,14 @@ const Todos = ({}: TodosProps) => {
     init();
   }, [teamId]);
 
-  const { schedules, todos, selectedDate, selectDate } = calendarContext;
+  const {
+    selectedDate,
+    selectDate,
+    schedules,
+    callSchedules,
+    todos,
+    callTodos,
+  } = calendarContext;
 
   const thisWeek = getWeekByDate(new Date(Date.now()));
   const start = new Date(
@@ -91,7 +113,9 @@ const Todos = ({}: TodosProps) => {
   });
   const todayTodos = todayTodoQuery.data;
 
-  const { updateTodoStatus } = useTodoMutations();
+  const { createTodo, updateTodoStatus } = useTodoMutations();
+
+  const { createSchedule } = useScheduleMutations();
 
   const handleCheckTodo = (todoId: number) => (v: boolean) => {
     updateTodoStatus.mutate(
@@ -106,7 +130,97 @@ const Todos = ({}: TodosProps) => {
       }
     );
   };
+  const handleConfirmModal = (data: {
+    id: string;
+    state: InitialCalendarState;
+  }) => {
+    const {
+      title,
+      description,
+      url,
+      start,
+      end,
+      person,
+      position,
+      repeat,
+      alarm,
+      isAllDay,
+    } = data.state;
+    const positionIds = position
+      .filter((pos) => pos.isActive)
+      .map((pos) => pos.positionId);
+    const attendeeMemberIds = person
+      .filter((per) => per.isActive)
+      .map((per) => per.memberId);
+    const repeatType = repeat?.period ?? "NONE";
+    let repeatEndDate = null;
+    let repeatInterval: number | null = null;
+    let repeatWeekDays: WeekDayType[] | null = null;
+    let repeatUseDate: boolean = false;
+    if (repeat) {
+      repeatEndDate = repeat.endAt.toISOString();
+      if (repeat.period == "daily") {
+        repeatInterval = repeat.interval;
+      }
+      if (repeat.period == "weekly") {
+        repeatInterval = repeat.interval;
+        repeatWeekDays = repeat.weekdays;
+      }
+      if (repeat.period == "monthly" || repeat.period == "yearly") {
+        repeatUseDate = repeat.useDate;
+      }
+    }
+    const notificationMinutes: number[] = alarm
+      ? Object.entries(alarm)
+          .map(([key, value]) => {
+            if (value) return parseInt(key);
+            else return null;
+          })
+          .filter((val): val is number => val !== null)
+      : [];
+    if (data.id == "schedule") {
+      const req = {
+        teamId: parseInt(teamId as string),
+        title,
+        description,
+        startAt: start.toISOString(),
+        endAt: end.toISOString(),
+        isAllDay,
+        place: "",
+        url,
+        repeatType,
+        repeatInterval,
+        repeatWeekDays,
+        repeatUseDate,
+        repeatEndDate,
+        positionIds,
+        attendeeMemberIds,
+        notificationMinutes,
+      } as ScheduleRequest;
 
+      createSchedule.mutate(req, {
+        onSuccess: () => {
+          callSchedules();
+        },
+      });
+    } else {
+      const req = {
+        teamId: parseInt(teamId as string),
+        title,
+        description,
+        endAt: end.toISOString(),
+        place: "",
+        url,
+        assigneeMemberIds: attendeeMemberIds,
+        positionIds,
+      } as TodoRequest;
+      createTodo.mutate(req, {
+        onSuccess: () => {
+          callTodos();
+        },
+      });
+    }
+  };
   const sections: Section[] = [
     {
       key: "schedule",
@@ -115,7 +229,7 @@ const Todos = ({}: TodosProps) => {
     },
     {
       key: "todo",
-      title: "할 일",
+      title: "투두",
       data: todayTodos ?? [],
     },
   ];
@@ -123,7 +237,7 @@ const Todos = ({}: TodosProps) => {
     return (
       <View style={styles.container}>
         <NemoText level="h2">
-          {info?.teamName}의 {item.title}
+          {info?.teamName} {item.title}
         </NemoText>
 
         {item.data.length === 0 ? (
@@ -136,7 +250,7 @@ const Todos = ({}: TodosProps) => {
               <View
                 style={[
                   styles.colorBar,
-                  { backgroundColor: s.representativeColorHex },
+                  { backgroundColor: s.representativeColorHex ?? "#BDBDBD" },
                 ]}
               />
               <View style={styles.rowItem}>
@@ -156,7 +270,7 @@ const Todos = ({}: TodosProps) => {
               <View
                 style={[
                   styles.colorBar,
-                  { backgroundColor: t.representativeColorHex },
+                  { backgroundColor: t.representativeColorHex ?? "#BDBDBD" },
                 ]}
               />
               <View style={styles.rowItem}>
@@ -185,18 +299,29 @@ const Todos = ({}: TodosProps) => {
             </View>
           ))
         )}
+        {isOpenAddScheduleModal && (
+          <CalendarModal
+            teamId={parseInt(teamId as string)}
+            selectedDate={selectedDate}
+            confirmModal={handleConfirmModal}
+            closeModal={() => {
+              setIsOpenAddScheduleModal(false);
+            }}
+          />
+        )}
       </View>
     );
   };
   return (
     <View style={{ flex: 1 }}>
       {/* 🔒 고정 헤더 */}
-      <View style={{ marginBottom: 36 }}>
+      <View style={{ marginBottom: 8 }}>
         <CalendarDays />
         <CalendarWeek
           dates={thisWeek}
           schedules={[...schedules, ...todos]}
           onSelectDate={selectDate}
+          maxLanes={2}
         />
       </View>
 
@@ -222,14 +347,13 @@ const styles = StyleSheet.create({
   },
   rowItem: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
     alignItems: "flex-start",
-    paddingVertical: 8,
   },
   colorBar: {
-    width: 2,
+    width: 3,
     borderRadius: 2,
-    alignSelf: "stretch",
+    height: 16,
   },
 });
 

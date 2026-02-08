@@ -262,7 +262,7 @@ const CalendarModal = ({
   };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ height: 660 }}>
+      <BottomModal.Container style={{ height: 780 }}>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
@@ -286,7 +286,7 @@ const CalendarModal = ({
                 <NemoText level="body2" style={{ color: globalGray900 }}>
                   {
                     teamLists?.find((list) => list.teamId == selectedTeamId)
-                      .teamName
+                      ?.teamName
                   }
                 </NemoText>
               ) : (
@@ -343,7 +343,7 @@ const CalendarModal = ({
         >
           <FlatList
             data={teamLists}
-            keyExtractor={(item) => item.teamId}
+            keyExtractor={(item) => `team-${item.teamId}`}
             renderItem={({ item }) => (
               <Pressable onPress={handlePressTeam(item.teamId)}>
                 <View style={[style.link, style.list]}>

@@ -8,7 +8,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { globalGreen50 } from "..";
+import { globalGray150 } from "..";
 import NemoDate from "../atoms/NemoDate";
 import NemoText from "../atoms/NemoText";
 
@@ -58,10 +58,12 @@ interface CalendarSchedulesProps {
   dates: CalendarDate[];
   schedules: CalendarSchedule[];
   onSelectDate?: (date: Date) => void;
+  maxLanes?: number;
 }
 
 /* ---------- CalendarWeek ---------- */
 const CalendarWeek = ({
+  maxLanes = MAX_LANES,
   dates,
   schedules,
   onSelectDate,
@@ -75,11 +77,8 @@ const CalendarWeek = ({
   }
 
   const { selectedDate } = calendarContext;
-  const packedLanes = packSchedulesIntoLanes(
-    getWeekSchedules(dates, schedules)
-  );
 
-  const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
+  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
     const { locationX } = event.nativeEvent;
@@ -89,12 +88,20 @@ const CalendarWeek = ({
 
   return (
     <Pressable
-      style={[styles.week, { height: totalHeight, minHeight: 91 }]}
+      style={[styles.week, { height: totalHeight }]}
       onPress={handleWeekPress}
     >
       <View pointerEvents="none" style={styles.weekInner}>
-        <CalendarWeekDates dates={dates} selectedDate={selectedDate} />
-        <CalendarWeekSchedules dates={dates} schedules={schedules} />
+        <CalendarWeekDates
+          dates={dates}
+          selectedDate={selectedDate}
+          maxLanes={maxLanes}
+        />
+        <CalendarWeekSchedules
+          dates={dates}
+          schedules={schedules}
+          maxLanes={maxLanes}
+        />
       </View>
     </Pressable>
   );
@@ -104,14 +111,17 @@ export default CalendarWeek;
 
 /* ---------- Dates ---------- */
 const CalendarWeekDates = ({
+  maxLanes = MAX_LANES,
   dates,
   selectedDate,
 }: {
+  maxLanes?: number;
   dates: CalendarDate[];
   selectedDate: Date;
 }) => {
+  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
   return (
-    <View style={styles.datesContainer}>
+    <View style={[styles.datesContainer, { height: totalHeight }]}>
       {dates.map((d) => {
         const isSelected = isSameDay(d.fullDate, selectedDate);
 
@@ -137,6 +147,7 @@ const CalendarWeekDates = ({
 const CalendarWeekSchedules = ({
   dates,
   schedules,
+  maxLanes = MAX_LANES,
 }: CalendarSchedulesProps) => {
   const calendarContext = useContext(CalendarContext);
 
@@ -149,21 +160,17 @@ const CalendarWeekSchedules = ({
   const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
 
   const packedLanes = packSchedulesIntoLanes(weekSchedules);
-  const visibleLanes = packedLanes.slice(0, 4);
-  const hasOverflow = packedLanes.length > MAX_LANES - 1;
-
-  // ✅ 레인 개수만큼 높이 확보
-  const lanesCount = visibleLanes.length;
-
+  const visibleLanes = packedLanes.slice(0, maxLanes);
+  const hasOverflow = packedLanes.length >= maxLanes;
   return (
     <View
       style={[
         styles.schedulesOverlay,
-        { height: lanesCount * (LANE_HEIGHT + LANE_GAP) },
+        { height: maxLanes * (LANE_HEIGHT + LANE_GAP) },
       ]}
     >
       {visibleLanes.map((lane, rowIndex) => {
-        const isLastLane = rowIndex === MAX_LANES - 1;
+        const isLastLane = rowIndex === maxLanes - 1;
 
         return lane.map((s, idx) => {
           // 마지막 레인 + 초과 일정이 있으면 ...만 표시
@@ -195,17 +202,22 @@ const CalendarWeekSchedules = ({
               style={[
                 styles.scheduleWrapper,
                 {
-                  left: s.startIndex * DAY_WIDTH,
-                  width: s.span * DAY_WIDTH,
+                  left: s.startIndex * DAY_WIDTH + 4,
+                  width: s.span * DAY_WIDTH - 8,
                   top: rowIndex * (LANE_HEIGHT + LANE_GAP),
-                  backgroundColor: s.schedule.colorHex + "30",
+                  backgroundColor:
+                    s.schedule.status == "SCHEDULE"
+                      ? s.schedule.colorHex
+                        ? s.schedule.colorHex + "66"
+                        : "#BDBDBD66"
+                      : "transparent",
                 },
               ]}
             >
               <ScheduleLane
                 startThisWeek={s.startsThisWeek}
                 title={s.schedule.title}
-                lineColor={s.schedule.colorHex}
+                lineColor={s.schedule.colorHex ?? "#BDBDBD"}
               />
             </View>
           );
@@ -242,7 +254,6 @@ const styles = StyleSheet.create({
   /* dates */
   datesContainer: {
     flexDirection: "row",
-    height: 91,
   },
   dateCell: {
     width: DAY_WIDTH,
@@ -251,7 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   selectedDate: {
-    backgroundColor: globalGreen50,
+    backgroundColor: globalGray150,
   },
 
   week: {
@@ -272,7 +283,7 @@ const styles = StyleSheet.create({
   scheduleWrapper: {
     position: "absolute",
     height: LANE_HEIGHT,
-    borderRadius: 6,
+    borderRadius: 2,
     paddingHorizontal: 4,
     justifyContent: "center",
   },
