@@ -262,7 +262,7 @@ const CalendarModal = ({
   };
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ height: 660 }}>
+      <BottomModal.Container style={{ height: 780 }}>
         <BottomModal.Header>
           <BottomModal.LeftButton onPress={closeModal}>
             <AntDesign name="close" size={20} color={globalGray700} />
