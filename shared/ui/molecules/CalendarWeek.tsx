@@ -51,7 +51,7 @@ const DATES_HEIGHT = 18;
 const LANE_HEIGHT = 16;
 const LANE_GAP = 4;
 
-const MAX_LANES = 3;
+const MAX_LANES = 4;
 
 /* ---------- props ---------- */
 interface CalendarSchedulesProps {
@@ -63,6 +63,7 @@ interface CalendarSchedulesProps {
 
 /* ---------- CalendarWeek ---------- */
 const CalendarWeek = ({
+  maxLanes = MAX_LANES,
   dates,
   schedules,
   onSelectDate,
@@ -77,7 +78,7 @@ const CalendarWeek = ({
 
   const { selectedDate } = calendarContext;
 
-  const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
+  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
     const { locationX } = event.nativeEvent;
@@ -87,12 +88,20 @@ const CalendarWeek = ({
 
   return (
     <Pressable
-      style={[styles.week, { height: totalHeight, minHeight: 91 }]}
+      style={[styles.week, { height: totalHeight }]}
       onPress={handleWeekPress}
     >
       <View pointerEvents="none" style={styles.weekInner}>
-        <CalendarWeekDates dates={dates} selectedDate={selectedDate} />
-        <CalendarWeekSchedules dates={dates} schedules={schedules} />
+        <CalendarWeekDates
+          dates={dates}
+          selectedDate={selectedDate}
+          maxLanes={maxLanes}
+        />
+        <CalendarWeekSchedules
+          dates={dates}
+          schedules={schedules}
+          maxLanes={maxLanes}
+        />
       </View>
     </Pressable>
   );
@@ -102,14 +111,17 @@ export default CalendarWeek;
 
 /* ---------- Dates ---------- */
 const CalendarWeekDates = ({
+  maxLanes = MAX_LANES,
   dates,
   selectedDate,
 }: {
+  maxLanes?: number;
   dates: CalendarDate[];
   selectedDate: Date;
 }) => {
+  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
   return (
-    <View style={styles.datesContainer}>
+    <View style={[styles.datesContainer, { height: totalHeight }]}>
       {dates.map((d) => {
         const isSelected = isSameDay(d.fullDate, selectedDate);
 
@@ -149,8 +161,7 @@ const CalendarWeekSchedules = ({
 
   const packedLanes = packSchedulesIntoLanes(weekSchedules);
   const visibleLanes = packedLanes.slice(0, maxLanes);
-  const hasOverflow = packedLanes.length > maxLanes - 1;
-
+  const hasOverflow = packedLanes.length >= maxLanes;
   return (
     <View
       style={[
@@ -159,7 +170,7 @@ const CalendarWeekSchedules = ({
       ]}
     >
       {visibleLanes.map((lane, rowIndex) => {
-        const isLastLane = rowIndex === maxLanes;
+        const isLastLane = rowIndex === maxLanes - 1;
 
         return lane.map((s, idx) => {
           // 마지막 레인 + 초과 일정이 있으면 ...만 표시
@@ -243,7 +254,6 @@ const styles = StyleSheet.create({
   /* dates */
   datesContainer: {
     flexDirection: "row",
-    height: 91,
   },
   dateCell: {
     width: DAY_WIDTH,

@@ -315,7 +315,7 @@ const Todos = ({}: TodosProps) => {
   return (
     <View style={{ flex: 1 }}>
       {/* 🔒 고정 헤더 */}
-      <View style={{ marginBottom: 36 }}>
+      <View style={{ marginBottom: 8 }}>
         <CalendarDays />
         <CalendarWeek
           dates={thisWeek}
