@@ -6,7 +6,7 @@ export async function getAlertAll(): Promise<AlertResponse[]> {
   return data;
 }
 
-export async function readAlert(alertId: string): Promise<AlertResponse> {
+export async function readAlert(alertId: number): Promise<AlertResponse> {
   const { data } = await apiClient.patch(`/alerts/${alertId}/read`);
   return data;
 }

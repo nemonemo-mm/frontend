@@ -15,7 +15,7 @@ export function useAlerts() {
   });
 }
 
-type ReadAlertPayload = string;
+type ReadAlertPayload = number;
 
 function invalidateAlertQueries(queryClient: QueryClient) {
   queryClient.invalidateQueries({
