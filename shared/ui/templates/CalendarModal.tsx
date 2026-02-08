@@ -286,7 +286,7 @@ const CalendarModal = ({
                 <NemoText level="body2" style={{ color: globalGray900 }}>
                   {
                     teamLists?.find((list) => list.teamId == selectedTeamId)
-                      .teamName
+                      ?.teamName
                   }
                 </NemoText>
               ) : (
@@ -343,7 +343,7 @@ const CalendarModal = ({
         >
           <FlatList
             data={teamLists}
-            keyExtractor={(item) => item.teamId}
+            keyExtractor={(item) => `team-${item.teamId}`}
             renderItem={({ item }) => (
               <Pressable onPress={handlePressTeam(item.teamId)}>
                 <View style={[style.link, style.list]}>
