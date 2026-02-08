@@ -1,4 +1,8 @@
 import {
+  useAlertMutations,
+  useAlerts,
+} from "@/features/notifications/hooks/useAlert";
+import {
   globalGray0,
   globalGray400,
   globalGray500,
@@ -16,24 +20,16 @@ interface AlarmScreenProps {}
 
 const AlarmScreen = ({}: AlarmScreenProps) => {
   const route = useRouter();
-  const alarms = [
-    {
-      id: 3,
-      content: "test alarm",
-      teamId: 1,
-      teamName: "NemoNemo",
-      time: new Date(Date.now()),
-      readAt: "",
-    },
-    {
-      id: 1,
-      content: "test alarm",
-      teamId: 1,
-      teamName: "NemoNemo",
-      time: new Date(Date.now()),
-      readAt: "2026-01-02",
-    },
-  ];
+  const alertQuery = useAlerts();
+  const { markAsRead } = useAlertMutations();
+
+  const alarms = alertQuery.data;
+
+  const handlePressAlert =
+    (alertId: number, teamId: number, read: boolean) => () => {
+      if (!read) markAsRead.mutate(alertId);
+      route.push(`/(tabs)/${teamId}/calendar`);
+    };
   return (
     <SafeAreaView>
       <Pressable style={styles.header} onPress={() => route.back()}>
@@ -47,7 +43,7 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
         renderItem={({ item }) => (
           <Pressable
             style={styles.alarmContainer}
-            onPress={() => route.push(`/(tabs)/${item.teamId}/calendar`)}
+            onPress={handlePressAlert(item.id, item.teamId, item.isRead)}
           >
             <NemoText
               level="body2"
@@ -61,7 +57,7 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
             >
               {item.teamName}
               {" • "}
-              {item.time.toLocaleTimeString("ko-KR", {
+              {new Date(item.time).toLocaleTimeString("ko-KR", {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
