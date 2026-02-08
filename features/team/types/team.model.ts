@@ -24,6 +24,7 @@ export interface TeamMember {
   memberId: number;
   userId: number;
   displayName: string;
+  userName?: string; //!api 수정 전 임시 추가
   positionId: number;
   positionName: string;
   userImageUrl: string;
@@ -42,7 +43,7 @@ export interface TeamMembersResponse {
   members: TeamMember[];
 }
 
-export interface TeamList {
+export interface TemaList {
   teamId: number;
   teamName: string;
   description: string;
