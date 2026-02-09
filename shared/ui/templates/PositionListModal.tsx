@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { globalGray700 } from "..";
-import NemoTextLabel from "../molecules/NemoTextLabel";
+import NemoText from "../atoms/NemoText";
 import BottomModal from "../organisms/BottomModal";
 
 interface PositionListModalProps {
@@ -19,7 +19,7 @@ interface PositionListModalProps {
 }
 
 const AnimatedBottomModalContainer = Animated.createAnimatedComponent(
-  BottomModal.Container
+  BottomModal.Container,
 );
 
 const PositionListModal = ({
@@ -60,16 +60,29 @@ const PositionListModal = ({
           }).start();
         }
       },
-    })
+    }),
   ).current;
 
-  const indicatorHandlers = useMemo(() => panResponder.panHandlers, [panResponder]);
+  const indicatorHandlers = useMemo(
+    () => panResponder.panHandlers,
+    [panResponder],
+  );
+
+  // 각 아이템 높이 48px + marginBottom 8px = 56px
+  // 헤더 높이 약 40px + 상하 패딩 20px
+  const ITEM_HEIGHT = 56;
+  const HEADER_HEIGHT = 60;
+  const modalHeight = Math.min(
+    Math.max(HEADER_HEIGHT + positionList.length * ITEM_HEIGHT, 150),
+    400,
+  );
 
   return (
     <Modal backdropColor={globalGray700 + "20"} animationType="slide">
       <AnimatedBottomModalContainer
         style={{
-          height: 300,
+          height: modalHeight + 24,
+          paddingBottom: 24,
           transform: [{ translateY }],
         }}
       >
@@ -84,7 +97,7 @@ const PositionListModal = ({
               onPress={onPressPosition(item.positionId)}
               style={styles.positionName}
             >
-              <NemoTextLabel>{item.positionName}</NemoTextLabel>
+              <NemoText level="body2">{item.positionName}</NemoText>
             </Pressable>
           )}
         />
@@ -94,6 +107,8 @@ const PositionListModal = ({
 };
 const styles = StyleSheet.create({
   positionName: {
+    height: 48,
+    justifyContent: "center",
     marginBottom: 8,
   },
 });

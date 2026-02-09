@@ -261,6 +261,17 @@ export default function TeamMembersList({
                 <AntDesign name="down" size={16} color={globalGray700} />
               </Animated.View>
             </Pressable>
+
+            {isOpenPositionList && (
+              <PositionListModal
+                positionList={positionList ?? []}
+                onPressPosition={handlePressPosition(
+                  activeModal.member.memberId,
+                )}
+                onPointerDown={handleTogglePositionList}
+              />
+            )}
+
             <AlertModal.Actions
               type="single"
               confirmLabel="닫기"
