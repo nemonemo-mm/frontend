@@ -1,5 +1,6 @@
 import GroupIcon from "@/assets/icons/group";
 import { teamDetailInfo } from "@/features/team/api/detail";
+import { TeamList } from "@/features/team/types/team.model";
 import { useUser } from "@/features/users/hooks/useUser";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,13 +24,9 @@ import {
 } from "..";
 import NemoText from "../atoms/NemoText";
 import ProfileImage from "../atoms/ProfileImage";
-export type Teams = {
-  teamId: number;
-  teamName: string;
-  description: string;
-}[];
+
 interface SideModalProps {
-  teams: Teams;
+  teams: TeamList[];
   closeModal: () => void;
 }
 
@@ -71,7 +68,11 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                     onPress={handlePressTeam(item.teamId)}
                     style={styles.group}
                   >
-                    <GroupIcon />
+                    {item.teamImageUrl ? (
+                      <ProfileImage size={56} uri={item.teamImageUrl} />
+                    ) : (
+                      <GroupIcon />
+                    )}
                     <View>
                       <NemoText level="body1" style={{ color: globalGray900 }}>
                         {item.teamName}
