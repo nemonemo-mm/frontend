@@ -1,5 +1,11 @@
 import {
-  globalBmRadius,
+  getTeamNotificationSettings,
+  TeamNotificationSettings,
+  updateTeamNotificationSettings,
+} from "@/features/notifications/api/notification";
+import { teamListUp } from "@/features/team/api/list";
+import { TeamList } from "@/features/team/types/team.model";
+import {
   globalGray0,
   globalGray200,
   globalGray400,
@@ -11,9 +17,12 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Toggle from "@/shared/ui/atoms/Toggle";
+import AlarmModal, { AlarmState } from "@/shared/ui/templates/AlarmModal";
+import { formatAlarm } from "@/shared/utils/format";
 import { AntDesign } from "@expo/vector-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
@@ -29,37 +38,86 @@ interface TeamAlarmProps {}
 const DEFAULT_TEAM_MESSAGE = "아직 생성된 팀이 없습니다";
 const CLOSE_MESSAGE = "닫기";
 
-type Team = {
-  id: number;
-  name: string;
-};
+const toAlarmState = (minutes: number[]): AlarmState => ({
+  10: (minutes ?? []).includes(10),
+  30: (minutes ?? []).includes(30),
+  60: (minutes ?? []).includes(60),
+});
+
+const toAlarmMinutes = (alarm: AlarmState): number[] =>
+  [10, 30, 60].filter((minute) => alarm[minute as keyof AlarmState]);
+
+const hasAlarm = (alarm: AlarmState) => toAlarmMinutes(alarm).length > 0;
 
 const TeamAlarm = ({}: TeamAlarmProps) => {
   const route = useRouter();
-  //? 내부 분기 처리가 많아서 라우터를 이용해서 페이지를 분리하는 게 좋을 수도 ?
-  const teamLists = [
-    { id: 1, name: "NEMONEMO" },
-    { id: 12, name: "NEMONEMO2" },
-    { id: 123, name: "NEMONEMO2" },
-    { id: 124, name: "NEMONEMO2" },
-    { id: 1232, name: "NEMONEMO2" },
-    { id: 12123, name: "NEMONEMO2" },
-    { id: 12124, name: "NEMONEMO2" },
-    { id: 1212, name: "NEMONEMO2" },
-    { id: 123421, name: "NEMONEMO2" },
-    { id: 12125, name: "NEMONEMO2" },
-    { id: 112345231452, name: "NEMONEMO2" },
-    { id: 112342142, name: "NEMONEMO2" },
-    { id: 12343434, name: "NEMONEMO2" },
-    { id: 12343436664, name: "NEMONEMO2" },
-    { id: 12343436123156664, name: "NEMONEMO2" },
-    { id: 1234342324336664, name: "NEMONEMO2" },
-    { id: 123666643434, name: "NEMONEMO2" },
-  ];
+  const queryClient = useQueryClient();
   const [isOpenTeamList, setIsOpenTeamList] = useState(false);
-  const [currentTeam, setCurrentTeam] = useState<Team | undefined>(undefined);
-  //팀 알림 설정 토글용 설정값입니다. 변수 네이밍은 추후 수정해야함!
-  const [isAll, setIsAll] = useState(true);
+  const [currentTeam, setCurrentTeam] = useState<TeamList | undefined>(
+    undefined,
+  );
+  const [settings, setSettings] = useState<TeamNotificationSettings | null>(
+    null,
+  );
+  const [isOpenScheduleModal, setIsOpenScheduleModal] = useState(false);
+  const [isOpenTodoModal, setIsOpenTodoModal] = useState(false);
+
+  // 팀 목록 조회 (React Query 적용)
+  const { data: teamLists = [] } = useQuery({
+    queryKey: ["teamList"],
+    queryFn: teamListUp,
+  });
+
+  // 선택된 팀의 알림 설정 조회
+  const { data: serverSettings } = useQuery({
+    queryKey: ["teamNotificationSettings", currentTeam?.teamId],
+    queryFn: () => getTeamNotificationSettings(currentTeam!.teamId),
+    enabled: !!currentTeam,
+  });
+
+  // 수정 Mutation
+  const updateMutation = useMutation({
+    mutationFn: ({
+      teamId,
+      settings,
+    }: {
+      teamId: number;
+      settings: TeamNotificationSettings;
+    }) => updateTeamNotificationSettings(teamId, settings),
+    onSuccess: (updatedSettings) => {
+      queryClient.setQueryData(
+        ["teamNotificationSettings", currentTeam?.teamId],
+        updatedSettings,
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (serverSettings) {
+      setSettings(serverSettings);
+    }
+  }, [serverSettings]);
+
+  const updateSettings = (
+    updater: (
+      prevSettings: TeamNotificationSettings,
+    ) => TeamNotificationSettings,
+  ) => {
+    if (!currentTeam || !settings) return;
+
+    setSettings((prev) => {
+      if (!prev) return null;
+      const nextSettings = updater(prev);
+
+      updateMutation.mutate({
+        teamId: currentTeam.teamId,
+        settings: nextSettings,
+      });
+
+      return nextSettings;
+    });
+  };
+
   const rotation = useRef(new Animated.Value(0)).current;
   const animateIcon = (toValue: number) =>
     Animated.timing(rotation, {
@@ -74,8 +132,12 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
     setIsOpenTeamList((prev) => !prev);
   };
 
-  const handlePressTeam = (id: number) => () => {
-    setCurrentTeam(teamLists.find((team) => team.id == id));
+  const handlePressTeam = (teamId: number) => () => {
+    const team = teamLists.find((t) => t.teamId === teamId);
+    if (!team) return;
+
+    setCurrentTeam(team);
+    setSettings(null); // 새로운 팀 선택 시 이전 설정 초기화 (로딩 표시 유도)
     setIsOpenTeamList(false);
   };
 
@@ -100,7 +162,7 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
           <View style={[styles.linkContainer, styles.link]}>
             {currentTeam ? (
               <NemoText level="body2" style={{ color: globalGray900 }}>
-                {currentTeam.name}
+                {currentTeam.teamName}
               </NemoText>
             ) : (
               <NemoText level="body2" style={{ color: globalGray400 }}>
@@ -113,16 +175,53 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
           </View>
         </Pressable>
         <View>
-          {currentTeam ? (
+          {currentTeam && settings && (
             <View>
               <View style={[styles.linkContainer, styles.link]}>
                 <NemoText level="body2" style={{ color: globalGray900 }}>
                   팀 알림 허용
                 </NemoText>
                 <Toggle
-                  value={isAll}
+                  value={settings.enableTeamAlarm}
                   handler={() => {
-                    setIsAll((prev) => !prev);
+                    const newValue = !settings.enableTeamAlarm;
+                    updateSettings((prev) => ({
+                      ...prev,
+                      enableTeamAlarm: newValue,
+                      ...(newValue
+                        ? {}
+                        : {
+                            enableTeamMemberNotification: false,
+                            enableNoticeNotification: false,
+                            enableScheduleChangeNotification: false,
+                            enableSchedulePreNotification: false,
+                            enableTodoChangeNotification: false,
+                            enableTodoDeadlineNotification: false,
+                          }),
+                    }));
+                  }}
+                />
+              </View>
+              <View style={[styles.linkContainer, styles.link]}>
+                <NemoText
+                  level="body2"
+                  style={{
+                    color: settings.enableTeamAlarm
+                      ? globalGray900
+                      : globalGray400,
+                  }}
+                >
+                  팀원 알림
+                </NemoText>
+                <Toggle
+                  value={settings.enableTeamMemberNotification}
+                  disabled={!settings.enableTeamAlarm}
+                  handler={() => {
+                    updateSettings((prev) => ({
+                      ...prev,
+                      enableTeamMemberNotification:
+                        !prev.enableTeamMemberNotification,
+                    }));
                   }}
                 />
               </View>
@@ -130,108 +229,204 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                 <View style={styles.link}>
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
                     스케줄 변경 알림
                   </NemoText>
-                  <Toggle value={true} handler={() => {}} />
+                  <Toggle
+                    value={settings.enableScheduleChangeNotification}
+                    disabled={!settings.enableTeamAlarm}
+                    handler={() => {
+                      updateSettings((prev) => ({
+                        ...prev,
+                        enableScheduleChangeNotification:
+                          !prev.enableScheduleChangeNotification,
+                      }));
+                    }}
+                  />
                 </View>
                 <View style={styles.border} />
-                <View style={styles.link}>
+                <Pressable
+                  style={styles.link}
+                  disabled={!settings.enableTeamAlarm}
+                  onPress={() => setIsOpenScheduleModal(true)}
+                >
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
                     스케줄 마감 알림
                   </NemoText>
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
-                    끔
+                    {formatAlarm(
+                      toAlarmState(settings.schedulePreNotificationMinutes),
+                    )}
                   </NemoText>
-                </View>
+                </Pressable>
               </View>
               <View style={[styles.linkContainer]}>
                 <View style={styles.link}>
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
                     투두 변경 알림
                   </NemoText>
-                  <Toggle value={true} handler={() => {}} />
+                  <Toggle
+                    value={settings.enableTodoChangeNotification}
+                    disabled={!settings.enableTeamAlarm}
+                    handler={() => {
+                      updateSettings((prev) => ({
+                        ...prev,
+                        enableTodoChangeNotification:
+                          !prev.enableTodoChangeNotification,
+                      }));
+                    }}
+                  />
                 </View>
                 <View style={styles.border} />
-                <View style={styles.link}>
+                <Pressable
+                  style={styles.link}
+                  disabled={!settings.enableTeamAlarm}
+                  onPress={() => setIsOpenTodoModal(true)}
+                >
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
                     투두 마감 알림
                   </NemoText>
                   <NemoText
                     level="body2"
-                    style={{ color: isAll ? globalGray900 : globalGray400 }}
+                    style={{
+                      color: settings.enableTeamAlarm
+                        ? globalGray900
+                        : globalGray400,
+                    }}
                   >
-                    끔
+                    {formatAlarm(
+                      toAlarmState(settings.todoDeadlineNotificationMinutes),
+                    )}
                   </NemoText>
-                </View>
+                </Pressable>
               </View>
               <View style={[styles.linkContainer, styles.link]}>
                 <NemoText
                   level="body2"
-                  style={{ color: isAll ? globalGray900 : globalGray400 }}
+                  style={{
+                    color: settings.enableTeamAlarm
+                      ? globalGray900
+                      : globalGray400,
+                  }}
                 >
                   공지 알림
                 </NemoText>
-                <Toggle value={true} handler={() => {}} />
+                <Toggle
+                  value={settings.enableNoticeNotification}
+                  disabled={!settings.enableTeamAlarm}
+                  handler={() => {
+                    updateSettings((prev) => ({
+                      ...prev,
+                      enableNoticeNotification: !prev.enableNoticeNotification,
+                    }));
+                  }}
+                />
               </View>
             </View>
-          ) : isOpenTeamList ? (
+          )}
+
+          {currentTeam && !settings && (
+            <View style={styles.defaultMessage}>
+              <NemoText level="body2" style={{ color: globalGray400 }}>
+                알림 설정을 불러오는 중입니다...
+              </NemoText>
+            </View>
+          )}
+
+          {isOpenTeamList && (
             <Modal
-              backdropColor={globalGray0 + "50"}
-              style={{
-                padding: 20,
-                justifyContent: "flex-start",
-                backgroundColor: globalGray0,
-                borderRadius: globalBmRadius,
-              }}
+              transparent
+              visible={isOpenTeamList}
+              animationType="fade"
+              onRequestClose={() => setIsOpenTeamList(false)}
             >
-              <FlatList
-                data={teamLists}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                  <Pressable onPress={handlePressTeam(item.id)}>
-                    <View style={[styles.link, styles.list]}>
-                      <NemoText level="body2" style={{ color: globalGray900 }}>
-                        {item.name}
-                      </NemoText>
-                    </View>
-                    <View style={styles.border} />
-                  </Pressable>
-                )}
-                ListFooterComponent={() => (
-                  <Pressable
-                    onPress={() => setIsOpenTeamList(false)}
-                    style={[styles.link, styles.list]}
-                  >
-                    <NemoText level="body2">{CLOSE_MESSAGE}</NemoText>
-                  </Pressable>
-                )}
-                ListEmptyComponent={
-                  <NemoText level="body2" style={{ color: globalGray400 }}>
-                    {DEFAULT_TEAM_MESSAGE}
-                  </NemoText>
-                }
-                style={[
-                  styles.linkContainer,
-                  { maxHeight: 660, margin: "auto", width: 355 },
-                ]}
-                contentContainerStyle={[styles.listContainer]}
-              />
+              <Pressable
+                style={styles.modalBackdrop}
+                onPress={() => setIsOpenTeamList(false)}
+              >
+                <View style={styles.modalContainer}>
+                  <FlatList
+                    data={teamLists}
+                    keyExtractor={(item) => item.teamId.toString()}
+                    renderItem={({ item }) => (
+                      <Pressable onPress={handlePressTeam(item.teamId)}>
+                        <View style={[styles.link, styles.list]}>
+                          <NemoText
+                            level="body2"
+                            style={{ color: globalGray900 }}
+                          >
+                            {item.teamName}
+                          </NemoText>
+                        </View>
+                        <View style={styles.border} />
+                      </Pressable>
+                    )}
+                    ListFooterComponent={() => (
+                      <Pressable
+                        onPress={() => setIsOpenTeamList(false)}
+                        style={[styles.link, styles.list]}
+                      >
+                        <NemoText
+                          level="body2"
+                          style={{ color: globalGray400 }}
+                        >
+                          {CLOSE_MESSAGE}
+                        </NemoText>
+                      </Pressable>
+                    )}
+                    ListEmptyComponent={
+                      <View style={{ padding: 20, alignItems: "center" }}>
+                        <NemoText
+                          level="body2"
+                          style={{ color: globalGray400 }}
+                        >
+                          {DEFAULT_TEAM_MESSAGE}
+                        </NemoText>
+                      </View>
+                    }
+                    style={styles.modalList}
+                    contentContainerStyle={styles.listContainer}
+                    scrollEnabled={teamLists.length > 6}
+                  />
+                </View>
+              </Pressable>
             </Modal>
-          ) : (
+          )}
+
+          {!currentTeam && !isOpenTeamList && (
             <View style={styles.defaultMessage}>
               <NemoText level="body2" style={{ color: globalGray400 }}>
                 팀을 선택하면 해당 팀의 알림을 설정할 수 있어요
@@ -240,6 +435,34 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
           )}
         </View>
       </View>
+      {isOpenScheduleModal && settings && (
+        <AlarmModal
+          initialValue={toAlarmState(settings.schedulePreNotificationMinutes)}
+          closeModal={() => setIsOpenScheduleModal(false)}
+          confirmModal={(alarmState) => {
+            const minutes = toAlarmMinutes(alarmState);
+            updateSettings((prev) => ({
+              ...prev,
+              enableSchedulePreNotification: hasAlarm(alarmState),
+              schedulePreNotificationMinutes: minutes,
+            }));
+          }}
+        />
+      )}
+      {isOpenTodoModal && settings && (
+        <AlarmModal
+          initialValue={toAlarmState(settings.todoDeadlineNotificationMinutes)}
+          closeModal={() => setIsOpenTodoModal(false)}
+          confirmModal={(alarmState) => {
+            const minutes = toAlarmMinutes(alarmState);
+            updateSettings((prev) => ({
+              ...prev,
+              enableTodoDeadlineNotification: hasAlarm(alarmState),
+              todoDeadlineNotificationMinutes: minutes,
+            }));
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -283,6 +506,27 @@ const styles = StyleSheet.create({
   defaultMessage: {
     margin: "auto",
     marginTop: 222,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 40,
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: globalGray0,
+    borderRadius: globalSpacingSm,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalList: {
+    maxHeight: 400,
   },
 });
 export default TeamAlarm;
