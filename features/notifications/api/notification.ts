@@ -27,6 +27,29 @@ export async function getTeamNotificationSettings(
   return data;
 }
 
+export interface TeamNotificationUpdateRequest {
+  enableTeamAlarm: boolean;
+  enableScheduleChangeNotification: boolean;
+  enableSchedulePreNotification: boolean;
+  schedulePreNotificationMinutes: number[];
+  enableTodoChangeNotification: boolean;
+  enableTodoDeadlineNotification: boolean;
+  todoDeadlineNotificationMinutes: number[];
+  enableTeamMemberNotification: boolean;
+  enableNoticeNotification: boolean;
+}
+
+export async function updateTeamNotificationSettings(
+  teamId: number,
+  settings: TeamNotificationUpdateRequest,
+) {
+  const { data } = await apiClient.put<TeamNotificationSettings>(
+    `notifications/teams/${teamId}`,
+    settings,
+  );
+  return data;
+}
+
 export interface NotificationSettings {
   enableAllPersonalNotifications: boolean;
   enableScheduleChangeNotification: boolean;

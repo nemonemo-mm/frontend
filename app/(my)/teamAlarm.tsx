@@ -1,6 +1,7 @@
 import {
   getTeamNotificationSettings,
   TeamNotificationSettings,
+  updateTeamNotificationSettings,
 } from "@/features/notifications/api/notification";
 import { teamListUp } from "@/features/team/api/list";
 import { TeamList } from "@/features/team/types/team.model";
@@ -16,7 +17,10 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Toggle from "@/shared/ui/atoms/Toggle";
+import AlarmModal, { AlarmState } from "@/shared/ui/templates/AlarmModal";
+import { formatAlarm } from "@/shared/utils/format";
 import { AntDesign } from "@expo/vector-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -34,14 +38,20 @@ interface TeamAlarmProps {}
 const DEFAULT_TEAM_MESSAGE = "아직 생성된 팀이 없습니다";
 const CLOSE_MESSAGE = "닫기";
 
-type Team = {
-  id: number;
-  name: string;
-};
+const toAlarmState = (minutes: number[]): AlarmState => ({
+  10: (minutes ?? []).includes(10),
+  30: (minutes ?? []).includes(30),
+  60: (minutes ?? []).includes(60),
+});
+
+const toAlarmMinutes = (alarm: AlarmState): number[] =>
+  [10, 30, 60].filter((minute) => alarm[minute as keyof AlarmState]);
+
+const hasAlarm = (alarm: AlarmState) => toAlarmMinutes(alarm).length > 0;
 
 const TeamAlarm = ({}: TeamAlarmProps) => {
   const route = useRouter();
-  const [teamLists, setTeamLists] = useState<TeamList[]>([]);
+  const queryClient = useQueryClient();
   const [isOpenTeamList, setIsOpenTeamList] = useState(false);
   const [currentTeam, setCurrentTeam] = useState<TeamList | undefined>(
     undefined,
@@ -49,18 +59,64 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
   const [settings, setSettings] = useState<TeamNotificationSettings | null>(
     null,
   );
+  const [isOpenScheduleModal, setIsOpenScheduleModal] = useState(false);
+  const [isOpenTodoModal, setIsOpenTodoModal] = useState(false);
+
+  // 팀 목록 조회 (React Query 적용)
+  const { data: teamLists = [] } = useQuery({
+    queryKey: ["teamList"],
+    queryFn: teamListUp,
+  });
+
+  // 선택된 팀의 알림 설정 조회
+  const { data: serverSettings } = useQuery({
+    queryKey: ["teamNotificationSettings", currentTeam?.teamId],
+    queryFn: () => getTeamNotificationSettings(currentTeam!.teamId),
+    enabled: !!currentTeam,
+  });
+
+  // 수정 Mutation
+  const updateMutation = useMutation({
+    mutationFn: ({
+      teamId,
+      settings,
+    }: {
+      teamId: number;
+      settings: TeamNotificationSettings;
+    }) => updateTeamNotificationSettings(teamId, settings),
+    onSuccess: (updatedSettings) => {
+      queryClient.setQueryData(
+        ["teamNotificationSettings", currentTeam?.teamId],
+        updatedSettings,
+      );
+    },
+  });
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const data = await teamListUp();
-        setTeamLists(data);
-      } catch (error) {
-        console.error("Failed to fetch teams:", error);
-      }
-    };
-    fetchTeams();
-  }, []);
+    if (serverSettings) {
+      setSettings(serverSettings);
+    }
+  }, [serverSettings]);
+
+  const updateSettings = (
+    updater: (
+      prevSettings: TeamNotificationSettings,
+    ) => TeamNotificationSettings,
+  ) => {
+    if (!currentTeam || !settings) return;
+
+    setSettings((prev) => {
+      if (!prev) return null;
+      const nextSettings = updater(prev);
+
+      updateMutation.mutate({
+        teamId: currentTeam.teamId,
+        settings: nextSettings,
+      });
+
+      return nextSettings;
+    });
+  };
 
   const rotation = useRef(new Animated.Value(0)).current;
   const animateIcon = (toValue: number) =>
@@ -76,19 +132,13 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
     setIsOpenTeamList((prev) => !prev);
   };
 
-  const handlePressTeam = (teamId: number) => async () => {
+  const handlePressTeam = (teamId: number) => () => {
     const team = teamLists.find((t) => t.teamId === teamId);
     if (!team) return;
 
     setCurrentTeam(team);
+    setSettings(null); // 새로운 팀 선택 시 이전 설정 초기화 (로딩 표시 유도)
     setIsOpenTeamList(false);
-
-    try {
-      const teamSettings = await getTeamNotificationSettings(teamId);
-      setSettings(teamSettings);
-    } catch (error) {
-      console.error("Failed to fetch team notification settings:", error);
-    }
   };
 
   const rotateInterpolate = rotation.interpolate({
@@ -135,8 +185,8 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                   value={settings.enableTeamAlarm}
                   handler={() => {
                     const newValue = !settings.enableTeamAlarm;
-                    setSettings({
-                      ...settings,
+                    updateSettings((prev) => ({
+                      ...prev,
                       enableTeamAlarm: newValue,
                       ...(newValue
                         ? {}
@@ -148,7 +198,30 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                             enableTodoChangeNotification: false,
                             enableTodoDeadlineNotification: false,
                           }),
-                    });
+                    }));
+                  }}
+                />
+              </View>
+              <View style={[styles.linkContainer, styles.link]}>
+                <NemoText
+                  level="body2"
+                  style={{
+                    color: settings.enableTeamAlarm
+                      ? globalGray900
+                      : globalGray400,
+                  }}
+                >
+                  팀원 알림
+                </NemoText>
+                <Toggle
+                  value={settings.enableTeamMemberNotification}
+                  disabled={!settings.enableTeamAlarm}
+                  handler={() => {
+                    updateSettings((prev) => ({
+                      ...prev,
+                      enableTeamMemberNotification:
+                        !prev.enableTeamMemberNotification,
+                    }));
                   }}
                 />
               </View>
@@ -168,16 +241,20 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                     value={settings.enableScheduleChangeNotification}
                     disabled={!settings.enableTeamAlarm}
                     handler={() => {
-                      setSettings({
-                        ...settings,
+                      updateSettings((prev) => ({
+                        ...prev,
                         enableScheduleChangeNotification:
-                          !settings.enableScheduleChangeNotification,
-                      });
+                          !prev.enableScheduleChangeNotification,
+                      }));
                     }}
                   />
                 </View>
                 <View style={styles.border} />
-                <View style={styles.link}>
+                <Pressable
+                  style={styles.link}
+                  disabled={!settings.enableTeamAlarm}
+                  onPress={() => setIsOpenScheduleModal(true)}
+                >
                   <NemoText
                     level="body2"
                     style={{
@@ -196,12 +273,11 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                         : globalGray400,
                     }}
                   >
-                    {settings.enableSchedulePreNotification &&
-                    settings.schedulePreNotificationMinutes.length > 0
-                      ? `${settings.schedulePreNotificationMinutes[0]}분 전`
-                      : "끔"}
+                    {formatAlarm(
+                      toAlarmState(settings.schedulePreNotificationMinutes),
+                    )}
                   </NemoText>
-                </View>
+                </Pressable>
               </View>
               <View style={[styles.linkContainer]}>
                 <View style={styles.link}>
@@ -219,16 +295,20 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                     value={settings.enableTodoChangeNotification}
                     disabled={!settings.enableTeamAlarm}
                     handler={() => {
-                      setSettings({
-                        ...settings,
+                      updateSettings((prev) => ({
+                        ...prev,
                         enableTodoChangeNotification:
-                          !settings.enableTodoChangeNotification,
-                      });
+                          !prev.enableTodoChangeNotification,
+                      }));
                     }}
                   />
                 </View>
                 <View style={styles.border} />
-                <View style={styles.link}>
+                <Pressable
+                  style={styles.link}
+                  disabled={!settings.enableTeamAlarm}
+                  onPress={() => setIsOpenTodoModal(true)}
+                >
                   <NemoText
                     level="body2"
                     style={{
@@ -247,12 +327,11 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                         : globalGray400,
                     }}
                   >
-                    {settings.enableTodoDeadlineNotification &&
-                    settings.todoDeadlineNotificationMinutes.length > 0
-                      ? `${settings.todoDeadlineNotificationMinutes[0]}분 전`
-                      : "끔"}
+                    {formatAlarm(
+                      toAlarmState(settings.todoDeadlineNotificationMinutes),
+                    )}
                   </NemoText>
-                </View>
+                </Pressable>
               </View>
               <View style={[styles.linkContainer, styles.link]}>
                 <NemoText
@@ -269,11 +348,10 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                   value={settings.enableNoticeNotification}
                   disabled={!settings.enableTeamAlarm}
                   handler={() => {
-                    setSettings({
-                      ...settings,
-                      enableNoticeNotification:
-                        !settings.enableNoticeNotification,
-                    });
+                    updateSettings((prev) => ({
+                      ...prev,
+                      enableNoticeNotification: !prev.enableNoticeNotification,
+                    }));
                   }}
                 />
               </View>
@@ -357,6 +435,34 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
           )}
         </View>
       </View>
+      {isOpenScheduleModal && settings && (
+        <AlarmModal
+          initialValue={toAlarmState(settings.schedulePreNotificationMinutes)}
+          closeModal={() => setIsOpenScheduleModal(false)}
+          confirmModal={(alarmState) => {
+            const minutes = toAlarmMinutes(alarmState);
+            updateSettings((prev) => ({
+              ...prev,
+              enableSchedulePreNotification: hasAlarm(alarmState),
+              schedulePreNotificationMinutes: minutes,
+            }));
+          }}
+        />
+      )}
+      {isOpenTodoModal && settings && (
+        <AlarmModal
+          initialValue={toAlarmState(settings.todoDeadlineNotificationMinutes)}
+          closeModal={() => setIsOpenTodoModal(false)}
+          confirmModal={(alarmState) => {
+            const minutes = toAlarmMinutes(alarmState);
+            updateSettings((prev) => ({
+              ...prev,
+              enableTodoDeadlineNotification: hasAlarm(alarmState),
+              todoDeadlineNotificationMinutes: minutes,
+            }));
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };
