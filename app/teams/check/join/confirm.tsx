@@ -6,10 +6,13 @@ import {
   globalGray0,
   globalGray150,
   globalGray400,
+  globalGray700,
+  globalGray900,
   globalGreen300,
 } from "@/shared/ui";
 import Button from "@/shared/ui/atoms/Button";
 import NemoText from "@/shared/ui/atoms/NemoText";
+import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -21,6 +24,7 @@ export default function JoinConfirmScreen() {
     inviteCode: string;
     teamName: string;
     ownerName: string;
+    description?: string;
   }>();
   const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
 
@@ -29,8 +33,8 @@ export default function JoinConfirmScreen() {
       if (!params.inviteCode) return;
 
       try {
-        const { data } = await getTeamByInviteCode(params.inviteCode);
-        setTeamInfo(data);
+        const { data: teamInfo } = await getTeamByInviteCode(params.inviteCode);
+        setTeamInfo(teamInfo);
       } catch (error) {
         console.error("팀 정보 조회 실패:", error);
       }
@@ -63,11 +67,24 @@ export default function JoinConfirmScreen() {
       <View style={styles.container}>
         <NemoText level="h1">이 팀에 참여할까요?</NemoText>
 
-        <GroupIcon width={90} height={84} />
+        {teamInfo?.teamImageUrl ? (
+          <ProfileImage size={90} uri={teamInfo?.teamImageUrl} />
+        ) : (
+          <GroupIcon width={90} height={84} />
+        )}
 
         <View style={styles.teamNameContainer}>
-          <NemoText level="body1">{params.teamName}</NemoText>
-          <NemoText level="body1">· {params.ownerName}</NemoText>
+          <NemoText level="body1">{teamInfo?.teamName}</NemoText>
+
+          <NemoText level="body1" style={styles.ownerNameContainer}>
+            팀장 · {teamInfo?.ownerName}
+          </NemoText>
+        </View>
+
+        <View style={styles.descriptionContainer}>
+          <NemoText level="body2" style={{ color: globalGray900 }}>
+            {teamInfo?.description}
+          </NemoText>
         </View>
       </View>
       <View style={styles.buttonContainer}>
@@ -77,7 +94,7 @@ export default function JoinConfirmScreen() {
           disabled={!teamInfo}
         >
           <NemoText level="h2" style={{ color: globalGray0 }}>
-            네, 맞아요
+            네, 참여할게요
           </NemoText>
         </Button>
         <Button
@@ -86,7 +103,7 @@ export default function JoinConfirmScreen() {
           disabled={false}
         >
           <NemoText level="h2" style={{ color: globalGray400 }}>
-            아니에요
+            다시 찾을게요
           </NemoText>
         </Button>
       </View>
@@ -110,9 +127,11 @@ const styles = StyleSheet.create({
     gap: 36,
   },
   teamNameContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 12,
+  },
+  ownerNameContainer: {
+    color: globalGray700,
   },
   buttonContainer: {
     gap: 9,
@@ -121,5 +140,13 @@ const styles = StyleSheet.create({
   },
   button: {
     minHeight: 46,
+  },
+  descriptionContainer: {
+    alignSelf: "stretch",
+    marginHorizontal: 20,
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
   },
 });
