@@ -19,13 +19,13 @@ const PersonForm = ({ disabled, persons, onPerson }: PersonFormProps) => {
   const activeMembers = persons.filter((pos) => pos.isActive);
   const personLabel =
     activeMembers.length > 0
-      ? `${activeMembers[0].displayName} ${activeMembers.length - 1 > 0 ? "+" + (activeMembers.length - 1) : ""}`
+      ? `${activeMembers[0].userName ?? ""} ${activeMembers.length - 1 > 0 ? "+" + (activeMembers.length - 1) : ""}`
       : "지정없음";
 
-  const member = persons.map((pos) => {
+  const member: ChipText[] = persons.map((pos) => {
     return {
       id: pos.memberId,
-      content: pos.displayName,
+      content: pos.userName ?? "",
       isActive: pos.isActive,
     };
   });

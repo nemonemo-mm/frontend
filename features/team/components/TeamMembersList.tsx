@@ -74,9 +74,9 @@ export default function TeamMembersList({
           {
             ...previousMembers,
             members: previousMembers.members.filter(
-              (m) => m.memberId !== memberId
+              (m) => m.memberId !== memberId,
             ),
-          }
+          },
         );
       }
 
@@ -86,7 +86,7 @@ export default function TeamMembersList({
       if (context?.previousMembers) {
         queryClient.setQueryData(
           ["teams", teamId, "members"],
-          context.previousMembers
+          context.previousMembers,
         );
       }
       Alert.alert("오류", "멤버 삭제 중 문제가 발생했습니다.");
@@ -162,10 +162,10 @@ export default function TeamMembersList({
           onSuccess: (data) => {
             handleProfileModalOpen({
               ...data,
-              displayName: data.userName || "",
+              userName: data.userName || "",
             });
           },
-        }
+        },
       );
     }
     setIsOpenPositionList(false);
@@ -208,7 +208,7 @@ export default function TeamMembersList({
                 </View>
               )}
             </View>
-            <NemoText level="body2">{member.displayName}</NemoText>
+            <NemoText level="body2">{member.userName}</NemoText>
             <NemoText level="body2" style={{ color: globalGray700 }}>
               {member.positionName}
             </NemoText>
@@ -247,7 +247,7 @@ export default function TeamMembersList({
               uri={activeModal.member.userImageUrl}
             />
             <AlertModal.Title>
-              {`${activeModal.member.displayName}`}
+              {`${activeModal.member.userName}`}
             </AlertModal.Title>
             <Pressable
               onPress={handleTogglePositionList}
@@ -289,7 +289,7 @@ export default function TeamMembersList({
           <>
             <AlertModal.Title>멤버를 내보내기</AlertModal.Title>
             <AlertModal.Text>
-              {`${activeModal.member.displayName}님을 팀에서 내보낼까요?`}
+              {`${activeModal.member.userName}님을 팀에서 내보낼까요?`}
             </AlertModal.Text>
             <AlertModal.Actions
               type="double"

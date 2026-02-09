@@ -1,7 +1,7 @@
 import { apiClient } from "@/shared/utils/http";
-import { TemaList } from "../types/team.model";
+import type { TeamList } from "../types/team.model";
 
-export async function teamListUp(): Promise<TemaList[]> {
+export async function teamListUp(): Promise<TeamList[]> {
   const { data } = await apiClient.get("/teams");
   return data;
 }
