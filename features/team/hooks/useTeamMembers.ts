@@ -11,6 +11,8 @@ import {
 } from "../api/members";
 import type { TeamMember, TeamMembersResponse } from "../types/team.model";
 
+const TEAM_MEMBERS_QUERY_STALE_TIME = 1000 * 60 * 5;
+
 export interface MemberChip extends TeamMember {
   isActive: boolean;
 }
@@ -29,6 +31,7 @@ export function useTeamMembers(teamId: number | null) {
     queryKey: ["teams", teamId, "members"],
     queryFn: () => getTeamMembers(teamId as number),
     enabled: isEnabled,
+    staleTime: TEAM_MEMBERS_QUERY_STALE_TIME,
   });
 }
 
