@@ -12,7 +12,7 @@ import { useAddPositionModal } from "@/features/position/hooks/useAddPositionMod
 import { PositionResponse } from "@/features/position/types/position.model";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { uploadTeamImage } from "@/features/team/api/image";
-import { TeamDetail } from "@/features/team/types/team.model";
+import { TeamDetail, TeamList } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import Chip from "@/shared/ui/atoms/Chip";
 import Input from "@/shared/ui/atoms/Input";
@@ -272,10 +272,64 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
 
   const uploadTeamImageMutation = useMutation({
     mutationFn: (imageUri: string) => uploadTeamImage(teamId!, imageUri),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] });
+    onMutate: async (imageUri) => {
+      if (!teamId) return;
+
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ["teamDetail", teamId] }),
+        queryClient.cancelQueries({ queryKey: ["teamList"] }),
+      ]);
+
+      const previousTeamDetail = queryClient.getQueryData<TeamDetail>([
+        "teamDetail",
+        teamId,
+      ]);
+      const previousTeamList =
+        queryClient.getQueryData<TeamList[]>(["teamList"]);
+
+      queryClient.setQueryData<TeamDetail | undefined>(
+        ["teamDetail", teamId],
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                teamImageUrl: imageUri,
+              }
+            : previous,
+      );
+
+      queryClient.setQueryData<TeamList[] | undefined>(["teamList"], (previous) =>
+        previous?.map((team) =>
+          team.teamId === teamId
+            ? {
+                ...team,
+                teamImageUrl: imageUri,
+              }
+            : team,
+        ),
+      );
+
+      return { previousTeamDetail, previousTeamList };
     },
-    onError: (e) => {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["teamDetail", teamId] }),
+        queryClient.invalidateQueries({ queryKey: ["teamList"] }),
+      ]);
+    },
+    onError: (e, _variables, context) => {
+      if (!teamId) return;
+
+      if (context?.previousTeamDetail) {
+        queryClient.setQueryData(
+          ["teamDetail", teamId],
+          context.previousTeamDetail,
+        );
+      }
+
+      if (context?.previousTeamList) {
+        queryClient.setQueryData(["teamList"], context.previousTeamList);
+      }
       console.log(e);
     },
   });
