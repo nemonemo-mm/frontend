@@ -2,6 +2,7 @@ import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import {
   globalGray0,
   globalGray150,
+  globalGray400,
   globalGray700,
   globalGreen300,
 } from "../index";
@@ -24,27 +25,25 @@ const ModalButton = ({
   containerStyle,
   disabled,
 }: ModalButtonProps) => {
+  const isPrimary = variant === "primary";
+  const backgroundColor = disabled
+    ? globalGray150
+    : isPrimary
+      ? globalGreen300
+      : globalGray150;
+  const textColor = disabled
+    ? globalGray400
+    : isPrimary
+      ? globalGray0
+      : globalGray700;
+
   return (
     <Button
-      style={[
-        styles.container,
-        containerStyle,
-        {
-          backgroundColor:
-            variant === "primary" ? globalGreen300 : globalGray150,
-        },
-      ]}
+      style={[styles.container, containerStyle, { backgroundColor }]}
       onPress={onPress}
       disabled={disabled}
     >
-      <NemoText
-        level="body1"
-        style={
-          variant === "primary"
-            ? { color: globalGray0 }
-            : { color: globalGray700 }
-        }
-      >
+      <NemoText level="body1" style={{ color: textColor }}>
         {label}
       </NemoText>
     </Button>

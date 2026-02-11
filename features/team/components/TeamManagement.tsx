@@ -553,6 +553,8 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         mode={editingPosition ? "edit" : "create"}
         initialPositionName={editingPosition?.positionName}
         initialColorHex={editingPosition?.colorHex}
+        currentPositionId={editingPosition?.positionId}
+        existingPositions={positions ?? []}
         onSubmit={editingPosition ? handleEditPosition : handleAddPosition}
         onDelete={editingPosition ? handleDeletePosition : undefined}
         isSubmitting={
