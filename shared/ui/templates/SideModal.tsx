@@ -65,7 +65,7 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
     closeModal();
 
     requestAnimationFrame(() => {
-      route.push("/(tabs)/my");
+      route.push("/my");
     });
   };
 
