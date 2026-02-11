@@ -19,8 +19,11 @@ import { AntDesign } from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 interface MyScreenProps {}
 
@@ -60,9 +63,11 @@ const MyScreen = ({}: MyScreenProps) => {
       route.push("/myAlarm");
     }
   };
-
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView>
+    <SafeAreaView
+      style={[{ paddingTop: Platform.OS == "ios" ? 0 : insets.top }]}
+    >
       <View style={styles.header}>
         <NemoText
           level="h3"

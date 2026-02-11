@@ -23,7 +23,7 @@ import { Feather } from "@expo/vector-icons";
 import { Image as ExpoImage } from "expo-image";
 import { Slot, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -260,7 +260,12 @@ export default function CalendarTodosScreen() {
   };
   const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        { paddingTop: Platform.OS == "ios" ? 0 : insets.top },
+      ]}
+    >
       <CalendarContext.Provider value={contextValue}>
         <View style={styles.container}>
           <View style={styles.header}>
