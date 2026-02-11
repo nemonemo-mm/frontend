@@ -1,3 +1,4 @@
+import ChevronLeftIcon from "@/assets/icons/chevron-left";
 import { logout } from "@/features/auth/api/auth";
 import { clearTokens } from "@/features/auth/utils/tokenStorage";
 import { useUser } from "@/features/users/hooks/useUser";
@@ -57,6 +58,9 @@ const MyScreen = ({}: MyScreenProps) => {
       style={[{ paddingTop: Platform.OS == "ios" ? 0 : insets.top }]}
     >
       <View style={styles.header}>
+        <Pressable style={styles.backButton} onPress={() => route.back()}>
+          <ChevronLeftIcon />
+        </Pressable>
         <NemoText
           level="h3"
           style={{ color: globalGray900, textAlign: "center" }}
@@ -148,6 +152,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    left: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
   },
   main: {
     paddingHorizontal: 20,
