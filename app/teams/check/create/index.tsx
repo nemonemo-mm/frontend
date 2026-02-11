@@ -76,6 +76,7 @@ export default function ProfileSetupScreen() {
         <View>
           <NemoInput
             placeholder="팀을 소개하는 한 줄을 적어보세요 (선택)"
+            maxLength={20}
             label="팀 소개"
             value={form.teamIntroduction || ""}
             onChangeText={handleTeamIntroductionChange}
