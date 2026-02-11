@@ -311,10 +311,10 @@ export default function CalendarTodosScreen() {
             <View style={styles.noticeInput}>
               <ModalEditableField
                 title="공지 작성"
-                description="팀에 공유할 공지 내용을 입력해주세요"
+                description="공유할 내용을 25자 이내로 입력해 주세요"
                 placeholder="아직 작성된 공지가 없어요"
                 defaultValue={notice}
-                maxLength={26}
+                maxLength={25}
                 onConfirm={handleConfirmNotice}
               />
             </View>
@@ -327,7 +327,7 @@ export default function CalendarTodosScreen() {
               onPress={() => route.push(`${pathName}?openModal=true` as any)}
             >
               <SquaredPlusIcon
-                size={36}
+                size={52}
                 color={globalGreen300}
                 style={{
                   marginBottom: insets.bottom,

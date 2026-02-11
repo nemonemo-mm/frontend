@@ -86,6 +86,9 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
             })
           }
         />
+        <View
+          style={{ borderBottomWidth: 1, borderBottomColor: globalGray200 }}
+        />
         <DateTimeForm
           disabled={readonly}
           disableTime={isAllDay}
@@ -127,7 +130,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
             </NemoText>
           </Pressable>
         </View>
-        <View style={styles.optionContainer}>
+        <View style={[styles.optionContainer, { borderBottomWidth: 0 }]}>
           <NemoTextLabel disabled={readonly}>반복</NemoTextLabel>
           <Pressable onPress={() => !readonly && setIsOpenRepeatModal(true)}>
             <NemoText level="body3" style={{ color: globalGray700 }}>
@@ -149,6 +152,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
             dispatch({ type: "SET_PERSON", payload: n });
           }}
         />
+
         <PositionForm
           disabled={readonly}
           positions={position}
@@ -160,6 +164,9 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
             }));
             dispatch({ type: "SET_POSITION", payload: n });
           }}
+        />
+        <View
+          style={{ borderBottomWidth: 1, borderBottomColor: globalGray200 }}
         />
         <View style={[styles.optionContainer, styles.optionInput]}>
           <TextInput
@@ -173,7 +180,13 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
             }
           />
         </View>
-        <View style={[styles.optionContainer, styles.optionInput]}>
+        <View
+          style={[
+            styles.optionContainer,
+            styles.optionInput,
+            { borderBottomWidth: 0 },
+          ]}
+        >
           <TextInput
             editable={!readonly}
             placeholderTextColor={readonly ? globalGray400 : globalGray600}
