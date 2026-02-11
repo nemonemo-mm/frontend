@@ -3,8 +3,8 @@ import { teamUpdateIntroduction } from "@/features/team/api/update";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import ModalButton from "@/shared/ui/molecules/ModalButton";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -60,6 +60,7 @@ export default function EditIntroductionScreen() {
             style={styles.introductionInput}
             textAlignVertical="top"
             value={introduction}
+            maxLength={20}
             onChangeText={setIntroduction}
           />
         </View>
