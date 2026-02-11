@@ -12,10 +12,10 @@ import {
   createInitialState,
   InitialCalendarState,
 } from "@/shared/hooks/useCalendarForm";
-import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useReducer, useState } from "react";
-import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { useMemo, useReducer, useRef, useState } from "react";
+import { Animated, Modal, PanResponder, StyleSheet, View } from "react-native";
 import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
 import AlertModal from "../organisms/AlertModal";
@@ -76,25 +76,61 @@ const CalendarDetailModal = ({
     setIsClickedDeleteButton(false);
     closeModal();
   };
+  const translateY = useRef(new Animated.Value(0)).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dy) > 5,
+      onPanResponderGrant: () => {
+        translateY.setValue(0);
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const next = Math.max(gestureState.dy, 0);
+        if (next <= 250) {
+          translateY.setValue(next);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 80) {
+          Animated.timing(translateY, {
+            toValue: 400,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            translateY.setValue(0);
+            closeModal();
+          });
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            bounciness: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const indicatorHandlers = useMemo(
+    () => panResponder.panHandlers,
+    [panResponder]
+  );
   return (
     <Modal backdropColor={globalGray700 + "40"} animationType="slide">
       <BottomModal.Container style={{ minHeight: 660 }}>
-        <BottomModal.Header>
-          <BottomModal.LeftButton onPress={closeModal}>
-            <AntDesign name="close" size={20} color={globalGray700} />
+        <BottomModal.Header {...indicatorHandlers}>
+          <BottomModal.LeftButton onPress={handleDeleteButton}>
+            <Ionicons name="trash-outline" size={20} color={globalGray700} />
           </BottomModal.LeftButton>
-          <View style={{ marginLeft: "auto", flexDirection: "row", gap: 12 }}>
-            <Pressable
-              onPress={() => {
-                setIsOpenEditModal(true);
-              }}
-            >
-              <Feather name="edit-2" size={20} color={globalGray700} />
-            </Pressable>
-            <Pressable onPress={handleDeleteButton}>
-              <Ionicons name="trash-outline" size={20} color={globalGray700} />
-            </Pressable>
-          </View>
+          <BottomModal.Indicator />
+          <BottomModal.RightButton
+            onPress={() => {
+              setIsOpenEditModal(true);
+            }}
+          >
+            <Feather name="edit-2" size={20} color={globalGray700} />
+          </BottomModal.RightButton>
         </BottomModal.Header>
         <View>
           <View style={styles.row}>
