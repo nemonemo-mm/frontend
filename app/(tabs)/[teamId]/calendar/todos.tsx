@@ -23,6 +23,7 @@ import CalendarDays from "@/shared/ui/molecules/CalendarDays";
 import CalendarWeek from "@/shared/ui/molecules/CalendarWeek";
 import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
+import { RepeatPeriod } from "@/shared/ui/templates/RepeatModal";
 import { getWeekByDate } from "@/shared/utils/getWeekByDate";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
@@ -159,14 +160,17 @@ const Todos = ({}: TodosProps) => {
     let repeatUseDate: boolean = false;
     if (repeat) {
       repeatEndDate = repeat.endAt.toISOString();
-      if (repeat.period == "daily") {
+      if (repeat.period === RepeatPeriod.DAILY) {
         repeatInterval = repeat.interval;
       }
-      if (repeat.period == "weekly") {
+      if (repeat.period === RepeatPeriod.WEEKLY) {
         repeatInterval = repeat.interval;
         repeatWeekDays = repeat.weekdays;
       }
-      if (repeat.period == "monthly" || repeat.period == "yearly") {
+      if (
+        repeat.period === RepeatPeriod.MONTHLY ||
+        repeat.period === RepeatPeriod.YEARLY
+      ) {
         repeatUseDate = repeat.useDate;
       }
     }
