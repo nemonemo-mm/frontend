@@ -37,10 +37,12 @@ export default {
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true,
       },
+      ITSAppUsesNonExemptEncryption: false,
     },
     supportsTablet: true,
     usesAppleSignIn: true,
-    googleServicesFile: process.env.GOOGLE_SERVICES_PLIST,
+    googleServicesFile:
+      process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
     bundleIdentifier: "com.nemonemomm.frontend",
   },
   android: {
