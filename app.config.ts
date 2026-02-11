@@ -35,7 +35,7 @@ export default {
     },
     supportsTablet: true,
     usesAppleSignIn: true,
-    googleServicesFile: "./GoogleService-Info.plist",
+    googleServicesFile: process.env.GOOGLE_SERVICES_PLIST,
     bundleIdentifier: "com.nemonemomm.frontend",
   },
   android: {
