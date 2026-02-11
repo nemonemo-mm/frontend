@@ -10,7 +10,7 @@ import { teamListUp } from "@/features/team/api/list";
 import { globalGreen300, globalSpacingSm } from "@/shared/ui";
 import GoogleAuthButton from "@/shared/ui/molecules/GoogleAuthButton";
 import { useRouter } from "expo-router";
-import { Alert, Platform, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const AuthScreen = () => {
@@ -66,10 +66,10 @@ const AuthScreen = () => {
       ) {
         console.error(
           "소셜 로그인 응답에 토큰이 없거나 형식이 올바르지 않습니다:",
-          response,
+          response
         );
         throw new Error(
-          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요.",
+          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요."
         );
       }
 
@@ -104,7 +104,7 @@ const AuthScreen = () => {
                 firebaseIdToken:
                   JSON.parse(error?.config?.data)?.firebaseIdToken?.substring(
                     0,
-                    20,
+                    20
                   ) + "...",
               }
             : undefined,
@@ -130,7 +130,10 @@ const AuthScreen = () => {
       <View style={styles.container}>
         {/* 로고 영역 */}
         <View style={styles.logoContainer}>
-          <View style={styles.logo} />
+          <Image
+            source={require("../../assets/images/splash-icon.png")}
+            style={styles.logoImage}
+          />
           <Text style={styles.appName}>Nemonemo</Text>
         </View>
 
@@ -159,11 +162,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 80,
   },
-  logo: {
+  logoImage: {
     width: 88,
     height: 88,
-    backgroundColor: "#D9D9D9",
     marginBottom: globalSpacingSm,
+    objectFit: "cover",
+    aspectRatio: 2.4,
   },
   appName: {
     fontSize: 24,

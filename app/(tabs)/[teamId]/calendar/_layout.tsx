@@ -14,8 +14,8 @@ import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
 import { globalGray700 } from "@/shared/ui";
+import GroupImage from "@/shared/ui/atoms/GroupImage";
 import NemoText from "@/shared/ui/atoms/NemoText";
-import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
@@ -24,7 +24,10 @@ import { Image as ExpoImage } from "expo-image";
 import { Slot, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const today = new Date(Date.now());
 const year = today.getFullYear();
@@ -255,8 +258,9 @@ export default function CalendarTodosScreen() {
         );
     }
   };
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
       <CalendarContext.Provider value={contextValue}>
         <View style={styles.container}>
           <View style={styles.header}>
@@ -268,7 +272,7 @@ export default function CalendarTodosScreen() {
             )}
             <Pressable style={styles.row} onPress={handlePressTeamName}>
               {teamDetail?.teamImageUrl ? (
-                <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
+                <GroupImage uri={teamDetail.teamImageUrl} size={32} />
               ) : (
                 <GroupIcon size={32} />
               )}
