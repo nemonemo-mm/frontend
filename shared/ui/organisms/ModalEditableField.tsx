@@ -18,6 +18,7 @@ interface ModalEditableFieldProps {
   placeholder?: string;
   defaultValue?: string;
   maxLength?: number;
+  disabled?: boolean;
   onConfirm: (v: string) => void;
 }
 
@@ -27,6 +28,7 @@ const ModalEditableField = ({
   placeholder = "",
   defaultValue,
   maxLength,
+  disabled = false,
   onConfirm,
 }: ModalEditableFieldProps) => {
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
@@ -52,6 +54,7 @@ const ModalEditableField = ({
     <>
       <Pressable
         style={[styles.linkContainer, styles.link]}
+        disabled={disabled}
         onPress={handleClickEdit}
       >
         <NemoText
@@ -63,7 +66,10 @@ const ModalEditableField = ({
         >
           {defaultValue && defaultValue !== "" ? defaultValue : placeholder}
         </NemoText>
-        <Feather name="edit-2" size={16} color={globalGray700} />
+
+        {!disabled ? (
+          <Feather name="edit-2" size={16} color={globalGray700} />
+        ) : null}
       </Pressable>
       {isOpenEditModal && (
         <AlertModal

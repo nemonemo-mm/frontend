@@ -159,6 +159,7 @@ export default function CalendarTodosScreen() {
   const { data: teamDetail } = useTeamDetail(
     Number.isFinite(parsedTeamId) ? parsedTeamId : null
   );
+  const isTeamOwner = teamDetail?.isOwner ?? false;
 
   const [selectedDate, setSelectedDate] = useState(today);
   const selectDate = useCallback((date: Date) => {
@@ -307,6 +308,7 @@ export default function CalendarTodosScreen() {
                 placeholder="아직 작성된 공지가 없어요"
                 defaultValue={notice}
                 maxLength={26}
+                disabled={!isTeamOwner}
                 onConfirm={handleConfirmNotice}
               />
             </View>
