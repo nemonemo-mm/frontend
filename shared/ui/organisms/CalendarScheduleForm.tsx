@@ -75,7 +75,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
           }
           onTime={(t) =>
             dispatch({
-              type: "SET_END",
+              type: "SET_START",
               payload: new Date(
                 start.getFullYear(),
                 start.getMonth(),
