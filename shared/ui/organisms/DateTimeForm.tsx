@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { globalGray200, globalSpacingXs } from "..";
 import NemoTextLabel from "../molecules/NemoTextLabel";
@@ -17,6 +17,7 @@ type DateTimeFormProps =
       onDate: () => void;
       time?: undefined;
       onTime?: undefined;
+      disableTime?: boolean;
     }
   | {
       disabled?: boolean;
@@ -25,6 +26,7 @@ type DateTimeFormProps =
       onDate: (date: Date) => void;
       time: Time;
       onTime: (time: Time) => void;
+      disableTime?: boolean;
     };
 
 const DateTimeForm = ({
@@ -34,9 +36,16 @@ const DateTimeForm = ({
   time,
   onDate,
   onTime,
+  disableTime,
 }: DateTimeFormProps) => {
   const [isOpenDateModal, setIsOpenDateModal] = useState(false);
   const [isOpenTimeModal, setIsOpenTimeModal] = useState(false);
+  const timeDisabled = !!(disabled || disableTime);
+  useEffect(() => {
+    if (timeDisabled) {
+      setIsOpenTimeModal(false);
+    }
+  }, [timeDisabled]);
   return (
     <View style={styles.optionContainer}>
       <NemoTextLabel disabled={disabled}>{label}</NemoTextLabel>
@@ -48,7 +57,10 @@ const DateTimeForm = ({
         {time && (
           <TimeButton
             selectedTime={time}
-            handlePressTime={() => !disabled && setIsOpenTimeModal(true)}
+            handlePressTime={() =>
+              !timeDisabled && setIsOpenTimeModal(true)
+            }
+            disabled={timeDisabled}
           />
         )}
       </View>

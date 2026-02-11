@@ -17,25 +17,32 @@ type Data = {
   endAt: Date;
 };
 
+export enum RepeatPeriod {
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEARLY",
+}
+
 export type RepeatState =
   | {
-      period: "daily";
+      period: RepeatPeriod.DAILY;
       interval: number;
       endAt: Date;
     }
   | {
-      period: "weekly";
+      period: RepeatPeriod.WEEKLY;
       interval: number;
       weekdays: WeekDayType[];
       endAt: Date;
     }
   | {
-      period: "monthly";
+      period: RepeatPeriod.MONTHLY;
       useDate: boolean;
       endAt: Date;
     }
   | {
-      period: "yearly";
+      period: RepeatPeriod.YEARLY;
       useDate: boolean;
       endAt: Date;
     };
@@ -46,23 +53,47 @@ interface RepeatModalProps {
   confirmModal: (data: RepeatState) => void;
 }
 
-type SegmentType = "daily" | "weekly" | "monthly" | "yearly";
 const segmentTexts = [
-  { id: "daily", content: "매일", isActive: true },
-  { id: "weekly", content: "매주", isActive: false },
-  { id: "monthly", content: "매달", isActive: false },
-  { id: "yearly", content: "매년", isActive: false },
+  { id: RepeatPeriod.DAILY, content: "매일", isActive: true },
+  { id: RepeatPeriod.WEEKLY, content: "매주", isActive: false },
+  { id: RepeatPeriod.MONTHLY, content: "매달", isActive: false },
+  { id: RepeatPeriod.YEARLY, content: "매년", isActive: false },
 ];
 
 const convertInitialValue = (v: RepeatState | null): RepeatState => {
   if (v == null)
     return {
-      period: "daily",
+      period: RepeatPeriod.DAILY,
       interval: 0,
       endAt: new Date(Date.now()),
     };
   return v;
 };
+
+const handleDailyRepeat = (prev: RepeatState): RepeatState => ({
+  period: RepeatPeriod.DAILY,
+  interval: 1,
+  endAt: prev.endAt,
+});
+
+const handleWeeklyRepeat = (prev: RepeatState): RepeatState => ({
+  period: RepeatPeriod.WEEKLY,
+  interval: 1,
+  weekdays: [],
+  endAt: prev.endAt,
+});
+
+const handleMonthlyRepeat = (prev: RepeatState): RepeatState => ({
+  period: RepeatPeriod.MONTHLY,
+  useDate: false,
+  endAt: prev.endAt,
+});
+
+const handleYearlyRepeat = (prev: RepeatState): RepeatState => ({
+  period: RepeatPeriod.YEARLY,
+  useDate: false,
+  endAt: prev.endAt,
+});
 
 const RepeatModal = ({
   initialValue,
@@ -78,20 +109,24 @@ const RepeatModal = ({
   const handleSegments = (
     texts: { id: string; content: string; isActive: boolean }[]
   ) => {
-    const period = texts.find((t) => t.isActive)!.id as SegmentType;
-
-    setRepeatState((prev) => {
+    const activeSegment = texts.find((t) => t.isActive);
+    const period = activeSegment
+      ? (activeSegment.id as RepeatPeriod)
+      : RepeatPeriod.DAILY;
+    const updateRepeatState = (prev: RepeatState): RepeatState => {
       switch (period) {
-        case "daily":
-          return { period, interval: 1, endAt: prev.endAt };
-        case "weekly":
-          return { period, interval: 1, weekdays: [], endAt: prev.endAt };
-        case "monthly":
-          return { period, useDate: false, endAt: prev.endAt };
-        case "yearly":
-          return { period, useDate: false, endAt: prev.endAt };
+        case RepeatPeriod.DAILY:
+          return handleDailyRepeat(prev);
+        case RepeatPeriod.WEEKLY:
+          return handleWeeklyRepeat(prev);
+        case RepeatPeriod.MONTHLY:
+          return handleMonthlyRepeat(prev);
+        case RepeatPeriod.YEARLY:
+          return handleYearlyRepeat(prev);
       }
-    });
+    };
+
+    setRepeatState(updateRepeatState);
   };
 
   const handlePressDate = () => {
@@ -116,20 +151,20 @@ const RepeatModal = ({
         </BottomModal.Header>
         <View style={style.container}>
           <Segments level="m" texts={segmentTexts} handler={handleSegments} />
-          {repeatState.period == "daily" && (
+          {repeatState.period === RepeatPeriod.DAILY && (
             <RepeatCount
               unit="일"
               count={repeatState.interval}
               setCount={(v) =>
                 setRepeatState((prev) =>
-                  prev.period === "daily"
+                  prev.period === RepeatPeriod.DAILY
                     ? { ...prev, interval: Number(v) }
                     : prev
                 )
               }
             />
           )}
-          {repeatState.period == "weekly" && (
+          {repeatState.period === RepeatPeriod.WEEKLY && (
             <View>
               <View style={[style.row, style.weekdayContainer]}>
                 {["월", "화", "수", "목", "금", "토", "일"].map((t, i) => (
@@ -139,7 +174,7 @@ const RepeatModal = ({
                     isActive={repeatState.weekdays.includes(t as WeekDayType)}
                     onPress={(t) =>
                       setRepeatState((prev) =>
-                        prev.period === "weekly"
+                        prev.period === RepeatPeriod.WEEKLY
                           ? {
                               ...prev,
                               weekdays: prev.weekdays.includes(t)
@@ -157,7 +192,7 @@ const RepeatModal = ({
                 count={repeatState.interval}
                 setCount={(v) =>
                   setRepeatState((prev) =>
-                    prev.period === "daily"
+                    prev.period === RepeatPeriod.WEEKLY
                       ? { ...prev, interval: Number(v) }
                       : prev
                   )
@@ -165,7 +200,7 @@ const RepeatModal = ({
               />
             </View>
           )}
-          {repeatState.period == "monthly" && (
+          {repeatState.period === RepeatPeriod.MONTHLY && (
             <View style={style.repeatContainer}>
               <NemoTextLabel>
                 매달 {repeatState.endAt.getDate()}일에 반복
@@ -174,7 +209,7 @@ const RepeatModal = ({
                 value={repeatState.useDate}
                 handler={() =>
                   setRepeatState((prev) =>
-                    prev.period == "monthly"
+                    prev.period === RepeatPeriod.MONTHLY
                       ? { ...prev, useDate: !prev.useDate }
                       : prev
                   )
@@ -182,7 +217,7 @@ const RepeatModal = ({
               />
             </View>
           )}
-          {repeatState.period == "yearly" && (
+          {repeatState.period === RepeatPeriod.YEARLY && (
             <View style={style.repeatContainer}>
               <NemoTextLabel>
                 매년 {repeatState.endAt.getMonth() + 1}월{" "}
@@ -192,7 +227,7 @@ const RepeatModal = ({
                 value={repeatState.useDate}
                 handler={() =>
                   setRepeatState((prev) =>
-                    prev.period == "monthly"
+                    prev.period === RepeatPeriod.YEARLY
                       ? { ...prev, useDate: !prev.useDate }
                       : prev
                   )

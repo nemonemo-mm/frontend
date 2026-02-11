@@ -25,6 +25,7 @@ import NemoText from "../atoms/NemoText";
 import { WeekDayType } from "../molecules/NemoDayButton";
 import BottomModal from "../organisms/BottomModal";
 import CalendarDetailModal from "./CalendarDetailModal";
+import { RepeatPeriod } from "./RepeatModal";
 
 interface ScheduleListModalProps {
   selectedDate: Date;
@@ -98,14 +99,17 @@ const ScheduleListModal = ({
       let repeatUseDate: boolean = false;
       if (repeat) {
         repeatEndDate = repeat.endAt.toISOString();
-        if (repeat.period == "daily") {
+        if (repeat.period === RepeatPeriod.DAILY) {
           repeatInterval = repeat.interval;
         }
-        if (repeat.period == "weekly") {
+        if (repeat.period === RepeatPeriod.WEEKLY) {
           repeatInterval = repeat.interval;
           repeatWeekDays = repeat.weekdays;
         }
-        if (repeat.period == "monthly" || repeat.period == "yearly") {
+        if (
+          repeat.period === RepeatPeriod.MONTHLY ||
+          repeat.period === RepeatPeriod.YEARLY
+        ) {
           repeatUseDate = repeat.useDate;
         }
       }

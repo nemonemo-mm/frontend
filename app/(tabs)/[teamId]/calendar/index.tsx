@@ -15,6 +15,7 @@ import { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
+import { RepeatPeriod } from "@/shared/ui/templates/RepeatModal";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
@@ -105,14 +106,17 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
     let repeatUseDate: boolean = false;
     if (repeat) {
       repeatEndDate = repeat.endAt.toISOString();
-      if (repeat.period == "daily") {
+      if (repeat.period === RepeatPeriod.DAILY) {
         repeatInterval = repeat.interval;
       }
-      if (repeat.period == "weekly") {
+      if (repeat.period === RepeatPeriod.WEEKLY) {
         repeatInterval = repeat.interval;
         repeatWeekDays = repeat.weekdays;
       }
-      if (repeat.period == "monthly" || repeat.period == "yearly") {
+      if (
+        repeat.period === RepeatPeriod.MONTHLY ||
+        repeat.period === RepeatPeriod.YEARLY
+      ) {
         repeatUseDate = repeat.useDate;
       }
     }

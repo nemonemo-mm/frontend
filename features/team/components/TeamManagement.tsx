@@ -15,9 +15,9 @@ import { uploadTeamImage } from "@/features/team/api/image";
 import { TeamDetail, TeamList } from "@/features/team/types/team.model";
 import { globalGray700, globalRed600 } from "@/shared/ui";
 import Chip from "@/shared/ui/atoms/Chip";
+import GroupImage from "@/shared/ui/atoms/GroupImage";
 import Input from "@/shared/ui/atoms/Input";
 import NemoText from "@/shared/ui/atoms/NemoText";
-import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import ImageUploadModal from "@/shared/ui/molecules/ImageUploadModal";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
 import AddPositionModal from "@/shared/ui/templates/AddPositionModal";
@@ -284,8 +284,9 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         "teamDetail",
         teamId,
       ]);
-      const previousTeamList =
-        queryClient.getQueryData<TeamList[]>(["teamList"]);
+      const previousTeamList = queryClient.getQueryData<TeamList[]>([
+        "teamList",
+      ]);
 
       queryClient.setQueryData<TeamDetail | undefined>(
         ["teamDetail", teamId],
@@ -295,18 +296,20 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
                 ...previous,
                 teamImageUrl: imageUri,
               }
-            : previous,
+            : previous
       );
 
-      queryClient.setQueryData<TeamList[] | undefined>(["teamList"], (previous) =>
-        previous?.map((team) =>
-          team.teamId === teamId
-            ? {
-                ...team,
-                teamImageUrl: imageUri,
-              }
-            : team,
-        ),
+      queryClient.setQueryData<TeamList[] | undefined>(
+        ["teamList"],
+        (previous) =>
+          previous?.map((team) =>
+            team.teamId === teamId
+              ? {
+                  ...team,
+                  teamImageUrl: imageUri,
+                }
+              : team
+          )
       );
 
       return { previousTeamDetail, previousTeamList };
@@ -323,7 +326,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
       if (context?.previousTeamDetail) {
         queryClient.setQueryData(
           ["teamDetail", teamId],
-          context.previousTeamDetail,
+          context.previousTeamDetail
         );
       }
 
@@ -398,7 +401,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
           {localTeamImageUri || teamDetail.teamImageUrl ? (
             <View style={styles.teamImageContainer}>
               <Pressable onPress={() => setIsImageSheetOpen(true)}>
-                <ProfileImage
+                <GroupImage
                   size={90}
                   uri={localTeamImageUri ?? teamDetail.teamImageUrl}
                 />

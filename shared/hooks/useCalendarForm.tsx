@@ -5,7 +5,7 @@ import { MemberChip } from "@/features/team/hooks/useTeamMembers";
 import { createContext } from "react";
 import { WeekDayType } from "../ui/molecules/NemoDayButton";
 import { AlarmState } from "../ui/templates/AlarmModal";
-import { RepeatState } from "../ui/templates/RepeatModal";
+import { RepeatPeriod, RepeatState } from "../ui/templates/RepeatModal";
 
 export interface InitialCalendarState {
   teamId: number;
@@ -146,36 +146,37 @@ function createRepeatState(params: {
     repeatUseDate,
   } = params;
 
-  if (!repeatType && repeatType == "NONE") return null;
+  const normalizedType = repeatType?.toUpperCase() ?? "";
+  if (!normalizedType || normalizedType === "NONE") return null;
   if (!repeatEndDate) return null;
   const endAt = new Date(repeatEndDate);
 
-  switch (repeatType) {
-    case "daily":
+  switch (normalizedType) {
+    case RepeatPeriod.DAILY:
       return {
-        period: "daily",
+        period: RepeatPeriod.DAILY,
         interval: repeatInterval ?? 1,
         endAt,
       };
 
-    case "weekly":
+    case RepeatPeriod.WEEKLY:
       return {
-        period: "weekly",
+        period: RepeatPeriod.WEEKLY,
         interval: repeatInterval ?? 1,
         weekdays: repeatWeekDays ?? [],
         endAt,
       };
 
-    case "monthly":
+    case RepeatPeriod.MONTHLY:
       return {
-        period: "monthly",
+        period: RepeatPeriod.MONTHLY,
         useDate: repeatUseDate ?? false,
         endAt,
       };
 
-    case "yearly":
+    case RepeatPeriod.YEARLY:
       return {
-        period: "yearly",
+        period: RepeatPeriod.YEARLY,
         useDate: repeatUseDate ?? false,
         endAt,
       };

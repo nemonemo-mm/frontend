@@ -1,5 +1,5 @@
 import { AlarmState } from "../ui/templates/AlarmModal";
-import { RepeatState } from "../ui/templates/RepeatModal";
+import { RepeatPeriod, RepeatState } from "../ui/templates/RepeatModal";
 
 export const formatRepeat = (repeat: RepeatState | null): string => {
   if (!repeat) return "지정없음";
@@ -8,16 +8,16 @@ export const formatRepeat = (repeat: RepeatState | null): string => {
   const endDate = `${endAt.getFullYear()}년 ${endAt.getMonth() + 1}월 ${endAt.getDate()}일`;
   let result: string;
   switch (period) {
-    case "daily":
+    case RepeatPeriod.DAILY:
       result = `${repeat.interval}일 간격으로 ${endDate}까지 반복`;
       break;
-    case "weekly":
+    case RepeatPeriod.WEEKLY:
       result = `${repeat.weekdays.join(", ")}요일에 ${repeat.interval}주 간격으로 ${endDate}까지 반복`;
       break;
-    case "monthly":
+    case RepeatPeriod.MONTHLY:
       result = `${repeat.useDate ? "매월 " : ""}${endDate}까지 반복`;
       break;
-    case "yearly":
+    case RepeatPeriod.YEARLY:
       result = `${repeat.useDate ? "매년 " : ""}${endDate}까지 반복`;
       break;
     default:

@@ -24,7 +24,6 @@ import {
   View,
 } from "react-native";
 import {
-  globalBmRadius,
   globalGray0,
   globalGray200,
   globalGray400,
@@ -59,6 +58,8 @@ const toStartOfDay = (date: Date) =>
 
 const addHours = (date: Date, hours: number) =>
   new Date(date.getTime() + hours * 60 * 60 * 1000);
+const toEndOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59);
 
 export const reducer = (
   state: InitialCalendarState,
@@ -78,7 +79,7 @@ export const reducer = (
         ...state,
         isAllDay,
         start: startOfDay,
-        end: startOfDay,
+        end: toEndOfDay(startOfDay),
       };
     }
 
@@ -333,45 +334,52 @@ const CalendarModal = ({
       </BottomModal.Container>
       {isOpenTeamList && (
         <Modal
-          backdropColor={globalGray0 + "50"}
-          style={{
-            padding: 20,
-            justifyContent: "flex-start",
-            backgroundColor: globalGray0,
-            borderRadius: globalBmRadius,
-          }}
+          transparent
+          visible={isOpenTeamList}
+          animationType="fade"
+          onRequestClose={() => setIsOpenTeamList(false)}
         >
-          <FlatList
-            data={teamLists}
-            keyExtractor={(item) => `team-${item.teamId}`}
-            renderItem={({ item }) => (
-              <Pressable onPress={handlePressTeam(item.teamId)}>
-                <View style={[style.link, style.list]}>
-                  <NemoText level="body2" style={{ color: globalGray900 }}>
-                    {item.teamName}
-                  </NemoText>
-                </View>
-                <View style={style.border} />
-              </Pressable>
-            )}
-            ListFooterComponent={() => (
-              <Pressable
-                onPress={() => setIsOpenTeamList(false)}
-                style={[style.link, style.list]}
-              >
-                <NemoText level="body2">{CLOSE_MESSAGE}</NemoText>
-              </Pressable>
-            )}
-            ListEmptyComponent={
-              <NemoText level="body2" style={{ color: globalGray400 }}>
-                {DEFAULT_TEAM_MESSAGE}
-              </NemoText>
-            }
-            style={[
-              style.linkContainer,
-              { maxHeight: 250, margin: "auto", width: 355 },
-            ]}
-          />
+          <Pressable
+            style={style.modalBackdrop}
+            onPress={() => setIsOpenTeamList(false)}
+          >
+            <View style={style.modalContainer}>
+              <FlatList
+                data={teamLists}
+                keyExtractor={(item) => item.teamId.toString()}
+                renderItem={({ item }) => (
+                  <Pressable onPress={handlePressTeam(item.teamId)}>
+                    <View style={[style.link, style.list]}>
+                      <NemoText level="body2" style={{ color: globalGray900 }}>
+                        {item.teamName}
+                      </NemoText>
+                    </View>
+                    <View style={style.border} />
+                  </Pressable>
+                )}
+                ListFooterComponent={() => (
+                  <Pressable
+                    onPress={() => setIsOpenTeamList(false)}
+                    style={[style.link, style.list]}
+                  >
+                    <NemoText level="body2" style={{ color: globalGray400 }}>
+                      {CLOSE_MESSAGE}
+                    </NemoText>
+                  </Pressable>
+                )}
+                ListEmptyComponent={
+                  <View style={{ padding: 20, alignItems: "center" }}>
+                    <NemoText level="body2" style={{ color: globalGray400 }}>
+                      {DEFAULT_TEAM_MESSAGE}
+                    </NemoText>
+                  </View>
+                }
+                style={style.modalList}
+                contentContainerStyle={style.listContainer}
+                scrollEnabled={!!teamLists?.length && teamLists.length > 6}
+              />
+            </View>
+          </Pressable>
         </Modal>
       )}
       <AlertModal
@@ -450,6 +458,27 @@ const style = StyleSheet.create({
   list: {
     justifyContent: "center",
     width: "100%",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 40,
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: globalGray0,
+    borderRadius: globalSpacingSm,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalList: {
+    maxHeight: 400,
   },
 });
 

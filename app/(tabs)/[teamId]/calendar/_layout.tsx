@@ -30,7 +30,7 @@ const today = new Date(Date.now());
 const year = today.getFullYear();
 const month = today.getMonth();
 const convertSchedules = (
-  data: SchedulesResponse[] | undefined,
+  data: SchedulesResponse[] | undefined
 ): CalendarSchedule[] => {
   if (!data) return [];
   return data.map((item) => {
@@ -87,7 +87,7 @@ export default function CalendarTodosScreen() {
         });
       });
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export default function CalendarTodosScreen() {
       prev.map((tab) => ({
         ...tab,
         isActive: tab.id === id,
-      })),
+      }))
     );
 
     const nextPath =
@@ -116,24 +116,24 @@ export default function CalendarTodosScreen() {
     route.replace(
       nextPath as
         | `/(${string})/${string}/calendar`
-        | `/(${string})/${string}/calendar/todos`,
+        | `/(${string})/${string}/calendar/todos`
     );
   };
 
   const { goNextMonth, goPrevMonth, days, currentYearMonth } = useCalendar(
     year,
-    month,
+    month
   );
   const schedulesQuery = useTeamSchedules(parsedTeamId, {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1,
+      1
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0,
+      0
     ).toISOString(),
   });
 
@@ -141,12 +141,12 @@ export default function CalendarTodosScreen() {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
-      1,
+      1
     ).toISOString(),
     end: new Date(
       currentYearMonth.year,
       currentYearMonth.month + 2,
-      0,
+      0
     ).toISOString(),
   });
 
@@ -154,7 +154,7 @@ export default function CalendarTodosScreen() {
   const calendarTodos = convertTodos(todosQuery.data);
 
   const { data: teamDetail } = useTeamDetail(
-    Number.isFinite(parsedTeamId) ? parsedTeamId : null,
+    Number.isFinite(parsedTeamId) ? parsedTeamId : null
   );
 
   const [selectedDate, setSelectedDate] = useState(today);
@@ -227,7 +227,7 @@ export default function CalendarTodosScreen() {
         {
           onSuccess: () => callNotice(),
           onError: (e) => console.log(e),
-        },
+        }
       );
     else {
       if (newNotice.trim() == "") {
@@ -239,7 +239,7 @@ export default function CalendarTodosScreen() {
           {
             onSuccess: () => callNotice(),
             onError: (e) => console.log(e),
-          },
+          }
         );
       } else
         updateNotice.mutate(
@@ -251,48 +251,46 @@ export default function CalendarTodosScreen() {
           {
             onSuccess: () => callNotice(),
             onError: (e) => console.log(e),
-          },
+          }
         );
     }
   };
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <CalendarContext.Provider value={contextValue}>
-        <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
-          {isOpenSidebar && (
-            <SideModal
-              teams={teams}
-              closeModal={() => setIsOpenSidebar(false)}
-            />
-          )}
-          <Pressable
-            style={[styles.row, styles.layout]}
-            onPress={handlePressTeamName}
-          >
-            {teamDetail?.teamImageUrl ? (
-              <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
-            ) : (
-              <GroupIcon size={32} />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            {isOpenSidebar && (
+              <SideModal
+                teams={teams}
+                closeModal={() => setIsOpenSidebar(false)}
+              />
             )}
-            <NemoText level="h3" style={{ marginLeft: 4 }}>
-              {teamDetail?.teamName}
-            </NemoText>
-          </Pressable>
-          <View style={{ margin: "auto" }} />
-          <Pressable onPress={handlePressAlarm}>
-            <Feather
-              name="bell"
-              size={20}
-              color={globalGray700}
-              style={{ marginRight: 12 }}
-            />
-          </Pressable>
-          <Pressable onPress={handlePressTeamSettings}>
-            <TeamSetting size={24} color={globalGray700} />
-          </Pressable>
-        </View>
-        <View style={[{ padding: 20 }, styles.layout]}>
-          <View>
+            <Pressable style={styles.row} onPress={handlePressTeamName}>
+              {teamDetail?.teamImageUrl ? (
+                <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
+              ) : (
+                <GroupIcon size={32} />
+              )}
+              <NemoText level="h3" style={{ marginLeft: 4 }}>
+                {teamDetail?.teamName}
+              </NemoText>
+            </Pressable>
+            <View style={styles.spacer} />
+            <Pressable onPress={handlePressAlarm}>
+              <Feather
+                name="bell"
+                size={20}
+                color={globalGray700}
+                style={{ marginRight: 12 }}
+              />
+            </Pressable>
+            <Pressable onPress={handlePressTeamSettings}>
+              <TeamSetting size={24} color={globalGray700} />
+            </Pressable>
+          </View>
+
+          <View style={styles.content}>
             <View style={styles.noticeInput}>
               <ModalEditableField
                 title="공지 작성"
@@ -304,8 +302,9 @@ export default function CalendarTodosScreen() {
               />
             </View>
             <Tabs texts={tabTexts} handler={handleTab} />
-            <View style={{ margin: 8 }} />
-            <Slot />
+            <View style={styles.slotContainer}>
+              <Slot />
+            </View>
           </View>
         </View>
       </CalendarContext.Provider>
@@ -313,15 +312,38 @@ export default function CalendarTodosScreen() {
   );
 }
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
   row: {
     flexDirection: "row",
-  },
-  layout: {
     alignItems: "center",
-    justifyContent: "center",
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  spacer: {
+    marginLeft: "auto",
+  },
+  content: {
+    flex: 1,
+    width: "100%",
+    paddingHorizontal: 20,
   },
   noticeInput: {
     position: "relative",
-    marginBottom: 24,
+    marginBottom: 20,
+    marginTop: 8,
+  },
+  slotContainer: {
+    marginTop: 8,
+    flex: 1,
+    width: "100%",
   },
 });
