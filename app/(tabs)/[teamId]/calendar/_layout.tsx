@@ -14,8 +14,8 @@ import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
 import { globalGray700 } from "@/shared/ui";
-import GroupImage from "@/shared/ui/atoms/GroupImage";
 import NemoText from "@/shared/ui/atoms/NemoText";
+import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
@@ -256,47 +256,45 @@ export default function CalendarTodosScreen() {
     }
   };
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <CalendarContext.Provider value={contextValue}>
-        <View style={[styles.row, styles.layout, { paddingHorizontal: 20 }]}>
-          {isOpenSidebar && (
-            <SideModal
-              teams={teams}
-              closeModal={() => setIsOpenSidebar(false)}
-            />
-          )}
-          <Pressable
-            style={[styles.row, styles.layout]}
-            onPress={handlePressTeamName}
-          >
-            {teamDetail?.teamImageUrl ? (
-              <GroupImage uri={teamDetail.teamImageUrl} size={32} />
-            ) : (
-              <GroupIcon size={32} />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            {isOpenSidebar && (
+              <SideModal
+                teams={teams}
+                closeModal={() => setIsOpenSidebar(false)}
+              />
             )}
-            <NemoText level="h3" style={{ marginLeft: 4 }}>
-              {teamDetail?.teamName}
-            </NemoText>
-          </Pressable>
-          <View style={{ margin: "auto" }} />
-          <Pressable onPress={handlePressAlarm}>
-            <Feather
-              name="bell"
-              size={20}
-              color={globalGray700}
-              style={{ marginRight: 12 }}
-            />
-          </Pressable>
-          <Pressable onPress={handlePressTeamSettings}>
-            <TeamSetting size={24} color={globalGray700} />
-          </Pressable>
-        </View>
-        <View style={[{ padding: 20 }, styles.layout]}>
-          <View>
+            <Pressable style={styles.row} onPress={handlePressTeamName}>
+              {teamDetail?.teamImageUrl ? (
+                <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
+              ) : (
+                <GroupIcon size={32} />
+              )}
+              <NemoText level="h3" style={{ marginLeft: 4 }}>
+                {teamDetail?.teamName}
+              </NemoText>
+            </Pressable>
+            <View style={styles.spacer} />
+            <Pressable onPress={handlePressAlarm}>
+              <Feather
+                name="bell"
+                size={20}
+                color={globalGray700}
+                style={{ marginRight: 12 }}
+              />
+            </Pressable>
+            <Pressable onPress={handlePressTeamSettings}>
+              <TeamSetting size={24} color={globalGray700} />
+            </Pressable>
+          </View>
+
+          <View style={styles.content}>
             <View style={styles.noticeInput}>
               <ModalEditableField
                 title="공지 작성"
-                description="공유할 내용을 25자 이내로 입력해 주세요"
+                description="팀에 공유할 공지 내용을 입력해주세요"
                 placeholder="아직 작성된 공지가 없어요"
                 defaultValue={notice}
                 maxLength={26}
@@ -304,8 +302,9 @@ export default function CalendarTodosScreen() {
               />
             </View>
             <Tabs texts={tabTexts} handler={handleTab} />
-            <View style={{ margin: 8 }} />
-            <Slot />
+            <View style={styles.slotContainer}>
+              <Slot />
+            </View>
           </View>
         </View>
       </CalendarContext.Provider>
@@ -313,15 +312,38 @@ export default function CalendarTodosScreen() {
   );
 }
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
   row: {
     flexDirection: "row",
-  },
-  layout: {
     alignItems: "center",
-    justifyContent: "center",
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  spacer: {
+    marginLeft: "auto",
+  },
+  content: {
+    flex: 1,
+    width: "100%",
+    paddingHorizontal: 20,
   },
   noticeInput: {
     position: "relative",
-    marginBottom: 24,
+    marginBottom: 20,
+    marginTop: 8,
+  },
+  slotContainer: {
+    marginTop: 8,
+    flex: 1,
+    width: "100%",
   },
 });
