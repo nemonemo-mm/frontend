@@ -57,6 +57,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         </View>
         <DateTimeForm
           disabled={readonly}
+          disableTime={isAllDay}
           label="시작일"
           date={start}
           time={{ hour: start.getHours(), min: start.getMinutes() }}
@@ -87,6 +88,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         />
         <DateTimeForm
           disabled={readonly}
+          disableTime={isAllDay}
           label="종료일"
           date={end}
           time={{ hour: end.getHours(), min: end.getMinutes() }}

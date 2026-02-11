@@ -58,6 +58,8 @@ const toStartOfDay = (date: Date) =>
 
 const addHours = (date: Date, hours: number) =>
   new Date(date.getTime() + hours * 60 * 60 * 1000);
+const toEndOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59);
 
 export const reducer = (
   state: InitialCalendarState,
@@ -77,7 +79,7 @@ export const reducer = (
         ...state,
         isAllDay,
         start: startOfDay,
-        end: startOfDay,
+        end: toEndOfDay(startOfDay),
       };
     }
 
