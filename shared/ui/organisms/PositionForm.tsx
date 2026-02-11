@@ -1,7 +1,7 @@
 import { PositionChip } from "@/features/position/hooks/usePositions";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { globalGray200, globalGray700 } from "..";
+import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
 import { ChipText } from "../molecules/Chips";
 import NemoTextLabel from "../molecules/NemoTextLabel";
@@ -57,8 +57,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 48,
     paddingHorizontal: 8,
-    borderBottomColor: globalGray200,
-    borderBottomWidth: 1,
     justifyContent: "space-between",
     alignItems: "center",
   },
