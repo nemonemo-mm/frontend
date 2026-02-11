@@ -8,6 +8,7 @@ import {
   globalSpacingLg,
   globalSpacingMd,
   globalSpacingSm,
+  globalSpacingXl,
   globalSpacingXs,
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
@@ -103,7 +104,7 @@ const MyInfo = () => {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Pressable onPress={() => route.back()}>
           <AntDesign name="left" size={16} color={globalGray700} />
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     margin: "auto",
     gap: globalSpacingSm,
-    marginBottom: 20,
+    marginBottom: globalSpacingXl,
     position: "relative",
   },
   editBtn: {
@@ -222,9 +223,12 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   footer: {
-    margin: "auto",
-    marginTop: 488,
-    marginBottom: 18,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 1,
+    marginBottom: 52,
+    alignItems: "center",
   },
 });
 export default MyInfo;

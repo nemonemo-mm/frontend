@@ -45,80 +45,100 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
     });
     await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
     closeModal();
-    route.push(`/(tabs)/${id}/calendar`);
+    requestAnimationFrame(() => {
+      route.push(`/(tabs)/${id}/calendar`);
+    });
   };
   const insets = useSafeAreaInsets();
   const handleCloseModal = (e: GestureResponderEvent) => {
     e.preventDefault();
     closeModal();
   };
+  const handlePressCreateTeam = () => {
+    closeModal();
+    requestAnimationFrame(() => {
+      route.push("/teams/check");
+    });
+  };
 
   return (
-    <Modal backdropColor={globalGray700 + "40"}>
-      <View style={{ flexDirection: "row", flex: 1 }}>
-        <View
-          style={[styles.sideContainer, { paddingVertical: insets.top + 56 }]}
-        >
-          <View>
-            <View style={{ margin: "auto", gap: 12, marginBottom: 30 }}>
-              <ProfileImage size={64} uri={user?.userImageUrl} />
-              <NemoText level="body1">{user?.userName}</NemoText>
-            </View>
-            <View style={styles.border} />
-            <View style={styles.groupContainer}>
-              <NemoText level="h2">소속된 그룹</NemoText>
-              <FlatList
-                data={teams}
-                keyExtractor={(item) => String(item.teamId)}
-                renderItem={({ item }) => (
-                  <Pressable
-                    onPress={handlePressTeam(item.teamId)}
-                    style={styles.group}
-                  >
-                    {item.teamImageUrl ? (
-                      <GroupImage size={56} uri={item.teamImageUrl} />
-                    ) : (
-                      <GroupIcon />
-                    )}
-                    <View>
-                      <NemoText level="body1" style={{ color: globalGray900 }}>
-                        {item.teamName}
+    <Modal transparent onRequestClose={closeModal} statusBarTranslucent>
+      <View style={styles.overlay}>
+        <View style={{ flexDirection: "row", flex: 1 }}>
+          <View
+            style={[styles.sideContainer, { paddingVertical: insets.top + 56 }]}
+          >
+            <View>
+              <View style={{ margin: "auto", gap: 12, marginBottom: 30 }}>
+                <ProfileImage size={64} uri={user?.userImageUrl} />
+                <NemoText level="body1">{user?.userName}</NemoText>
+              </View>
+              <View style={styles.border} />
+              <View style={styles.groupContainer}>
+                <NemoText level="h2">소속된 그룹</NemoText>
+                <FlatList
+                  data={teams}
+                  keyExtractor={(item) => String(item.teamId)}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      onPress={handlePressTeam(item.teamId)}
+                      style={styles.group}
+                    >
+                      {item.teamImageUrl ? (
+                        <GroupImage size={56} uri={item.teamImageUrl} />
+                      ) : (
+                        <GroupIcon />
+                      )}
+                      <View>
+                        <NemoText
+                          level="body1"
+                          style={{ color: globalGray900 }}
+                        >
+                          {item.teamName}
+                        </NemoText>
+                        <NemoText
+                          level="body3"
+                          style={{ color: globalGray700 }}
+                        >
+                          {item.description == "MEMBER"
+                            ? "전체"
+                            : item.description}
+                        </NemoText>
+                      </View>
+                    </Pressable>
+                  )}
+                  ListFooterComponent={() => (
+                    <Pressable
+                      style={styles.group}
+                      onPress={handlePressCreateTeam}
+                    >
+                      <View style={styles.selectBox}>
+                        <Ionicons name="add" size={20} color="black" />
+                      </View>
+                      <NemoText level="h3" style={{ color: globalGray900 }}>
+                        그룹 생성하기
                       </NemoText>
-                      <NemoText level="body3" style={{ color: globalGray700 }}>
-                        {item.description == "MEMBER"
-                          ? "전체"
-                          : item.description}
-                      </NemoText>
-                    </View>
-                  </Pressable>
-                )}
-                ListFooterComponent={() => (
-                  <Pressable
-                    style={styles.group}
-                    onPress={() => route.push("/teams/check")}
-                  >
-                    <View style={styles.selectBox}>
-                      <Ionicons name="add" size={20} color="black" />
-                    </View>
-                    <NemoText level="h3" style={{ color: globalGray900 }}>
-                      그룹 생성하기
-                    </NemoText>
-                  </Pressable>
-                )}
-              />
+                    </Pressable>
+                  )}
+                />
+              </View>
+              <View style={styles.border} />
             </View>
-            <View style={styles.border} />
           </View>
+          <Pressable
+            style={styles.backgroundContainer}
+            onPress={handleCloseModal}
+          ></Pressable>
         </View>
-        <Pressable
-          style={styles.backgroundContainer}
-          onPress={handleCloseModal}
-        ></Pressable>
       </View>
     </Modal>
   );
 };
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "#00000040",
+  },
   backgroundContainer: {
     flex: 1,
     flexShrink: 1,
@@ -126,7 +146,7 @@ const styles = StyleSheet.create({
   sideContainer: {
     backgroundColor: globalGray0,
     justifyContent: "flex-start",
-    flexBasis: 260,
+    minWidth: 160,
     flex: 1,
   },
   groupContainer: {
