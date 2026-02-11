@@ -21,8 +21,10 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, View } from "react-native";
 import { globalGray700, globalGray900 } from "..";
+import Checkbox from "../atoms/Checkbox";
 import NemoText from "../atoms/NemoText";
 import { WeekDayType } from "../molecules/NemoDayButton";
+import Segments from "../molecules/Segments";
 import BottomModal from "../organisms/BottomModal";
 import CalendarDetailModal from "./CalendarDetailModal";
 import { RepeatPeriod } from "./RepeatModal";
@@ -40,6 +42,18 @@ const formatDate = (dates: Date): string => {
 
   return `${year}.${month}.${date}`;
 };
+const segmentTexts = [
+  {
+    id: "schedule",
+    content: "캘린더",
+    isActive: true,
+  },
+  {
+    id: "todo",
+    content: "투두",
+    isActive: false,
+  },
+];
 type FlatItem =
   | {
       type: "schedule";
@@ -168,7 +182,20 @@ const ScheduleListModal = ({
       console.log(e);
     }
   };
-
+  const [currentSegment, setCurrentSegment] = useState<"schedule" | "todo">(
+    "schedule"
+  );
+  const handleModalSegments = (
+    segment: { id: string; content: string; isActive: boolean }[]
+  ) => {
+    const activeSegment = segment.find((s) => s.isActive);
+    if (
+      activeSegment &&
+      (activeSegment.id === "schedule" || activeSegment.id === "todo")
+    ) {
+      setCurrentSegment(activeSegment.id);
+    }
+  };
   const start = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
@@ -219,6 +246,25 @@ const ScheduleListModal = ({
         }) as const
     ),
   ];
+
+  const { updateTodoStatus } = useTodoMutations();
+
+  const handleCheckTodo = (todoId: number) => (v: boolean) => {
+    updateTodoStatus.mutate(
+      {
+        todoId,
+        body: { status: v ? "DONE" : "TODO" },
+      },
+      {
+        onSuccess: () => {
+          todayTodoQuery.refetch();
+        },
+      }
+    );
+  };
+  const filteredFlatData = flatData.filter(
+    (item) => item.type === currentSegment
+  );
   const [selectedItem, setSelectedItem] = useState<
     SchedulesResponse | TodoResponse | null
   >(null);
@@ -241,14 +287,21 @@ const ScheduleListModal = ({
           </BottomModal.RightButton>
         </BottomModal.Header>
         <View>
+          <NemoText
+            level="h1"
+            style={{ color: globalGray900, marginBottom: 16 }}
+          >
+            {formattedDate}
+          </NemoText>
+          <Segments
+            level="l"
+            texts={segmentTexts}
+            handler={handleModalSegments}
+          />
           <FlatList
-            data={flatData}
+            data={filteredFlatData}
+            contentContainerStyle={{ marginTop: 20 }}
             keyExtractor={(item) => `${item.type}-${item.id}`}
-            ListHeaderComponent={
-              <NemoText level="h1" style={{ color: globalGray900 }}>
-                {formattedDate}
-              </NemoText>
-            }
             renderItem={({ item }) => {
               if (item.type === "schedule") {
                 const s = item.data;
@@ -262,7 +315,10 @@ const ScheduleListModal = ({
                     <View
                       style={[
                         styles.border,
-                        { backgroundColor: s.representativeColorHex },
+                        {
+                          backgroundColor:
+                            s.representativeColorHex ?? "#BDBDBD",
+                        },
                       ]}
                     />
                     <NemoText level="body1">{s.title}</NemoText>
@@ -276,7 +332,6 @@ const ScheduleListModal = ({
 
               // todo
               const t = item.data;
-              const endDate = new Date(t.endAt);
 
               return (
                 <Pressable style={styles.row} onPress={handlePressTodo(t)}>
@@ -290,13 +345,10 @@ const ScheduleListModal = ({
                   />
                   <NemoText level="body1">{t.title}</NemoText>
                   <View style={{ marginLeft: "auto" }} />
-                  <NemoText level="body3">
-                    ~
-                    {endDate.toLocaleTimeString("ko-KR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </NemoText>
+                  <Checkbox
+                    value={t.status == "DONE"}
+                    handler={handleCheckTodo(t.id)}
+                  />
                 </Pressable>
               );
             }}
