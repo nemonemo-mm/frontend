@@ -1,6 +1,5 @@
 import { logout } from "@/features/auth/api/auth";
 import { clearTokens } from "@/features/auth/utils/tokenStorage";
-import { getNotificationSettings } from "@/features/notifications/api/notification";
 import { useUser } from "@/features/users/hooks/useUser";
 import {
   globalGray0,
@@ -51,19 +50,8 @@ const MyScreen = ({}: MyScreenProps) => {
     setIsOpenModal(false);
   };
 
-  const handleMyAlarmPress = async () => {
-    try {
-      await queryClient.prefetchQuery({
-        queryKey: ["notificationSettings"],
-        queryFn: getNotificationSettings,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      route.push("/myAlarm");
-    }
-  };
   const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaView
       style={[{ paddingTop: Platform.OS == "ios" ? 0 : insets.top }]}
@@ -100,16 +88,6 @@ const MyScreen = ({}: MyScreenProps) => {
             <AntDesign name="right" size={16} color={globalGray700} />
           </Pressable>
           <View style={[styles.linkContainer]}>
-            <Pressable style={styles.link} onPress={handleMyAlarmPress}>
-              <NemoText
-                level="h2"
-                style={{ color: globalGray900, textAlign: "center" }}
-              >
-                개인 알림 설정
-              </NemoText>
-              <AntDesign name="right" size={16} color={globalGray700} />
-            </Pressable>
-            <View style={styles.border} />
             <Pressable
               style={styles.link}
               onPress={() => route.push("/teamAlarm")}

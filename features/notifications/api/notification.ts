@@ -19,10 +19,10 @@ export interface TeamNotificationSettings {
 }
 
 export async function getTeamNotificationSettings(
-  teamId: number,
+  teamId: number
 ): Promise<TeamNotificationSettings> {
   const { data } = await apiClient.get<TeamNotificationSettings>(
-    `notifications/teams/${teamId}`,
+    `notifications/teams/${teamId}`
   );
   return data;
 }
@@ -41,40 +41,11 @@ export interface TeamNotificationUpdateRequest {
 
 export async function updateTeamNotificationSettings(
   teamId: number,
-  settings: TeamNotificationUpdateRequest,
+  settings: TeamNotificationUpdateRequest
 ) {
   const { data } = await apiClient.put<TeamNotificationSettings>(
     `notifications/teams/${teamId}`,
-    settings,
+    settings
   );
-  return data;
-}
-
-export interface NotificationSettings {
-  enableAllPersonalNotifications: boolean;
-  enableScheduleChangeNotification: boolean;
-  enableSchedulePreNotification: boolean;
-  schedulePreNotificationMinutes: number[];
-  enableTodoChangeNotification: boolean;
-  enableTodoDeadlineNotification: boolean;
-  todoDeadlineNotificationMinutes: number[];
-  enableNoticeNotification: boolean;
-}
-
-export async function getNotificationSettings() {
-  const { data } = await apiClient.get<NotificationSettings>(
-    "notifications/personal",
-  );
-  return data;
-}
-
-export async function updateNotificationSettings(
-  settings: NotificationSettings,
-) {
-  const { data } = await apiClient.put<NotificationSettings>(
-    "notifications/personal",
-    settings,
-  );
-
   return data;
 }
