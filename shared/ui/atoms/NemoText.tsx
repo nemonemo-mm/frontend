@@ -1,4 +1,5 @@
 import { TextLevel } from "@/shared/types/TextLevel";
+import { useFonts } from "expo-font";
 import { ReactNode } from "react";
 import { StyleSheet, Text, TextProps } from "react-native";
 
@@ -9,6 +10,12 @@ interface NemoTextProps extends TextProps {
 //텍스트를 쓸 때 사용하는 텍스트 컴포넌트.
 //인라인 블록 효과를 위한 텍스트 컴포넌트는 기본 컴포넌트로만 사용
 const NemoText = ({ level, children, style, ...props }: NemoTextProps) => {
+  const [loaded] = useFonts({
+    PretendardRegular: require("../../../assets/fonts/Pretendard-Regular.ttf"),
+    PretendardBold: require("../../../assets/fonts/Pretendard-Bold.ttf"),
+  });
+
+  if (!loaded) return null;
   return (
     <Text
       style={[styles[`text_${level}` as keyof typeof style], style]}
@@ -34,70 +41,70 @@ export const globalTypographyBody2wide = "400 14px/20 pretendard";
 const styles = StyleSheet.create({
   text_h1: {
     fontWeight: "500",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 18,
     lineHeight: 20,
     letterSpacing: 0,
   },
   text_h2: {
     fontWeight: "500",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 16,
     lineHeight: 18,
     letterSpacing: 0,
   },
   text_h3: {
     fontWeight: "600",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardBold",
     fontSize: 16,
     lineHeight: 20,
     letterSpacing: 0,
   },
   text_body1: {
     fontWeight: "500",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 14,
     lineHeight: 16,
     letterSpacing: 0,
   },
   text_body2: {
     fontWeight: "400",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 14,
     lineHeight: 16,
     letterSpacing: 0,
   },
   text_body3: {
     fontWeight: "400",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0,
   },
   text_tabInActive: {
     fontWeight: "400",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 16,
     lineHeight: 18,
     letterSpacing: 0,
   },
   text_body2Tight: {
     fontWeight: "400",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 14,
     lineHeight: 16,
     letterSpacing: 0,
   },
   text_body2wide: {
     fontWeight: "400",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardRegular",
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0,
   },
   text_caption: {
     fontWeight: "600",
-    fontFamily: "Pretendard-Regular",
+    fontFamily: "PretendardBold",
     fontSize: 12,
     lineHeight: 14,
     letterSpacing: 0,
