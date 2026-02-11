@@ -246,20 +246,26 @@ export default function TeamMembersList({
             <AlertModal.Title>
               {`${activeModal.member.userName}`}
             </AlertModal.Title>
-            <Pressable
-              onPress={handleTogglePositionList}
-              style={{ flexDirection: "row" }}
-            >
+            {isOwner ? (
+              <Pressable
+                onPress={handleTogglePositionList}
+                style={{ flexDirection: "row" }}
+              >
+                <AlertModal.Text>
+                  {`${activeModal.member.positionName}`}
+                </AlertModal.Text>
+
+                <Animated.View style={animatedStyle}>
+                  <AntDesign name="down" size={16} color={globalGray700} />
+                </Animated.View>
+              </Pressable>
+            ) : (
               <AlertModal.Text>
                 {`${activeModal.member.positionName}`}
               </AlertModal.Text>
+            )}
 
-              <Animated.View style={animatedStyle}>
-                <AntDesign name="down" size={16} color={globalGray700} />
-              </Animated.View>
-            </Pressable>
-
-            {isOpenPositionList && (
+            {isOwner && isOpenPositionList && (
               <PositionListModal
                 positionList={positionList ?? []}
                 onPressPosition={handlePressPosition(
