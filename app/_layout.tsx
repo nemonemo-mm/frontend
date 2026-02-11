@@ -16,7 +16,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: globalGray50 },
           }}
         >
-          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="[teamId]" />
           <Stack.Screen name="auth" />
         </Stack>
       </SafeAreaProvider>

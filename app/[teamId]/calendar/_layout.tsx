@@ -1,4 +1,5 @@
 import GroupIcon from "@/assets/icons/group";
+import SquaredPlusIcon from "@/assets/icons/squaredPlus";
 import TeamSetting from "@/assets/icons/teamSetting";
 import {
   useLatestNotice,
@@ -13,7 +14,12 @@ import { useTeamList } from "@/features/team/hooks/useTeamList";
 import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
-import { globalGray700 } from "@/shared/ui";
+import {
+  globalGray50,
+  globalGray700,
+  globalGreen300,
+  globalSpacingXs,
+} from "@/shared/ui";
 import GroupImage from "@/shared/ui/atoms/GroupImage";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
@@ -21,7 +27,12 @@ import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
 import { Image as ExpoImage } from "expo-image";
-import { Slot, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Slot,
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+} from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import {
@@ -112,14 +123,10 @@ export default function CalendarTodosScreen() {
     );
 
     const nextPath =
-      id === 0
-        ? `/(tabs)/${teamId}/calendar`
-        : `/(tabs)/${teamId}/calendar/todos`;
+      id === 0 ? `/${teamId}/calendar` : `/${teamId}/calendar/todos`;
 
     route.replace(
-      nextPath as
-        | `/(${string})/${string}/calendar`
-        | `/(${string})/${string}/calendar/todos`
+      nextPath as `/${string}/calendar` | `/${string}/calendar/todos`
     );
   };
 
@@ -259,6 +266,7 @@ export default function CalendarTodosScreen() {
     }
   };
   const insets = useSafeAreaInsets();
+  const pathName = usePathname();
   return (
     <SafeAreaView
       style={[
@@ -314,6 +322,23 @@ export default function CalendarTodosScreen() {
             <View style={styles.slotContainer}>
               <Slot />
             </View>
+
+            <Pressable
+              onPress={() => route.push(`${pathName}?openModal=true` as any)}
+            >
+              <SquaredPlusIcon
+                size={36}
+                color={globalGreen300}
+                style={{
+                  marginBottom: insets.bottom,
+                  // marginRight: insets.right,
+                  alignSelf: "flex-end",
+                  borderRadius: globalSpacingXs,
+                  backgroundColor: globalGray50,
+                  padding: 0.2,
+                }}
+              />
+            </Pressable>
           </View>
         </View>
       </CalendarContext.Provider>
@@ -347,7 +372,7 @@ const styles = StyleSheet.create({
   },
   noticeInput: {
     position: "relative",
-    marginBottom: 20,
+    marginBottom: 8,
     marginTop: 8,
   },
   slotContainer: {
