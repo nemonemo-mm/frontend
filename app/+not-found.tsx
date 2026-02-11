@@ -6,13 +6,13 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
-      <NemoText level="h1">페이지를 찾을 수 없어요.</NemoText>
+      <NemoText level="h1">잘못된 접근이에요</NemoText>
       <NemoText level="body2" style={styles.description}>
-        주소가 잘못되었거나, 이동된 화면일 수 있습니다.
+        현재 팀에 접근할 수 없으니 홈으로 이동해 주세요.
       </NemoText>
 
       <Pressable style={styles.button} onPress={() => router.replace("/")}>
-        <Text style={styles.buttonText}>홈으로 이동</Text>
+        <Text style={styles.buttonText}>홈으로 가기</Text>
       </Pressable>
     </View>
   );
