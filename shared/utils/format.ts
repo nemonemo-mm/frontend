@@ -6,7 +6,7 @@ export const formatRepeat = (repeat: RepeatState | null): string => {
 
   const { period, endAt } = repeat;
   const endDate = `${endAt.getFullYear()}년 ${endAt.getMonth() + 1}월 ${endAt.getDate()}일`;
-  let result: string;
+  let result: string = "지정없음";
   switch (period) {
     case RepeatPeriod.DAILY:
       result = `${repeat.interval}일 간격으로 ${endDate}까지 반복`;
@@ -37,6 +37,8 @@ export const formatAlarm = (alarm: AlarmState | null) => {
     if (alarm["60"]) times.push("1시간전");
     if (times.length > 1) {
       result = times.join(", ");
+    } else if (times.length == 0) {
+      result = "끔";
     } else result = times.join("");
   }
   return result;

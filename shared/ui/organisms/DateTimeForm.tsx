@@ -47,7 +47,7 @@ const DateTimeForm = ({
     }
   }, [timeDisabled]);
   return (
-    <View style={styles.optionContainer}>
+    <View style={[styles.optionContainer]}>
       <NemoTextLabel disabled={disabled}>{label}</NemoTextLabel>
       <View style={styles.row}>
         <DateButton
@@ -57,9 +57,7 @@ const DateTimeForm = ({
         {time && (
           <TimeButton
             selectedTime={time}
-            handlePressTime={() =>
-              !timeDisabled && setIsOpenTimeModal(true)
-            }
+            handlePressTime={() => !timeDisabled && setIsOpenTimeModal(true)}
             disabled={timeDisabled}
           />
         )}
@@ -95,7 +93,6 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 8,
     borderBottomColor: globalGray200,
-    borderBottomWidth: 1,
     justifyContent: "space-between",
     alignItems: "center",
   },

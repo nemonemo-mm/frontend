@@ -35,11 +35,13 @@ type Section =
   | {
       key: "schedule";
       title: string;
+      emptyMessage: string;
       data: SchedulesResponse[];
     }
   | {
       key: "todo";
       title: string;
+      emptyMessage: string;
       data: TodoResponse[];
     };
 
@@ -229,11 +231,13 @@ const Todos = ({}: TodosProps) => {
     {
       key: "schedule",
       title: "스케줄",
+      emptyMessage: "오늘의 스케줄이 없습니다.",
       data: todaySchedule ?? [],
     },
     {
       key: "todo",
       title: "투두",
+      emptyMessage: "오늘의 투두가 없습니다.",
       data: todayTodos ?? [],
     },
   ];
@@ -246,7 +250,7 @@ const Todos = ({}: TodosProps) => {
 
         {item.data.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <NemoText level="body2">오늘 {item.title}이 없습니다.</NemoText>
+            <NemoText level="body2">{item.emptyMessage}</NemoText>
           </View>
         ) : item.key === "schedule" ? (
           item.data.map((s) => (

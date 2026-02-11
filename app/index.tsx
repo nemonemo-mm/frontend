@@ -33,9 +33,7 @@ export default function Index() {
 
         const teams = await teamListUp();
         const nextHref =
-          teams && teams.length > 0
-            ? `/(tabs)/${teams[0].teamId}/calendar`
-            : "/(tabs)/0";
+          teams && teams.length > 0 ? `/${teams[0].teamId}/calendar` : "/0";
 
         if (!mounted) return;
         setRedirectHref(nextHref);

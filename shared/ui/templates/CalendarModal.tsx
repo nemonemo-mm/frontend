@@ -106,7 +106,7 @@ export const reducer = (
       if (nextEnd < state.start) {
         return {
           ...state,
-          start: addHours(state.end, 0),
+          start: addHours(nextEnd, -1),
           end: nextEnd,
         };
       }
@@ -292,7 +292,7 @@ const CalendarModal = ({
                     }
                   </NemoText>
                 ) : (
-                  <NemoText level="body2" style={{ color: globalGray900 }}>
+                  <NemoText level="body2" style={{ color: globalGray600 }}>
                     팀을 선택해주세요
                   </NemoText>
                 )}
@@ -419,7 +419,6 @@ const style = StyleSheet.create({
     height: 48,
     paddingHorizontal: 8,
     borderBottomColor: globalGray200,
-    borderBottomWidth: 1,
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -431,7 +430,6 @@ const style = StyleSheet.create({
     fontWeight: "400",
     fontSize: 14,
     flex: 1, // 컨테이너의 남은 가로 공간을 다 사용
-    marginLeft: 12,
     letterSpacing: 0,
     paddingVertical: 0,
   },
