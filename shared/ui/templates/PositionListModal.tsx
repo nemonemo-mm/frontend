@@ -7,6 +7,7 @@ import {
   PanResponder,
   Pressable,
   StyleSheet,
+  View,
 } from "react-native";
 import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
@@ -78,34 +79,45 @@ const PositionListModal = ({
   );
 
   return (
-    <Modal backdropColor={globalGray700 + "20"} animationType="slide">
-      <AnimatedBottomModalContainer
-        style={{
-          height: modalHeight + 24,
-          paddingBottom: 24,
-          transform: [{ translateY }],
-        }}
-      >
-        <BottomModal.Header {...indicatorHandlers}>
-          <BottomModal.Indicator />
-        </BottomModal.Header>
-        <FlatList
-          data={positionList}
-          keyExtractor={(item) => `position-${item.positionId}`}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={onPressPosition(item.positionId)}
-              style={styles.positionName}
-            >
-              <NemoText level="body2">{item.positionName}</NemoText>
-            </Pressable>
-          )}
-        />
-      </AnimatedBottomModalContainer>
+    <Modal transparent animationType="slide" onRequestClose={onPointerDown}>
+      <View style={styles.root}>
+        <Pressable style={styles.backdrop} onPress={onPointerDown} />
+        <AnimatedBottomModalContainer
+          style={{
+            height: modalHeight + 24,
+            paddingBottom: 24,
+            transform: [{ translateY }],
+          }}
+        >
+          <BottomModal.Header {...indicatorHandlers}>
+            <BottomModal.Indicator />
+          </BottomModal.Header>
+          <FlatList
+            data={positionList}
+            keyExtractor={(item) => `position-${item.positionId}`}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={onPressPosition(item.positionId)}
+                style={styles.positionName}
+              >
+                <NemoText level="body2">{item.positionName}</NemoText>
+              </Pressable>
+            )}
+          />
+        </AnimatedBottomModalContainer>
+      </View>
     </Modal>
   );
 };
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: `${globalGray700}20`,
+  },
   positionName: {
     height: 48,
     justifyContent: "center",

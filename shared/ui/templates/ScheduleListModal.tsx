@@ -369,6 +369,14 @@ const ScheduleListModal = ({
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
+  },
+  backdrop: {
+    flex: 1,
+  },
   row: {
     flexDirection: "row",
     gap: 4,
