@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import { globalGray700 } from "..";
 import Input from "../atoms/Input";
 import NemoText from "../atoms/NemoText";
@@ -20,7 +20,7 @@ const RepeatCount = ({ unit, count, setCount }: RepeatCountProps) => {
     <View style={style.repeatContainer}>
       <NemoTextLabel>지정 간격으로 반복</NemoTextLabel>
       <View style={style.row}>
-        <Input
+        <TextInput
           placeholder="0"
           maxLength={3}
           inputMode="numeric"
@@ -47,7 +47,7 @@ const style = StyleSheet.create({
     flexDirection: "row",
 
     paddingHorizontal: 8,
-    paddingVertical: 9,
+    // paddingVertical: 9,
     justifyContent: "space-between",
     alignItems: "center",
   },
