@@ -104,7 +104,11 @@ export default function TeamMembersList({
   const handleLeaveModalOpen = () => setActiveModal({ type: "leave" });
   const handleRemoveModalOpen = (member: TeamMember) =>
     setActiveModal({ type: "remove", member });
-  const handleModalClose = () => setActiveModal(null);
+  const handleModalClose = () => {
+    setActiveModal(null);
+    animateIcon(0);
+    setIsOpenPositionList(false);
+  };
 
   const handleLeaveTeam = async () => {
     if (!teamId) return;
@@ -219,13 +223,6 @@ export default function TeamMembersList({
                   <RemoveMemberIcon size={24} />
                 </Pressable>
               </View>
-            )}
-            {isOpenPositionList && (
-              <PositionListModal
-                positionList={positionList ?? []}
-                onPressPosition={handlePressPosition(member.memberId)}
-                onPointerDown={handleTogglePositionList}
-              />
             )}
           </Pressable>
         ))}
