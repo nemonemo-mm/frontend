@@ -7,9 +7,9 @@ import {
   globalGray200,
   globalGray700,
   globalGray900,
+  globalSpacing2xl,
   globalSpacingMd,
   globalSpacingSm,
-  globalSpacingXl,
   globalSpacingXs,
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
@@ -68,7 +68,7 @@ const MyScreen = ({}: MyScreenProps) => {
           level="h3"
           style={{ color: globalGray900, textAlign: "center" }}
         >
-          마이페이지
+          설정
         </NemoText>
       </View>
       <View style={styles.main}>
@@ -95,10 +95,7 @@ const MyScreen = ({}: MyScreenProps) => {
             <AntDesign name="right" size={16} color={globalGray700} />
           </Pressable>
           <View style={[styles.linkContainer]}>
-            <Pressable
-              style={styles.link}
-              onPress={handleMyAlarmPress}
-            >
+            <Pressable style={styles.link} onPress={handleMyAlarmPress}>
               <NemoText
                 level="h2"
                 style={{ color: globalGray900, textAlign: "center" }}
@@ -166,16 +163,17 @@ const styles = StyleSheet.create({
   header: {
     height: 56,
     marginBottom: 20,
+    paddingVertical: 18,
   },
   main: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   profileSection: {
     justifyContent: "center",
     alignContent: "center",
     margin: "auto",
     gap: globalSpacingSm,
-    marginBottom: globalSpacingXl,
+    marginBottom: globalSpacing2xl,
   },
   linkSection: {},
   linkContainer: {
