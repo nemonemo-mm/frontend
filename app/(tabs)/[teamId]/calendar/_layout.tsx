@@ -14,8 +14,8 @@ import useCalendar from "@/shared/hooks/useCalendar";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarSchedule } from "@/shared/types/Calendar";
 import { globalGray700 } from "@/shared/ui";
+import GroupImage from "@/shared/ui/atoms/GroupImage";
 import NemoText from "@/shared/ui/atoms/NemoText";
-import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
@@ -272,7 +272,7 @@ export default function CalendarTodosScreen() {
             )}
             <Pressable style={styles.row} onPress={handlePressTeamName}>
               {teamDetail?.teamImageUrl ? (
-                <ProfileImage uri={teamDetail.teamImageUrl} size={32} />
+                <GroupImage uri={teamDetail.teamImageUrl} size={32} />
               ) : (
                 <GroupIcon size={32} />
               )}
