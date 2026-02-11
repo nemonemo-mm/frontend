@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileSetupScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
+    teamId?: string;
     inviteCode: string;
     teamName: string;
     positions: string;
@@ -67,8 +68,12 @@ export default function ProfileSetupScreen() {
         positionId: selectedPositionId,
       });
 
-      // 성공 시 홈 화면으로 이동
-      router.replace("/home");
+      const joinedTeamId = Number(params.teamId);
+      if (Number.isFinite(joinedTeamId) && joinedTeamId > 0) {
+        router.replace(`/${joinedTeamId}/calendar`);
+      } else {
+        router.replace("/0");
+      }
     } catch (error) {
       console.error("팀 참여 실패:", error);
     }

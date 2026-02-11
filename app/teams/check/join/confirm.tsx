@@ -21,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function JoinConfirmScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
+    teamId?: string;
     inviteCode: string;
     teamName: string;
     ownerName: string;
@@ -49,6 +50,7 @@ export default function JoinConfirmScreen() {
     router.push({
       pathname: "/teams/check/join/profile-setup",
       params: {
+        teamId: String(teamInfo.teamId),
         inviteCode: params.inviteCode,
         teamName: teamInfo.teamName,
         positions: JSON.stringify(teamInfo.positions),

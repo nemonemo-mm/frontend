@@ -23,6 +23,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { teamListUp } from "../api/list";
 import {
   useTeamMembers,
   useTeamMembersMutations,
@@ -74,9 +75,9 @@ export default function TeamMembersList({
           {
             ...previousMembers,
             members: previousMembers.members.filter(
-              (m) => m.memberId !== memberId,
+              (m) => m.memberId !== memberId
             ),
-          },
+          }
         );
       }
 
@@ -86,7 +87,7 @@ export default function TeamMembersList({
       if (context?.previousMembers) {
         queryClient.setQueryData(
           ["teams", teamId, "members"],
-          context.previousMembers,
+          context.previousMembers
         );
       }
       Alert.alert("오류", "멤버 삭제 중 문제가 발생했습니다.");
@@ -116,10 +117,20 @@ export default function TeamMembersList({
       await exitTeam(teamId);
       handleModalClose();
 
+      const updatedTeams = await queryClient.fetchQuery({
+        queryKey: ["teamList"],
+        queryFn: teamListUp,
+      });
+
+      const nextHref =
+        updatedTeams && updatedTeams.length > 0
+          ? `/${updatedTeams[0].teamId}/calendar`
+          : "/0";
+
       Alert.alert("알림", "팀에서 나갔습니다.", [
         {
           text: "확인",
-          onPress: () => router.replace("/home"),
+          onPress: () => router.replace(nextHref as `/${string}`),
         },
       ]);
     } catch (error: any) {
@@ -169,7 +180,7 @@ export default function TeamMembersList({
               userName: data.userName || "",
             });
           },
-        },
+        }
       );
     }
     setIsOpenPositionList(false);
@@ -269,7 +280,7 @@ export default function TeamMembersList({
               <PositionListModal
                 positionList={positionList ?? []}
                 onPressPosition={handlePressPosition(
-                  activeModal.member.memberId,
+                  activeModal.member.memberId
                 )}
                 onPointerDown={handleTogglePositionList}
               />

@@ -83,7 +83,7 @@ export default function AppleAuth() {
 
       await saveAccessToken(response.accessToken);
       await saveRefreshToken(response.refreshToken);
-      router.push("/home");
+      router.push("/0");
     } catch (error: any) {
       if (error?.code === "ERR_REQUEST_CANCELED") return;
 

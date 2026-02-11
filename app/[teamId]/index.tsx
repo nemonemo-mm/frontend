@@ -15,7 +15,8 @@ interface GroupScreenProps {}
 const GroupScreen = ({}: GroupScreenProps) => {
   const { teamId } = useLocalSearchParams();
   const route = useRouter();
-  const { data: teams } = useTeamList();
+  const teamsQuery = useTeamList(teamId as string);
+  const { data: teams } = teamsQuery;
 
   useEffect(() => {
     const init = async () => {

@@ -260,7 +260,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         router.replace(`/${nextTeam.teamId}/calendar`);
       } else {
         // 팀이 하나도 없으면 명시적으로 팀이 없는 상태의 경로로 이동
-        router.replace("/home");
+        router.replace("/0");
       }
     } catch (error) {
       console.log(error);
