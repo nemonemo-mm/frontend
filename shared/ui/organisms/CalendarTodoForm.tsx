@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: globalSpacingXs,
     borderWidth: 1,
     borderColor: globalGray200,
-    overflow: "hidden",
+    overflow: "visible",
     marginTop: 12,
   },
   optionContainer: {
