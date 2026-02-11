@@ -262,141 +262,151 @@ const CalendarModal = ({
     transform: [{ rotate: rotateInterpolate }],
   };
   return (
-    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ height: 780 }}>
-        <BottomModal.Header>
-          <BottomModal.LeftButton onPress={closeModal}>
-            <AntDesign name="close" size={20} color={globalGray700} />
-          </BottomModal.LeftButton>
-          <BottomModal.RightButton onPress={handleConfirmModal}>
-            <EvilIcons name="plus" size={30} color={globalGreen700} />
-          </BottomModal.RightButton>
-        </BottomModal.Header>
-        <Segments
-          level="l"
-          texts={segmentTexts}
-          handler={handleModalSegments}
-        />
-        <ScrollView>
-          <View style={style.container}>
-            <Pressable
-              onPress={handleToggleTeamList}
-              style={style.optionContainer}
-            >
-              {selectedTeamId ? (
-                <NemoText level="body2" style={{ color: globalGray900 }}>
-                  {
-                    teamLists?.find((list) => list.teamId == selectedTeamId)
-                      ?.teamName
-                  }
-                </NemoText>
-              ) : (
-                <NemoText level="body2" style={{ color: globalGray600 }}>
-                  팀을 선택해주세요
-                </NemoText>
-              )}
-              <Animated.View style={animatedStyle}>
-                <AntDesign name="down" size={16} color={globalGray700} />
-              </Animated.View>
-            </Pressable>
-          </View>
-          <View style={style.container}>
-            <View style={style.optionContainer}>
-              <TextInput
-                editable={!!selectedTeamId}
-                placeholderTextColor={
-                  !selectedTeamId ? globalGray400 : globalGray600
-                }
-                value={state.title}
-                onChangeText={(text: string) =>
-                  dispatch({ type: "SET_TITLE", payload: text })
-                }
-                placeholder={"제목을 입력하세요"}
-                style={[style.input]}
-              />
+    <Modal transparent animationType="slide" onRequestClose={closeModal}>
+      <View style={style.backdrop}>
+        <BottomModal.Container style={{ height: 780 }}>
+          <BottomModal.Header>
+            <BottomModal.LeftButton onPress={closeModal}>
+              <AntDesign name="close" size={20} color={globalGray700} />
+            </BottomModal.LeftButton>
+            <BottomModal.RightButton onPress={handleConfirmModal}>
+              <EvilIcons name="plus" size={30} color={globalGreen700} />
+            </BottomModal.RightButton>
+          </BottomModal.Header>
+          <Segments
+            level="l"
+            texts={segmentTexts}
+            handler={handleModalSegments}
+          />
+          <ScrollView>
+            <View style={style.container}>
+              <Pressable
+                onPress={handleToggleTeamList}
+                style={style.optionContainer}
+              >
+                {selectedTeamId ? (
+                  <NemoText level="body2" style={{ color: globalGray900 }}>
+                    {
+                      teamLists?.find((list) => list.teamId == selectedTeamId)
+                        ?.teamName
+                    }
+                  </NemoText>
+                ) : (
+                  <NemoText level="body2" style={{ color: globalGray600 }}>
+                    팀을 선택해주세요
+                  </NemoText>
+                )}
+                <Animated.View style={animatedStyle}>
+                  <AntDesign name="down" size={16} color={globalGray700} />
+                </Animated.View>
+              </Pressable>
             </View>
-          </View>
-          <CalendarFormContext.Provider
-            value={{
-              state,
-              dispatch,
-              readonly: !selectedTeamId,
-              teamId: selectedTeamId,
-            }}
+            <View style={style.container}>
+              <View style={style.optionContainer}>
+                <TextInput
+                  editable={!!selectedTeamId}
+                  placeholderTextColor={
+                    !selectedTeamId ? globalGray400 : globalGray600
+                  }
+                  value={state.title}
+                  onChangeText={(text: string) =>
+                    dispatch({ type: "SET_TITLE", payload: text })
+                  }
+                  placeholder={"제목을 입력하세요"}
+                  style={[style.input]}
+                />
+              </View>
+            </View>
+            <CalendarFormContext.Provider
+              value={{
+                state,
+                dispatch,
+                readonly: !selectedTeamId,
+                teamId: selectedTeamId,
+              }}
+            >
+              {currentSegment == "schedule" ? (
+                <CalendarScheduleForm />
+              ) : (
+                <CalendarTodoForm />
+              )}
+            </CalendarFormContext.Provider>
+          </ScrollView>
+        </BottomModal.Container>
+        {isOpenTeamList && (
+          <Modal
+            transparent
+            visible={isOpenTeamList}
+            animationType="fade"
+            onRequestClose={() => setIsOpenTeamList(false)}
           >
-            {currentSegment == "schedule" ? (
-              <CalendarScheduleForm />
-            ) : (
-              <CalendarTodoForm />
-            )}
-          </CalendarFormContext.Provider>
-        </ScrollView>
-      </BottomModal.Container>
-      {isOpenTeamList && (
-        <Modal
-          transparent
-          visible={isOpenTeamList}
-          animationType="fade"
-          onRequestClose={() => setIsOpenTeamList(false)}
-        >
-          <Pressable
-            style={style.modalBackdrop}
-            onPress={() => setIsOpenTeamList(false)}
-          >
-            <View style={style.modalContainer}>
-              <FlatList
-                data={teamLists}
-                keyExtractor={(item) => item.teamId.toString()}
-                renderItem={({ item }) => (
-                  <Pressable onPress={handlePressTeam(item.teamId)}>
-                    <View style={[style.link, style.list]}>
-                      <NemoText level="body2" style={{ color: globalGray900 }}>
-                        {item.teamName}
+            <Pressable
+              style={style.modalBackdrop}
+              onPress={() => setIsOpenTeamList(false)}
+            >
+              <View style={style.modalContainer}>
+                <FlatList
+                  data={teamLists}
+                  keyExtractor={(item) => item.teamId.toString()}
+                  renderItem={({ item }) => (
+                    <Pressable onPress={handlePressTeam(item.teamId)}>
+                      <View style={[style.link, style.list]}>
+                        <NemoText
+                          level="body2"
+                          style={{ color: globalGray900 }}
+                        >
+                          {item.teamName}
+                        </NemoText>
+                      </View>
+                      <View style={style.border} />
+                    </Pressable>
+                  )}
+                  ListFooterComponent={() => (
+                    <Pressable
+                      onPress={() => setIsOpenTeamList(false)}
+                      style={[style.link, style.list]}
+                    >
+                      <NemoText level="body2" style={{ color: globalGray400 }}>
+                        {CLOSE_MESSAGE}
+                      </NemoText>
+                    </Pressable>
+                  )}
+                  ListEmptyComponent={
+                    <View style={{ padding: 20, alignItems: "center" }}>
+                      <NemoText level="body2" style={{ color: globalGray400 }}>
+                        {DEFAULT_TEAM_MESSAGE}
                       </NemoText>
                     </View>
-                    <View style={style.border} />
-                  </Pressable>
-                )}
-                ListFooterComponent={() => (
-                  <Pressable
-                    onPress={() => setIsOpenTeamList(false)}
-                    style={[style.link, style.list]}
-                  >
-                    <NemoText level="body2" style={{ color: globalGray400 }}>
-                      {CLOSE_MESSAGE}
-                    </NemoText>
-                  </Pressable>
-                )}
-                ListEmptyComponent={
-                  <View style={{ padding: 20, alignItems: "center" }}>
-                    <NemoText level="body2" style={{ color: globalGray400 }}>
-                      {DEFAULT_TEAM_MESSAGE}
-                    </NemoText>
-                  </View>
-                }
-                style={style.modalList}
-                contentContainerStyle={style.listContainer}
-                scrollEnabled={!!teamLists?.length && teamLists.length > 6}
-              />
-            </View>
-          </Pressable>
-        </Modal>
-      )}
-      <AlertModal
-        visible={!isTitleWritten}
-        onClose={() => setIsTitleWritten(true)}
-      >
-        <AlertModal.Title>제목을 입력해주세요</AlertModal.Title>
-        <AlertModal.Actions
-          type="single"
-          confirmLabel="돌아가기"
-          onConfirm={() => setIsTitleWritten(true)}
-        />
-      </AlertModal>
+                  }
+                  style={style.modalList}
+                  contentContainerStyle={style.listContainer}
+                  scrollEnabled={!!teamLists?.length && teamLists.length > 6}
+                />
+              </View>
+            </Pressable>
+          </Modal>
+        )}
+        <AlertModal
+          visible={!isTitleWritten}
+          onClose={() => setIsTitleWritten(true)}
+        >
+          <AlertModal.Title>제목을 입력해주세요</AlertModal.Title>
+          <AlertModal.Actions
+            type="single"
+            confirmLabel="돌아가기"
+            onConfirm={() => setIsTitleWritten(true)}
+          />
+        </AlertModal>
+      </View>
     </Modal>
   );
 };
 const style = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
+  },
   container: {
     borderRadius: globalSpacingXs,
     borderWidth: 1,

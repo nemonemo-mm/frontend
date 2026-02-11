@@ -166,6 +166,7 @@ export default function CalendarTodosScreen() {
   const { data: teamDetail } = useTeamDetail(
     Number.isFinite(parsedTeamId) ? parsedTeamId : null
   );
+  const isTeamOwner = teamDetail?.isOwner ?? false;
 
   const [selectedDate, setSelectedDate] = useState(today);
   const selectDate = useCallback((date: Date) => {

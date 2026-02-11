@@ -230,79 +230,87 @@ const ScheduleListModal = ({
     setSelectedItem(d);
   };
   return (
-    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ minHeight: 660 }}>
-        <BottomModal.Header>
-          <BottomModal.LeftButton onPress={closeModal}>
-            <AntDesign name="close" size={20} color={globalGray700} />
-          </BottomModal.LeftButton>
-          <BottomModal.RightButton onPress={handleAddSchedule}>
-            <EvilIcons name="plus" size={20} olor={globalGray700} />
-          </BottomModal.RightButton>
-        </BottomModal.Header>
-        <View>
-          <FlatList
-            data={flatData}
-            keyExtractor={(item) => `${item.type}-${item.id}`}
-            ListHeaderComponent={
-              <NemoText level="h1" style={{ color: globalGray900 }}>
-                {formattedDate}
-              </NemoText>
-            }
-            renderItem={({ item }) => {
-              if (item.type === "schedule") {
-                const s = item.data;
-                const isAllDay = s.isAllDay;
+    <Modal
+      transparent
+      animationType="slide"
+      statusBarTranslucent
+      onRequestClose={closeModal}
+    >
+      <View style={styles.overlay}>
+        <Pressable style={styles.backdrop} onPress={closeModal} />
+        <BottomModal.Container style={{ minHeight: 660 }}>
+          <BottomModal.Header>
+            <BottomModal.LeftButton onPress={closeModal}>
+              <AntDesign name="close" size={20} color={globalGray700} />
+            </BottomModal.LeftButton>
+            <BottomModal.RightButton onPress={handleAddSchedule}>
+              <EvilIcons name="plus" size={20} olor={globalGray700} />
+            </BottomModal.RightButton>
+          </BottomModal.Header>
+          <View>
+            <FlatList
+              data={flatData}
+              keyExtractor={(item) => `${item.type}-${item.id}`}
+              ListHeaderComponent={
+                <NemoText level="h1" style={{ color: globalGray900 }}>
+                  {formattedDate}
+                </NemoText>
+              }
+              renderItem={({ item }) => {
+                if (item.type === "schedule") {
+                  const s = item.data;
+                  const isAllDay = s.isAllDay;
+
+                  return (
+                    <Pressable
+                      style={styles.row}
+                      onPress={handlePressSchedule(s)}
+                    >
+                      <View
+                        style={[
+                          styles.border,
+                          { backgroundColor: s.representativeColorHex },
+                        ]}
+                      />
+                      <NemoText level="body1">{s.title}</NemoText>
+                      <View style={{ marginLeft: "auto" }} />
+                      <NemoText level="body3">
+                        {isAllDay ? "종일" : `~ ${formatDate(new Date(s.endAt))}`}
+                      </NemoText>
+                    </Pressable>
+                  );
+                }
+
+                // todo
+                const t = item.data;
+                const endDate = new Date(t.endAt);
 
                 return (
-                  <Pressable
-                    style={styles.row}
-                    onPress={handlePressSchedule(s)}
-                  >
+                  <Pressable style={styles.row} onPress={handlePressTodo(t)}>
                     <View
                       style={[
                         styles.border,
-                        { backgroundColor: s.representativeColorHex },
+                        {
+                          backgroundColor: t.representativeColorHex ?? "#BDBDBD",
+                        },
                       ]}
                     />
-                    <NemoText level="body1">{s.title}</NemoText>
+                    <NemoText level="body1">{t.title}</NemoText>
                     <View style={{ marginLeft: "auto" }} />
                     <NemoText level="body3">
-                      {isAllDay ? "종일" : `~ ${formatDate(new Date(s.endAt))}`}
+                      ~
+                      {endDate.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </NemoText>
                   </Pressable>
                 );
-              }
-
-              // todo
-              const t = item.data;
-              const endDate = new Date(t.endAt);
-
-              return (
-                <Pressable style={styles.row} onPress={handlePressTodo(t)}>
-                  <View
-                    style={[
-                      styles.border,
-                      {
-                        backgroundColor: t.representativeColorHex ?? "#BDBDBD",
-                      },
-                    ]}
-                  />
-                  <NemoText level="body1">{t.title}</NemoText>
-                  <View style={{ marginLeft: "auto" }} />
-                  <NemoText level="body3">
-                    ~
-                    {endDate.toLocaleTimeString("ko-KR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </NemoText>
-                </Pressable>
-              );
-            }}
-          />
-        </View>
-      </BottomModal.Container>
+              }}
+            />
+          </View>
+        </BottomModal.Container>
+      </View>
       {selectedItem && (
         <CalendarDetailModal
           data={selectedItem}
@@ -317,6 +325,14 @@ const ScheduleListModal = ({
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
+  },
+  backdrop: {
+    flex: 1,
+  },
   row: {
     flexDirection: "row",
     gap: 4,

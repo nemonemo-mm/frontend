@@ -21,6 +21,12 @@ interface AddPositionModalProps {
   mode?: "create" | "edit";
   initialPositionName?: string;
   initialColorHex?: string | null;
+  currentPositionId?: number;
+  existingPositions?: {
+    positionId?: number;
+    positionName: string;
+    colorHex: string | null;
+  }[];
   onSubmit?: (positionName: string, colorHex: string) => void;
   onDelete?: () => void;
   isSubmitting?: boolean;
@@ -32,6 +38,8 @@ const AddPositionModal = ({
   mode = "create",
   initialPositionName,
   initialColorHex,
+  currentPositionId,
+  existingPositions = [],
   onSubmit,
   onDelete,
 }: AddPositionModalProps) => {
@@ -39,13 +47,17 @@ const AddPositionModal = ({
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
     undefined
   );
-  const [hasNameBeenFocused, setHasNameBeenFocused] = useState(false);
+  const [submitError, setSubmitError] = useState<{
+    name: string;
+    color: string;
+  }>({
+    name: "",
+    color: "",
+  });
 
   useEffect(() => {
-    if (!visible) {
-      setHasNameBeenFocused(false);
-      return;
-    }
+    if (!visible) return;
+    setSubmitError({ name: "", color: "" });
     setPositionName(mode === "edit" ? "" : (initialPositionName ?? ""));
     setSelectedColor(
       initialColorHex ? initialColorHex.toLowerCase() : undefined
@@ -56,6 +68,7 @@ const AddPositionModal = ({
     positionName.trim().length > 0 && !!selectedColor && !!onSubmit;
   const primaryLabel =
     mode === "create" ? "생성하기" : onSubmit ? "수정하기" : "닫기";
+  const isSubmitDisabled = primaryLabel !== "닫기" && !isFormValid;
   const title =
     mode === "edit" && initialPositionName
       ? initialPositionName
@@ -64,15 +77,54 @@ const AddPositionModal = ({
     mode === "edit"
       ? "수정할 포지션 이름을 입력해 주세요"
       : "포지션 이름을 입력해 주세요";
-  const validationMessage =
-    positionName.trim().length > 0
-      ? positionName.length > 10
-        ? "포지션 이름을 10자 이내로 입력해주세요"
-        : !selectedColor
-          ? "포지션 색상을 선택해주세요"
-          : ""
-      : "포지션 이름을 입력해주세요";
-  const errorMessage = hasNameBeenFocused ? validationMessage : "";
+
+  const handleChangePositionName = (value: string) => {
+    setSubmitError((prev) => ({ ...prev, name: "" }));
+    setPositionName(value);
+  };
+
+  const handleSelectColor = (color: string) => {
+    setSubmitError((prev) => ({ ...prev, color: "" }));
+    setSelectedColor(color);
+  };
+
+  const handlePrimaryPress = () => {
+    if (!onSubmit) {
+      closeModal();
+      return;
+    }
+
+    const trimmedName = positionName.trim();
+    const normalizedColor = selectedColor?.toLowerCase();
+
+    const comparablePositions =
+      mode === "edit"
+        ? existingPositions.filter(
+            (position) => position.positionId !== currentPositionId,
+          )
+        : existingPositions;
+
+    const hasDuplicateName = comparablePositions.some(
+      (position) =>
+        position.positionName.trim().toLowerCase() === trimmedName.toLowerCase(),
+    );
+    const hasDuplicateColor = comparablePositions.some(
+      (position) =>
+        !!position.colorHex && position.colorHex.toLowerCase() === normalizedColor,
+    );
+
+    setSubmitError({
+      name: hasDuplicateName ? "이미 사용 중인 포지션 이름이에요" : "",
+      color: hasDuplicateColor ? "이미 사용 중인 포지션 색상이에요" : "",
+    });
+
+    if (hasDuplicateName || hasDuplicateColor) {
+      return;
+    }
+
+    onSubmit(positionName, selectedColor || "");
+  };
+
   return (
     <Modal transparent animationType="slide" visible={visible}>
       <View style={style.overlay}>
@@ -93,6 +145,7 @@ const AddPositionModal = ({
                 </View>
               )}
             </BottomModal.Header>
+
             <View>
               <View>
                 <NemoText level="body1">{title}</NemoText>
@@ -101,33 +154,33 @@ const AddPositionModal = ({
                   placeholderTextColor={globalGray600}
                   style={style.inputContainer}
                   value={positionName}
-                  onChangeText={setPositionName}
-                  onFocus={() => setHasNameBeenFocused(true)}
+                  onChangeText={handleChangePositionName}
                 />
-                {errorMessage && (
-                  <NemoText level="body2" style={{ color: globalRed400 }}>
-                    {errorMessage}
+                {submitError.name ? (
+                  <NemoText level="caption" style={style.errorText}>
+                    {submitError.name}
                   </NemoText>
-                )}
+                ) : null}
               </View>
 
-              <View style={{ marginBottom: 20 }}>
+              <View>
                 <SelectPositionColor
                   selectedColor={selectedColor}
-                  onColorSelect={setSelectedColor}
+                  onColorSelect={handleSelectColor}
                 />
+                {submitError.color ? (
+                  <NemoText level="caption" style={style.colorErrorText}>
+                    {submitError.color}
+                  </NemoText>
+                ) : null}
               </View>
 
-              <View style={{ marginBottom: 24 }}>
+              <View style={{ marginBottom: 24, marginTop: 24 }}>
                 <ModalButton
                   label={primaryLabel}
                   variant="primary"
-                  onPress={() =>
-                    onSubmit
-                      ? onSubmit(positionName, selectedColor || "")
-                      : closeModal()
-                  }
-                  disabled={primaryLabel !== "닫기" && !isFormValid}
+                  onPress={handlePrimaryPress}
+                  disabled={isSubmitDisabled}
                 />
               </View>
             </View>
@@ -154,7 +207,15 @@ const style = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
     marginTop: 12,
+    marginBottom: 12,
+  },
+  errorText: {
+    color: globalRed400,
     marginBottom: 16,
+  },
+  colorErrorText: {
+    color: globalRed400,
+    marginTop: 16,
   },
 });
 

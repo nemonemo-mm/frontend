@@ -104,7 +104,11 @@ export default function TeamMembersList({
   const handleLeaveModalOpen = () => setActiveModal({ type: "leave" });
   const handleRemoveModalOpen = (member: TeamMember) =>
     setActiveModal({ type: "remove", member });
-  const handleModalClose = () => setActiveModal(null);
+  const handleModalClose = () => {
+    setActiveModal(null);
+    animateIcon(0);
+    setIsOpenPositionList(false);
+  };
 
   const handleLeaveTeam = async () => {
     if (!teamId) return;
@@ -220,13 +224,6 @@ export default function TeamMembersList({
                 </Pressable>
               </View>
             )}
-            {isOpenPositionList && (
-              <PositionListModal
-                positionList={positionList ?? []}
-                onPressPosition={handlePressPosition(member.memberId)}
-                onPointerDown={handleTogglePositionList}
-              />
-            )}
           </Pressable>
         ))}
       </View>
@@ -249,20 +246,26 @@ export default function TeamMembersList({
             <AlertModal.Title>
               {`${activeModal.member.userName}`}
             </AlertModal.Title>
-            <Pressable
-              onPress={handleTogglePositionList}
-              style={{ flexDirection: "row" }}
-            >
+            {isOwner ? (
+              <Pressable
+                onPress={handleTogglePositionList}
+                style={{ flexDirection: "row" }}
+              >
+                <AlertModal.Text>
+                  {`${activeModal.member.positionName}`}
+                </AlertModal.Text>
+
+                <Animated.View style={animatedStyle}>
+                  <AntDesign name="down" size={16} color={globalGray700} />
+                </Animated.View>
+              </Pressable>
+            ) : (
               <AlertModal.Text>
                 {`${activeModal.member.positionName}`}
               </AlertModal.Text>
+            )}
 
-              <Animated.View style={animatedStyle}>
-                <AntDesign name="down" size={16} color={globalGray700} />
-              </Animated.View>
-            </Pressable>
-
-            {isOpenPositionList && (
+            {isOwner && isOpenPositionList && (
               <PositionListModal
                 positionList={positionList ?? []}
                 onPressPosition={handlePressPosition(

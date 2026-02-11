@@ -1,8 +1,13 @@
 export interface TeamCreateRequest {
   teamName: string;
   description?: string;
-  positions: Array<{ positionName: string; colorHex: string }>;
-  ownerPositionName: string;
+  imageUrl?: string;
+  positions?: Array<{ positionName: string; colorHex: string }>;
+  ownerPositionName?: string;
+}
+
+export interface TeamCreateResponse {
+  teamId: number;
 }
 
 export interface Position {

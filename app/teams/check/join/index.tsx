@@ -51,11 +51,14 @@ export default function JoinCodeInputScreen() {
           onChangeText={setInviteCode}
         />
       </View>
-      <CtaButton
-        label="팀 검색하기"
-        onPress={handleSearch}
-        isActive={inviteCode.length > 0}
-      />
+
+      <View style={styles.buttonContainer}>
+        <CtaButton
+          label="팀 검색하기"
+          onPress={handleSearch}
+          isActive={inviteCode.length > 0}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -76,9 +79,7 @@ const styles = StyleSheet.create({
     gap: 36,
     marginHorizontal: 20,
   },
-  button: {
-    marginHorizontal: 20,
-    minHeight: 46,
+  buttonContainer: {
     marginBottom: 20,
   },
 });
