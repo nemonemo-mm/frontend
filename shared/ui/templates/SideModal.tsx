@@ -4,6 +4,7 @@ import { TeamList } from "@/features/team/types/team.model";
 import { useUser } from "@/features/users/hooks/useUser";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import {
   FlatList,
@@ -32,10 +33,15 @@ interface SideModalProps {
 
 const SideModal = ({ teams, closeModal }: SideModalProps) => {
   const route = useRouter();
+  const queryClient = useQueryClient();
   const { data: user } = useUser();
 
   const handlePressTeam = (id: number) => async () => {
-    const teamInfo = await teamDetailInfo(id);
+    const teamInfo = await queryClient.fetchQuery({
+      queryKey: ["teamDetail", id],
+      queryFn: () => teamDetailInfo(id),
+      staleTime: 1000 * 60 * 5,
+    });
     await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
     closeModal();
     route.push(`/(tabs)/${id}/calendar`);

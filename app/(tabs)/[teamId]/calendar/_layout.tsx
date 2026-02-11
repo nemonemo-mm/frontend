@@ -20,8 +20,9 @@ import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
 import { Feather } from "@expo/vector-icons";
+import { Image as ExpoImage } from "expo-image";
 import { Slot, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -64,12 +65,30 @@ const convertTodos = (data: TodoResponse[] | undefined): CalendarSchedule[] => {
 
 export default function CalendarTodosScreen() {
   const route = useRouter();
+  const prefetchedImageUrisRef = useRef<Set<string>>(new Set());
 
   const { teamId } = useLocalSearchParams();
+  const parsedTeamId = teamId ? parseInt(teamId as string, 10) : NaN;
   const [tabTexts, setTabTexts] = useState<TabsText[]>([
     { id: 0, content: "캘린더", isActive: true },
     { id: 1, content: "스케줄/투두", isActive: false },
   ]);
+
+  const prefetchImageUris = useCallback(
+    (uris: Array<string | null | undefined>) => {
+      const filteredUris = uris
+        .filter((uri): uri is string => !!uri)
+        .filter((uri) => !prefetchedImageUrisRef.current.has(uri));
+
+      filteredUris.forEach((uri) => {
+        prefetchedImageUrisRef.current.add(uri);
+        ExpoImage.prefetch(uri, "memory-disk").catch(() => {
+          prefetchedImageUrisRef.current.delete(uri);
+        });
+      });
+    },
+    [],
+  );
 
   useEffect(() => {
     // teamId 바뀌면 항상 첫 탭으로 초기화
@@ -105,7 +124,7 @@ export default function CalendarTodosScreen() {
     year,
     month,
   );
-  const schedulesQuery = useTeamSchedules(parseInt(teamId as string), {
+  const schedulesQuery = useTeamSchedules(parsedTeamId, {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
@@ -118,7 +137,7 @@ export default function CalendarTodosScreen() {
     ).toISOString(),
   });
 
-  const todosQuery = useTeamTodos(parseInt(teamId as string), {
+  const todosQuery = useTeamTodos(parsedTeamId, {
     start: new Date(
       currentYearMonth.year,
       currentYearMonth.month - 1,
@@ -135,7 +154,7 @@ export default function CalendarTodosScreen() {
   const calendarTodos = convertTodos(todosQuery.data);
 
   const { data: teamDetail } = useTeamDetail(
-    teamId ? parseInt(teamId as string) : null,
+    Number.isFinite(parsedTeamId) ? parsedTeamId : null,
   );
 
   const [selectedDate, setSelectedDate] = useState(today);
@@ -167,6 +186,13 @@ export default function CalendarTodosScreen() {
   // 사이드바 연동
   const { data: teams = [] } = useTeamList();
 
+  useEffect(() => {
+    prefetchImageUris([
+      teamDetail?.teamImageUrl,
+      ...teams.map((team) => team.teamImageUrl),
+    ]);
+  }, [prefetchImageUris, teamDetail?.teamImageUrl, teams]);
+
   const handlePressTeamName = () => {
     setIsOpenSidebar(true);
   };
@@ -178,7 +204,7 @@ export default function CalendarTodosScreen() {
     route.push(`/(team)/members?teamId=${teamId}`);
   };
 
-  const noticeQuery = useLatestNotice(parseInt(teamId as string));
+  const noticeQuery = useLatestNotice(parsedTeamId);
 
   const callNotice = useCallback(() => noticeQuery.refetch(), [noticeQuery]);
 
@@ -189,11 +215,13 @@ export default function CalendarTodosScreen() {
   }, [teamId, noticeQuery.data]);
   const { createNotice, updateNotice, deleteNotice } = useNoticeMutations();
   const handleConfirmNotice = (newNotice: string) => {
+    if (!Number.isFinite(parsedTeamId) || parsedTeamId <= 0) return;
+
     setNotice(newNotice);
     if (!noticeQuery.data)
       createNotice.mutate(
         {
-          teamId: parseInt(teamId as string),
+          teamId: parsedTeamId,
           body: { content: newNotice },
         },
         {
@@ -205,7 +233,7 @@ export default function CalendarTodosScreen() {
       if (newNotice.trim() == "") {
         deleteNotice.mutate(
           {
-            teamId: parseInt(teamId as string),
+            teamId: parsedTeamId,
             noticeId: noticeQuery.data.id,
           },
           {
@@ -216,7 +244,7 @@ export default function CalendarTodosScreen() {
       } else
         updateNotice.mutate(
           {
-            teamId: parseInt(teamId as string),
+            teamId: parsedTeamId,
             noticeId: noticeQuery.data.id,
             body: { content: newNotice },
           },

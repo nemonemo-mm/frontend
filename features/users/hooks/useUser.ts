@@ -8,10 +8,13 @@ import {
 import { changeMyName, changeMyProfileImage, getMe } from "../api/user";
 import type { UserResponse } from "../types/user.model";
 
+const USER_QUERY_STALE_TIME = 1000 * 60 * 5;
+
 export function useUser() {
   return useQuery<UserResponse>({
     queryKey: ["me", "user"],
     queryFn: getMe,
+    staleTime: USER_QUERY_STALE_TIME,
   });
 }
 
