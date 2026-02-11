@@ -61,6 +61,14 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
     });
   };
 
+  const handleSettingScreen = () => {
+    closeModal();
+
+    requestAnimationFrame(() => {
+      route.push("/(tabs)/my");
+    });
+  };
+
   return (
     <Modal transparent onRequestClose={closeModal} statusBarTranslucent>
       <View style={styles.overlay}>
@@ -70,10 +78,12 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
           >
             <View>
               <View style={styles.profileSection}>
-                <ProfileImage size={64} uri={user?.userImageUrl} />
-                <NemoText level="body1" style={styles.profileName}>
-                  {user?.userName}
-                </NemoText>
+                <Pressable onPress={handleSettingScreen}>
+                  <ProfileImage size={64} uri={user?.userImageUrl} />
+                  <NemoText level="body1" style={styles.profileName}>
+                    {user?.userName}
+                  </NemoText>
+                </Pressable>
               </View>
               <View style={styles.border} />
               <View style={styles.groupContainer}>
