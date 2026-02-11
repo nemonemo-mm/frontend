@@ -13,14 +13,19 @@ if (process.env.GOOGLE_SERVICES_JSON) {
 }
 
 export default {
-  name: "frontend",
+  name: "네모네모",
   slug: "frontend",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
-  scheme: "frontend",
+  scheme: "nemonemo",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
+  splash: {
+    image: "./assets/images/splash-icon.png",
+    resizeMode: "cover",
+    backgroundColor: "#FFF",
+  },
   ios: {
     infoPlist: {
       NSCameraUsageDescription:
@@ -41,10 +46,8 @@ export default {
   android: {
     softwareKeyboardLayoutMode: "resize",
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/images/android-icon-foreground.png",
-      backgroundImage: "./assets/images/android-icon-background.png",
-      monochromeImage: "./assets/images/android-icon-monochrome.png",
+      backgroundColor: "#FFF",
+      foregroundImage: "./assets/images/icon.png",
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
