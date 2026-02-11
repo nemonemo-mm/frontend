@@ -291,7 +291,7 @@ const CalendarModal = ({
                   }
                 </NemoText>
               ) : (
-                <NemoText level="body2" style={{ color: globalGray900 }}>
+                <NemoText level="body2" style={{ color: globalGray600 }}>
                   팀을 선택해주세요
                 </NemoText>
               )}
