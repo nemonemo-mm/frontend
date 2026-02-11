@@ -146,15 +146,15 @@ const styles = StyleSheet.create({
   header: {
     height: 56,
     marginBottom: 20,
-    paddingVertical: 18,
+    justifyContent: "center",
+    alignItems: "center",
   },
   main: {
     paddingHorizontal: 20,
   },
   profileSection: {
     justifyContent: "center",
-    alignContent: "center",
-    margin: "auto",
+    alignItems: "center",
     gap: globalSpacingSm,
     marginBottom: globalSpacing2xl,
   },

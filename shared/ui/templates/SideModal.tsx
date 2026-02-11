@@ -69,9 +69,11 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
             style={[styles.sideContainer, { paddingVertical: insets.top + 56 }]}
           >
             <View>
-              <View style={{ margin: "auto", gap: 12, marginBottom: 30 }}>
+              <View style={styles.profileSection}>
                 <ProfileImage size={64} uri={user?.userImageUrl} />
-                <NemoText level="body1">{user?.userName}</NemoText>
+                <NemoText level="body1" style={styles.profileName}>
+                  {user?.userName}
+                </NemoText>
               </View>
               <View style={styles.border} />
               <View style={styles.groupContainer}>
@@ -153,6 +155,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: globalSpacingLg,
     gap: 8,
     maxHeight: 600,
+  },
+  profileSection: {
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 30,
+  },
+  profileName: {
+    textAlign: "center",
   },
   border: {
     height: 1,
