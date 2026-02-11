@@ -16,13 +16,22 @@ import {
 } from "@/features/calendar/types/todo.model";
 import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
 import { convertAlarmToNumberArray } from "@/shared/utils/convertAlarmToNumberArray";
-import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { FlatList, Modal, Pressable, StyleSheet, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  FlatList,
+  Modal,
+  PanResponder,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { globalGray700, globalGray900 } from "..";
+import Checkbox from "../atoms/Checkbox";
 import NemoText from "../atoms/NemoText";
 import { WeekDayType } from "../molecules/NemoDayButton";
+import Segments from "../molecules/Segments";
 import BottomModal from "../organisms/BottomModal";
 import CalendarDetailModal from "./CalendarDetailModal";
 import { RepeatPeriod } from "./RepeatModal";
@@ -40,6 +49,18 @@ const formatDate = (dates: Date): string => {
 
   return `${year}.${month}.${date}`;
 };
+const segmentTexts = [
+  {
+    id: "schedule",
+    content: "캘린더",
+    isActive: true,
+  },
+  {
+    id: "todo",
+    content: "투두",
+    isActive: false,
+  },
+];
 type FlatItem =
   | {
       type: "schedule";
@@ -168,7 +189,20 @@ const ScheduleListModal = ({
       console.log(e);
     }
   };
-
+  const [currentSegment, setCurrentSegment] = useState<"schedule" | "todo">(
+    "schedule"
+  );
+  const handleModalSegments = (
+    segment: { id: string; content: string; isActive: boolean }[]
+  ) => {
+    const activeSegment = segment.find((s) => s.isActive);
+    if (
+      activeSegment &&
+      (activeSegment.id === "schedule" || activeSegment.id === "todo")
+    ) {
+      setCurrentSegment(activeSegment.id);
+    }
+  };
   const start = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
@@ -219,6 +253,25 @@ const ScheduleListModal = ({
         }) as const
     ),
   ];
+
+  const { updateTodoStatus } = useTodoMutations();
+
+  const handleCheckTodo = (todoId: number) => (v: boolean) => {
+    updateTodoStatus.mutate(
+      {
+        todoId,
+        body: { status: v ? "DONE" : "TODO" },
+      },
+      {
+        onSuccess: () => {
+          todayTodoQuery.refetch();
+        },
+      }
+    );
+  };
+  const filteredFlatData = flatData.filter(
+    (item) => item.type === currentSegment
+  );
   const [selectedItem, setSelectedItem] = useState<
     SchedulesResponse | TodoResponse | null
   >(null);
@@ -229,88 +282,121 @@ const ScheduleListModal = ({
   const handlePressTodo = (d: TodoResponse) => () => {
     setSelectedItem(d);
   };
+  const translateY = useRef(new Animated.Value(0)).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dy) > 5,
+      onPanResponderGrant: () => {
+        translateY.setValue(0);
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const next = Math.max(gestureState.dy, 0);
+        if (next <= 250) {
+          translateY.setValue(next);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 80) {
+          Animated.timing(translateY, {
+            toValue: 400,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            translateY.setValue(0);
+            closeModal();
+          });
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            bounciness: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const indicatorHandlers = useMemo(
+    () => panResponder.panHandlers,
+    [panResponder]
+  );
   return (
-    <Modal
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={closeModal}
-    >
-      <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={closeModal} />
-        <BottomModal.Container style={{ minHeight: 660 }}>
-          <BottomModal.Header>
-            <BottomModal.LeftButton onPress={closeModal}>
-              <AntDesign name="close" size={20} color={globalGray700} />
-            </BottomModal.LeftButton>
-            <BottomModal.RightButton onPress={handleAddSchedule}>
-              <EvilIcons name="plus" size={20} olor={globalGray700} />
-            </BottomModal.RightButton>
-          </BottomModal.Header>
-          <View>
-            <FlatList
-              data={flatData}
-              keyExtractor={(item) => `${item.type}-${item.id}`}
-              ListHeaderComponent={
-                <NemoText level="h1" style={{ color: globalGray900 }}>
-                  {formattedDate}
-                </NemoText>
-              }
-              renderItem={({ item }) => {
-                if (item.type === "schedule") {
-                  const s = item.data;
-                  const isAllDay = s.isAllDay;
-
-                  return (
-                    <Pressable
-                      style={styles.row}
-                      onPress={handlePressSchedule(s)}
-                    >
-                      <View
-                        style={[
-                          styles.border,
-                          { backgroundColor: s.representativeColorHex },
-                        ]}
-                      />
-                      <NemoText level="body1">{s.title}</NemoText>
-                      <View style={{ marginLeft: "auto" }} />
-                      <NemoText level="body3">
-                        {isAllDay ? "종일" : `~ ${formatDate(new Date(s.endAt))}`}
-                      </NemoText>
-                    </Pressable>
-                  );
-                }
-
-                // todo
-                const t = item.data;
-                const endDate = new Date(t.endAt);
+    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
+      <BottomModal.Container style={{ minHeight: 660 }}>
+        <BottomModal.Header {...indicatorHandlers}>
+          <BottomModal.Indicator />
+        </BottomModal.Header>
+        <View>
+          <NemoText
+            level="h1"
+            style={{ color: globalGray900, marginBottom: 16 }}
+          >
+            {formattedDate}
+          </NemoText>
+          <Segments
+            level="l"
+            texts={segmentTexts}
+            handler={handleModalSegments}
+          />
+          <FlatList
+            data={filteredFlatData}
+            contentContainerStyle={{ marginTop: 20 }}
+            keyExtractor={(item) => `${item.type}-${item.id}`}
+            renderItem={({ item }) => {
+              if (item.type === "schedule") {
+                const s = item.data;
+                const isAllDay = s.isAllDay;
 
                 return (
-                  <Pressable style={styles.row} onPress={handlePressTodo(t)}>
+                  <Pressable
+                    style={styles.row}
+                    onPress={handlePressSchedule(s)}
+                  >
                     <View
                       style={[
                         styles.border,
                         {
-                          backgroundColor: t.representativeColorHex ?? "#BDBDBD",
+                          backgroundColor:
+                            s.representativeColorHex ?? "#BDBDBD",
                         },
                       ]}
                     />
-                    <NemoText level="body1">{t.title}</NemoText>
+                    <NemoText level="body1">{s.title}</NemoText>
                     <View style={{ marginLeft: "auto" }} />
                     <NemoText level="body3">
-                      ~
-                      {endDate.toLocaleTimeString("ko-KR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {isAllDay ? "종일" : `~ ${formatDate(new Date(s.endAt))}`}
                     </NemoText>
                   </Pressable>
                 );
-              }}
-            />
-          </View>
-        </BottomModal.Container>
-      </View>
+              }
+
+              // todo
+              const t = item.data;
+
+              return (
+                <Pressable style={styles.row} onPress={handlePressTodo(t)}>
+                  <View
+                    style={[
+                      styles.border,
+                      {
+                        backgroundColor: t.representativeColorHex ?? "#BDBDBD",
+                      },
+                    ]}
+                  />
+                  <NemoText level="body1">{t.title}</NemoText>
+                  <View style={{ marginLeft: "auto" }} />
+                  <Checkbox
+                    value={t.status == "DONE"}
+                    handler={handleCheckTodo(t.id)}
+                  />
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+      </BottomModal.Container>
       {selectedItem && (
         <CalendarDetailModal
           data={selectedItem}

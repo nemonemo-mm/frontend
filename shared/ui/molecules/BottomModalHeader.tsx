@@ -66,8 +66,8 @@ const style = StyleSheet.create({
     borderRadius: 3,
     alignSelf: "center",
     backgroundColor: "#c8c8c8",
-    marginBottom: 3,
     margin: "auto",
+    marginTop: 8,
   },
   rightButton: {
     marginLeft: "auto",
@@ -80,6 +80,8 @@ const style = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 });
 
