@@ -2,18 +2,12 @@ import ChevronLeftIcon from "@/assets/icons/chevron-left";
 import { teamJoin } from "@/features/team/api/join";
 import { Position } from "@/features/team/types/team.model";
 import NemoText from "@/shared/ui/atoms/NemoText";
-import Chips from "@/shared/ui/molecules/Chips";
+import Chips, { ChipText } from "@/shared/ui/molecules/Chips";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type ChipText = {
-  id: string;
-  content: string;
-  isActive: boolean;
-};
 
 export default function ProfileSetupScreen() {
   const router = useRouter();
@@ -33,7 +27,7 @@ export default function ProfileSetupScreen() {
 
   const [chipData, setChipData] = useState<ChipText[]>(
     positions.map((position) => ({
-      id: String(position.positionId),
+      id: position.positionId,
       content: position.positionName,
       isActive: false,
     }))
@@ -74,7 +68,7 @@ export default function ProfileSetupScreen() {
       });
 
       // 성공 시 홈 화면으로 이동
-      router.replace("/(tabs)/home");
+      router.replace("/home");
     } catch (error) {
       console.error("팀 참여 실패:", error);
     }

@@ -84,7 +84,7 @@ export default function ProfileSetupScreen() {
         }),
       });
 
-      router.replace(`/(tabs)/${response.teamId}/calendar`);
+      router.replace(`/${response.teamId}/calendar`);
     } catch (error: any) {
       console.error("팀 생성 실패:", error);
       const errorMessage =

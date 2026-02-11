@@ -27,7 +27,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
           const firstTeam = teams[0];
           await AsyncStorage.setItem("currentTeam", JSON.stringify(firstTeam));
 
-          route.replace(`/(tabs)/${firstTeam.teamId}/calendar`);
+          route.replace(`/${firstTeam.teamId}/calendar`);
           return;
         }
 
@@ -41,7 +41,7 @@ const GroupScreen = ({}: GroupScreenProps) => {
         const teamInfo = await teamDetailInfo(id);
         await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
 
-        route.replace(`/(tabs)/${id}/calendar`);
+        route.replace(`/${id}/calendar`);
       } catch (e) {
         console.error("팀 초기화 실패", e);
       }

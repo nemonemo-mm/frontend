@@ -82,11 +82,11 @@ const AuthScreen = () => {
         if (teams && teams.length > 0) {
           router.replace(`/${teams[0].teamId}/calendar`);
         } else {
-          router.replace("/(tabs)/0");
+          router.replace("/0");
         }
       } catch (error) {
         // 팀이 없으면 빈 상태 페이지로 이동 (id=0 등 더미 값 전달)
-        router.replace("/(tabs)/0");
+        router.replace("/0");
       }
     } catch (error: any) {
       console.error("구글 로그인 실패 - 상세 에러:", {

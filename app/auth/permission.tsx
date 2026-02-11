@@ -80,7 +80,7 @@ export default function PermissionsScreen() {
       await clearPendingSocialLogin();
 
       // 서버가 여기서 newUser=false로 내려오는 게 정상 플로우
-      router.replace("/(tabs)/[teamId]");
+      router.replace("/0");
     } catch (e) {
       console.error(e);
       Alert.alert("가입 실패", "잠시 후 다시 시도해 주세요.");

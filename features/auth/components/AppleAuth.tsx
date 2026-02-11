@@ -77,13 +77,13 @@ export default function AppleAuth() {
         typeof response.refreshToken !== "string"
       ) {
         throw new Error(
-          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요.",
+          "로그인 토큰을 받지 못했습니다. 서버 응답 스펙을 확인해 주세요."
         );
       }
 
       await saveAccessToken(response.accessToken);
       await saveRefreshToken(response.refreshToken);
-      router.push("/(tabs)/home");
+      router.push("/home");
     } catch (error: any) {
       if (error?.code === "ERR_REQUEST_CANCELED") return;
 
