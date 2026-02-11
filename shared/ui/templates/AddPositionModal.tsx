@@ -39,9 +39,13 @@ const AddPositionModal = ({
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
     undefined
   );
+  const [hasNameBeenFocused, setHasNameBeenFocused] = useState(false);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) {
+      setHasNameBeenFocused(false);
+      return;
+    }
     setPositionName(mode === "edit" ? "" : (initialPositionName ?? ""));
     setSelectedColor(
       initialColorHex ? initialColorHex.toLowerCase() : undefined
@@ -60,7 +64,7 @@ const AddPositionModal = ({
     mode === "edit"
       ? "수정할 포지션 이름을 입력해 주세요"
       : "포지션 이름을 입력해 주세요";
-  const errorMessage =
+  const validationMessage =
     positionName.trim().length > 0
       ? positionName.length > 10
         ? "포지션 이름을 10자 이내로 입력해주세요"
@@ -68,6 +72,7 @@ const AddPositionModal = ({
           ? "포지션 색상을 선택해주세요"
           : ""
       : "포지션 이름을 입력해주세요";
+  const errorMessage = hasNameBeenFocused ? validationMessage : "";
   return (
     <Modal transparent animationType="slide" visible={visible}>
       <View style={style.overlay}>
@@ -97,6 +102,7 @@ const AddPositionModal = ({
                   style={style.inputContainer}
                   value={positionName}
                   onChangeText={setPositionName}
+                  onFocus={() => setHasNameBeenFocused(true)}
                 />
                 {errorMessage && (
                   <NemoText level="body2" style={{ color: globalRed400 }}>

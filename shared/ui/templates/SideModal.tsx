@@ -23,6 +23,7 @@ import {
   globalSpacingLg,
   globalSpacingXs,
 } from "..";
+import GroupImage from "../atoms/GroupImage";
 import NemoText from "../atoms/NemoText";
 import ProfileImage from "../atoms/ProfileImage";
 
@@ -84,7 +85,7 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                       style={styles.group}
                     >
                       {item.teamImageUrl ? (
-                        <ProfileImage size={56} uri={item.teamImageUrl} />
+                        <GroupImage size={56} uri={item.teamImageUrl} />
                       ) : (
                         <GroupIcon />
                       )}
