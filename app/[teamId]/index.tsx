@@ -1,10 +1,11 @@
+import BellIcon from "@/assets/icons/bell";
+import MenuIcon from "@/assets/icons/menu";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { useTeamList } from "@/features/team/hooks/useTeamList";
-import { globalGray400, globalGray700, globalGray900 } from "@/shared/ui";
+import { globalGray700, globalGray900 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import SideModal from "@/shared/ui/templates/SideModal";
-import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -19,6 +20,8 @@ const GroupScreen = ({}: GroupScreenProps) => {
 
   const teamsQuery = useTeamList();
   const { data: teams } = teamsQuery;
+
+  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -54,24 +57,30 @@ const GroupScreen = ({}: GroupScreenProps) => {
     route.navigate("/teams/check");
   };
 
+  const handlePressTeamName = () => {
+    setIsOpenSidebar(true);
+  };
+
   const handlePressAlarm = () => {};
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {isOpenSidebar && (
+        <SideModal
+          teams={teams ?? []}
+          closeModal={() => setIsOpenSidebar(false)}
+        />
+      )}
+
       <View style={[styles.header, styles.layout]}>
-          <NemoText level="h3" style={{ color: globalGray400 }}>
-            아직 소속된 그룹이 없어요
-          </NemoText>
+        <Pressable onPress={handlePressTeamName}>
+          <MenuIcon />
+        </Pressable>
 
         <View style={{ margin: "auto" }} />
 
         <Pressable onPress={handlePressAlarm}>
-          <Feather
-            name="bell"
-            size={20}
-            color={globalGray700}
-            style={{ marginRight: 12 }}
-          />
+          <BellIcon />
         </Pressable>
       </View>
 
