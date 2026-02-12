@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   globalGray0,
   globalGray200,
+  globalGray250,
   globalGray700,
   globalGray900,
   globalSpacingLg,
@@ -125,10 +126,16 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                       onPress={handlePressCreateTeam}
                     >
                       <View style={styles.selectBox}>
-                        <Ionicons name="add" size={20} color="black" />
+                        <Ionicons name="add" size={20} color={globalGray250} />
                       </View>
-                      <NemoText level="h3" style={{ color: globalGray900 }}>
-                        그룹 생성하기
+                      <NemoText
+                        level="h3"
+                        style={{
+                          color: globalGray900,
+                          fontFamily: "PretendardRegular",
+                        }}
+                      >
+                        그룹 추가하기
                       </NemoText>
                     </Pressable>
                   )}
@@ -173,6 +180,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     textAlign: "center",
+    marginTop: 12,
   },
   border: {
     height: 1,
@@ -193,7 +201,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 1,
     borderRadius: globalSpacingXs,
-    borderStyle: "dashed",
+    borderColor: globalGray250,
   },
 });
 export default SideModal;

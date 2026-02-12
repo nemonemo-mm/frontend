@@ -11,6 +11,7 @@ interface CalendarProps {
   schedules: CalendarSchedule[];
   onCalendarMonth: (dir: -1 | 1) => void;
   onSelectDate: (date: Date) => void;
+  onLongSelectDate?: () => void;
 }
 
 const Calendar = ({
@@ -20,6 +21,7 @@ const Calendar = ({
   schedules,
   onCalendarMonth,
   onSelectDate,
+  onLongSelectDate,
 }: CalendarProps) => {
   return (
     <CalendarContainer>
@@ -31,6 +33,7 @@ const Calendar = ({
           dates={day}
           schedules={schedules}
           onSelectDate={onSelectDate}
+          onLongSelectDate={onLongSelectDate}
         />
       ))}
     </CalendarContainer>

@@ -195,7 +195,7 @@ export default function CalendarTodosScreen() {
 
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   // 사이드바 연동
-  const { data: teams = [] } = useTeamList(teamId as string);
+  const { data: teams = [] } = useTeamList();
 
   useEffect(() => {
     prefetchImageUris([
