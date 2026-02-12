@@ -1,3 +1,5 @@
+import Constants from "expo-constants";
+import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
@@ -11,6 +13,17 @@ export type NotificationPermissionResult = {
  */
 export async function requestNotificationPermissionAndFcmToken(): Promise<NotificationPermissionResult> {
   try {
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+      });
+    }
+
+    if (!Device.isDevice) {
+      return { hasPermission: false, fcmToken: null };
+    }
+
     // 알림 권한 요청
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();
@@ -35,10 +48,16 @@ export async function requestNotificationPermissionAndFcmToken(): Promise<Notifi
       }
     }
 
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+    if (!projectId) {
+      return { hasPermission: false, fcmToken: null };
+    }
+
     // Expo Push Token 가져오기
-    // 이 토큰은 FCM/APNS와 호환되며 서버에서 사용할 수 있습니다
     const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: "72d511b4-3dcd-49eb-877d-a1225aa316d9", // app.json의 EAS projectId
+      projectId,
     });
 
     return {
