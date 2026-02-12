@@ -1,18 +1,16 @@
-import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
-export type NotificationPermissionResult = {
-  hasPermission: boolean;
-  fcmToken: string | null;
-};
-
 /**
- * 알림 권한을 요청하고 Expo Push Token을 가져옵니다.
+ * 알림 권한을 확인하고 필요 시 요청합니다.
  */
-export async function requestNotificationPermissionAndFcmToken(): Promise<NotificationPermissionResult> {
+export async function requestNotificationPermission(): Promise<boolean> {
   try {
+    if (!Device.isDevice) {
+      return false;
+    }
+
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
         name: "default",
@@ -20,13 +18,9 @@ export async function requestNotificationPermissionAndFcmToken(): Promise<Notifi
       });
     }
 
-    if (!Device.isDevice) {
-      return { hasPermission: false, fcmToken: null };
-    }
-
-    // 알림 권한 요청
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();
+
     let finalStatus = existingStatus;
 
     if (existingStatus !== "granted") {
@@ -34,38 +28,21 @@ export async function requestNotificationPermissionAndFcmToken(): Promise<Notifi
       finalStatus = status;
     }
 
-    // 권한이 거부된 경우
     if (finalStatus !== "granted") {
-      return { hasPermission: false, fcmToken: null };
+      return false;
     }
 
-    // Android 13+ (API 33+) POST_NOTIFICATIONS 권한 확인
     if (Platform.OS === "android" && Platform.Version >= 33) {
       const { status: androidStatus } =
         await Notifications.getPermissionsAsync();
       if (androidStatus !== "granted") {
-        return { hasPermission: false, fcmToken: null };
+        return false;
       }
     }
 
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ??
-      Constants?.easConfig?.projectId;
-    if (!projectId) {
-      return { hasPermission: false, fcmToken: null };
-    }
-
-    // Expo Push Token 가져오기
-    const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId,
-    });
-
-    return {
-      hasPermission: true,
-      fcmToken: tokenData.data ?? null,
-    };
+    return true;
   } catch (error) {
     console.error("알림 권한 요청 실패:", error);
-    return { hasPermission: false, fcmToken: null };
+    return false;
   }
 }

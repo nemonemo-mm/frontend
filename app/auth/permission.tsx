@@ -1,6 +1,6 @@
 import { socialLogin } from "@/features/auth/api/auth";
 import { requestCameraPermission } from "@/features/auth/utils/camera-permission";
-import { requestNotificationPermissionAndFcmToken } from "@/features/auth/utils/notification-permission";
+import { requestNotificationPermission } from "@/features/auth/utils/notification-permission";
 import {
   clearPendingSocialLogin,
   getPendingSocialLogin,
@@ -10,11 +10,13 @@ import {
   saveAccessToken,
   saveRefreshToken,
 } from "@/features/auth/utils/tokenStorage";
+import { registerDeviceToken } from "@/features/notifications/api/notification";
 import { globalGray150, globalGray700, globalSpacingMd } from "@/shared/ui";
 
 import GalleryIcon from "@/assets/icons/gallery";
 import NotificationIcon from "@/assets/icons/notification";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
+import { getExpoPushDeviceToken } from "@/shared/utils/getExpoPushDeviceToken";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -49,15 +51,18 @@ export default function PermissionsScreen() {
       }
 
       // 1. 알림 권한 요청
+      let expoPushToken: string | null = null;
+
       try {
-        const { hasPermission, fcmToken } =
-          await requestNotificationPermissionAndFcmToken();
-        if (hasPermission && fcmToken) {
-          await patchPendingSocialLogin({ deviceToken: fcmToken });
+        const hasPermission = await requestNotificationPermission();
+        const deviceToken = await getExpoPushDeviceToken();
+
+        if (hasPermission && deviceToken) {
+          expoPushToken = deviceToken;
+          await patchPendingSocialLogin({ deviceToken });
         }
       } catch (e) {
         console.error("알림 권한 요청 실패:", e);
-        // 선택 권한이므로 실패해도 계속 진행
       }
 
       // 2. 카메라 권한 요청
@@ -76,6 +81,14 @@ export default function PermissionsScreen() {
 
       await saveAccessToken(res.accessToken);
       await saveRefreshToken(res.refreshToken);
+
+      if (expoPushToken) {
+        try {
+          await registerDeviceToken(expoPushToken);
+        } catch (e) {
+          console.error("디바이스 토큰 등록 실패:", e);
+        }
+      }
 
       await clearPendingSocialLogin();
 

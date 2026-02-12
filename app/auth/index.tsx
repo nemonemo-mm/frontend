@@ -6,9 +6,11 @@ import {
   saveAccessToken,
   saveRefreshToken,
 } from "@/features/auth/utils/tokenStorage";
+import { registerDeviceToken } from "@/features/notifications/api/notification";
 import { teamListUp } from "@/features/team/api/list";
 import { globalGreen300, globalSpacingSm } from "@/shared/ui";
 import GoogleAuthButton from "@/shared/ui/molecules/GoogleAuthButton";
+import { getExpoPushDeviceToken } from "@/shared/utils/getExpoPushDeviceToken";
 import { useRouter } from "expo-router";
 import { Alert, Image, Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -75,6 +77,16 @@ const AuthScreen = () => {
 
       await saveAccessToken(response.accessToken);
       await saveRefreshToken(response.refreshToken);
+
+      try {
+        const deviceToken = await getExpoPushDeviceToken();
+
+        if (deviceToken) {
+          await registerDeviceToken(deviceToken);
+        }
+      } catch (error) {
+        console.error("register failed after Google login:", error);
+      }
 
       try {
         const teams = await teamListUp();

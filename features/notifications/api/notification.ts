@@ -1,8 +1,22 @@
+import { getDeviceTokenResponse } from "@/features/auth/types/token.model";
 import { apiClient } from "@/shared/utils/http";
 import {
   TeamNotificationSettings,
   TeamNotificationUpdateRequest,
 } from "../types/notification.model";
+
+export async function registerDeviceToken(deviceToken: string) {
+  await apiClient.post("/notifications/device-token", {
+    deviceToken,
+  });
+}
+
+export async function getDeviceToken(): Promise<getDeviceTokenResponse> {
+  const { data } = await apiClient.get<getDeviceTokenResponse>(
+    "/notifications/device-token"
+  );
+  return data;
+}
 
 export async function getTeamNotificationSettings(
   teamId: number
