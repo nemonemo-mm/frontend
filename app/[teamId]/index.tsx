@@ -7,6 +7,7 @@ import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import SideModal from "@/shared/ui/templates/SideModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -85,6 +86,11 @@ const GroupScreen = ({}: GroupScreenProps) => {
       </View>
 
       <View style={[styles.layout, styles.main]}>
+        <Image
+          source={require("@/assets/images/calendar.png")}
+          style={{ width: 450, height: 130 }}
+        />
+
         <NemoText
           level="h3"
           style={{ color: globalGray900, textAlign: "center" }}
