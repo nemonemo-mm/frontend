@@ -1,4 +1,3 @@
-import BellIcon from "@/assets/icons/bell";
 import MenuIcon from "@/assets/icons/menu";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { useTeamList } from "@/features/team/hooks/useTeamList";
@@ -79,10 +78,6 @@ const GroupScreen = ({}: GroupScreenProps) => {
         </Pressable>
 
         <View style={{ margin: "auto" }} />
-
-        <Pressable onPress={handlePressAlarm}>
-          <BellIcon />
-        </Pressable>
       </View>
 
       <View style={[styles.layout, styles.main]}>
