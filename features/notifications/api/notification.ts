@@ -4,6 +4,12 @@ import {
   TeamNotificationUpdateRequest,
 } from "../types/notification.model";
 
+export async function registerDeviceToken(deviceToken: string) {
+  await apiClient.post("/notifications/device-token", {
+    deviceToken,
+  });
+}
+
 export async function getTeamNotificationSettings(
   teamId: number
 ): Promise<TeamNotificationSettings> {

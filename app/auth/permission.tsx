@@ -6,6 +6,7 @@ import {
   getPendingSocialLogin,
   patchPendingSocialLogin,
 } from "@/features/auth/utils/pendingSocialLogin";
+import { registerDeviceToken } from "@/features/notifications/api/notification";
 import {
   saveAccessToken,
   saveRefreshToken,
@@ -49,10 +50,12 @@ export default function PermissionsScreen() {
       }
 
       // 1. 알림 권한 요청
+      let notificationToken: string | null = null;
       try {
         const { hasPermission, fcmToken } =
           await requestNotificationPermissionAndFcmToken();
         if (hasPermission && fcmToken) {
+          notificationToken = fcmToken;
           await patchPendingSocialLogin({ deviceToken: fcmToken });
         }
       } catch (e) {
@@ -76,6 +79,14 @@ export default function PermissionsScreen() {
 
       await saveAccessToken(res.accessToken);
       await saveRefreshToken(res.refreshToken);
+
+      if (notificationToken) {
+        try {
+          await registerDeviceToken(notificationToken);
+        } catch (e) {
+          console.error("디바이스 토큰 등록 실패:", e);
+        }
+      }
 
       await clearPendingSocialLogin();
 
