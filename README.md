@@ -1,4 +1,46 @@
-네모네모 앱의 **프론트엔드 저장소**입니다
+<h1 align="center">
+  <img width="24" height="24" alt="image" src="https://github.com/user-attachments/assets/3997b46a-e806-4c7a-9fb8-48f5263fa03c" />
+  네모네모
+</h1>
+
+<div>
+<p align="center">사이드 프로젝트 팀을 위한 체계적인 일정 관리 앱, 함께 만들고 함께 확인하는 협업 공간.</p> 
+</div>
+
+
+<p align="center">
+<img width="600" height="700" alt="1" src="https://github.com/user-attachments/assets/10a49cf0-b1b7-40de-9937-9943f1efa38d" />
+<img width="600" height="1000" alt="2" src="https://github.com/user-attachments/assets/16e2256c-333a-4df5-9037-5bec776d5e2d" />
+</p>
+
+<br/>
+
+## 프로젝트 소개
+
+#### 📅 팀 중심 일정 관리
+
+- 프로젝트 단위로 팀을 구성하고, 하나의 공간에서 모든 일정을 관리하세요. 개인이 아닌 팀을 기준으로 설계되었습니다.
+
+#### 🗂 포지션별 스케줄 확인
+
+- 역할에 따라 필요한 일정만 선택해 확인할 수 있어 프로젝트 흐름을 더 명확하게 파악할 수 있습니다.
+
+#### ✅ 캘린더와 투두를 한 번에
+
+- 월간 캘린더와 주간 기반 투두로 일정과 할 일을 함께 정리하세요.
+
+<br/>
+
+팀 프로젝트를 더 체계적으로 관리해보세요.
+
+---
+
+## 트러블 슈팅
+- SafeAreaView 플랫폼 별 여백 이슈
+- 플랫폼 별 키보드 이슈
+- 모달 위에 모달 위에 모달 이슈
+- 팀 리스트 바로 안 불러와지는 것
+- 중복 리프레쉬 토큰 재발급 인터셉터로 해결
 
 ---
 
@@ -7,24 +49,22 @@
 ### Core
 
 - **React Native**
-- **TypeScript**
 - **Expo**
+- **TypeScript**
 
 ### Styling
 
-- **styled-components**
 - **Figma Design Token 기반 전역 스타일**
-- CI/CD를 통한 토큰 자동 반영
+- **CI/CD를 통한 토큰 자동 반영**
 
 ### State Management
 
 - **Context API** (전역 UI/앱 상태)
-- **React Query** (서버 상태 관리)
+- **TanStack Query** (서버 상태 관리)
 
 ### UI 문서화
 
-- **Storybook**
-  - 컴포넌트 단위 UI 상태 문서화
+- **Storybook** (컴포넌트 단위 UI 상태 문서화)
 
 ### Package Manager
 
@@ -102,78 +142,3 @@ src/
 - 공통 요소는 `shared`
 - 비즈니스 기능은 `features`
 - 화면과 라우팅은 `app`
-
----
-
-## 📚 Storybook
-
-- 문서화 대상
-  - atoms
-  - molecules
-  - organisms
-- templates 제외
-- 상태별 스토리 필수 제공
-
-목적:
-
-- UI 변경 영향도 확인
-- 컴포넌트 사용 기준 명확화
-
----
-
-## 🌐 상태 관리 규칙
-
-### 서버 상태
-
-- React Query 사용
-- Screen 단에서만 호출
-- mutation 후 invalidate 필수
-
-### 전역 상태
-
-- Context API 사용
-- 인증, 선택된 그룹 등 앱 공통 상태 관리
-
----
-
-## 📂 API 레이어 구조
-
-```bash
-services/
- ├─ auth.ts
- ├─ team.ts
- ├─ schedule.ts
- └─ todo.ts
-```
-
-- API 호출 로직만 포함
-- UI 로직과 분리
-
----
-
-## 🔀 브랜치 전략
-
-- `main` : 배포 브랜치
-- `develop` : 개발 통합 브랜치
-- `feat/*` : 기능 단위 작업 브랜치
-
----
-
-## 🧾 Commit 컨벤션
-
-| 타입     | 설명        |
-| -------- | ----------- |
-| feat     | 기능 추가   |
-| fix      | 버그 수정   |
-| refactor | 리팩토링    |
-| style    | 스타일 수정 |
-| docs     | 문서        |
-| chore    | 설정        |
-| design   | 디자인 변경 |
-
-예시:
-
-```
-feat: 팀 투두 생성 로직 추가
-design: spacing 토큰 수정
-```
