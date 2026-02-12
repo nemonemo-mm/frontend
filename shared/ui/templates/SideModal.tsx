@@ -139,25 +139,33 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                       </View>
                     </Pressable>
                   )}
-                  ListFooterComponent={() => (
-                    <Pressable
-                      style={styles.group}
-                      onPress={handlePressCreateTeam}
-                    >
-                      <View style={styles.selectBox}>
-                        <Ionicons name="add" size={20} color={globalGray250} />
-                      </View>
-                      <NemoText
-                        level="h3"
-                        style={{
-                          color: globalGray900,
-                          fontFamily: "PretendardRegular",
-                        }}
-                      >
-                        그룹 추가하기
-                      </NemoText>
-                    </Pressable>
-                  )}
+                  ListFooterComponent={
+                    teams.length >= 5
+                      ? null
+                      : () => (
+                          <Pressable
+                            style={styles.group}
+                            onPress={handlePressCreateTeam}
+                          >
+                            <View style={styles.selectBox}>
+                              <Ionicons
+                                name="add"
+                                size={20}
+                                color={globalGray250}
+                              />
+                            </View>
+                            <NemoText
+                              level="h3"
+                              style={{
+                                color: globalGray900,
+                                fontFamily: "PretendardRegular",
+                              }}
+                            >
+                              그룹 추가하기
+                            </NemoText>
+                          </Pressable>
+                        )
+                  }
                 />
               </View>
               <View style={styles.border} />
