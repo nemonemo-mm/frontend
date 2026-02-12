@@ -8,6 +8,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 function ensureGoogleConfigured() {
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+
   if (!webClientId) {
     throw new Error("EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID가 설정되지 않았습니다.");
   }
@@ -47,6 +48,7 @@ export function useGoogleLogin() {
 
       const signInResult = await GoogleSignin.signIn();
       const googleIdToken = getGoogleIdToken(signInResult);
+
       if (!googleIdToken)
         throw new Error("Google ID Token을 가져오지 못했습니다.");
 
