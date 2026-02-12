@@ -1,12 +1,53 @@
 import { globalGray50 } from "@/shared/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-import { Stack } from "expo-router";
+import {
+  addNotificationResponseReceivedListener,
+  useLastNotificationResponse,
+} from "expo-notifications";
+import { Stack, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-
 const queryClient = new QueryClient();
-
 export default function RootLayout() {
+  const router = useRouter();
+  const lastNotificationResponse = useLastNotificationResponse();
+
+  const handleRouting = (data: any) => {
+    if (!data?.type) return;
+
+    switch (data.type) {
+      case "SCHEDULE_ASSIGNEE_ADDED":
+        router.push(`/${data.teamId}`);
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  // 🔹 앱이 종료 상태였다가 켜진 경우 처리
+  useEffect(() => {
+    if (!lastNotificationResponse) return;
+
+    const data = lastNotificationResponse.notification.request.content.data;
+
+    handleRouting(data);
+  }, [lastNotificationResponse]);
+
+  // 🔹 클릭 이벤트 처리
+  useEffect(() => {
+    const responseListener = addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data;
+
+        handleRouting(data);
+      }
+    );
+
+    return () => {
+      responseListener.remove();
+    };
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>

@@ -61,6 +61,7 @@ export default {
     favicon: "./assets/images/favicon.png",
   },
   plugins: [
+    "expo-notifications",
     "expo-apple-authentication",
     "expo-router",
     [
