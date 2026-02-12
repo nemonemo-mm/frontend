@@ -14,8 +14,8 @@ import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import { TabsText } from "@/shared/ui/molecules/Tabs";
 import Calendar from "@/shared/ui/organisms/Calendar";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
-import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
 import { RepeatPeriod } from "@/shared/ui/templates/RepeatModal";
+import ScheduleListModal from "@/shared/ui/templates/ScheduleListModal";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
@@ -70,7 +70,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] =
     useState(!!openModal);
   const [isOpenListModal, setIsOpenListModal] = useState(false);
-  // console.log(openModal);
 
   const handleCalendarMonth = (direction: -1 | 1) => {
     if (direction == -1) goPrevMonth();
@@ -192,7 +191,6 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   };
   const handleSelectDate = (date: Date) => {
     selectDate(date);
-    setIsOpenListModal(true);
   };
   const [isAll, setIsAll] = useState(true);
   const handlePressIsAll = () => {
@@ -252,6 +250,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
           }
           onCalendarMonth={handleCalendarMonth}
           onSelectDate={handleSelectDate}
+          onLongSelectDate={() => setIsOpenListModal(true)}
         />
         {isOpenListModal && (
           <ScheduleListModal
