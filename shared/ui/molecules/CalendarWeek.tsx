@@ -59,6 +59,7 @@ interface CalendarSchedulesProps {
   schedules: CalendarSchedule[];
   onSelectDate?: (date: Date) => void;
   maxLanes?: number;
+  onLongSelectDate?: () => void;
 }
 
 /* ---------- CalendarWeek ---------- */
@@ -67,6 +68,7 @@ const CalendarWeek = ({
   dates,
   schedules,
   onSelectDate,
+  onLongSelectDate,
 }: CalendarSchedulesProps) => {
   const calendarContext = useContext(CalendarContext);
 
@@ -90,6 +92,7 @@ const CalendarWeek = ({
     <Pressable
       style={[styles.week, { height: totalHeight }]}
       onPress={handleWeekPress}
+      onLongPress={onLongSelectDate}
     >
       <View pointerEvents="none" style={styles.weekInner}>
         <CalendarWeekDates
