@@ -1,12 +1,14 @@
+import MenuIcon from "@/assets/icons/menu";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { useTeamList } from "@/features/team/hooks/useTeamList";
-import { globalGray400, globalGray700, globalGray900 } from "@/shared/ui";
+import { globalGray700, globalGray900 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
-import { Feather } from "@expo/vector-icons";
+import SideModal from "@/shared/ui/templates/SideModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,13 +17,15 @@ interface GroupScreenProps {}
 const GroupScreen = ({}: GroupScreenProps) => {
   const { teamId } = useLocalSearchParams();
   const route = useRouter();
+
   const teamsQuery = useTeamList();
   const { data: teams } = teamsQuery;
+
+  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       try {
-        // teamId 없으면 팀 목록부터
         if (!teamId) {
           if (!teams || teams.length === 0) return;
 
@@ -32,11 +36,9 @@ const GroupScreen = ({}: GroupScreenProps) => {
           return;
         }
 
-        // teamId 있으면 해당 팀 조회
         const id = Number(teamId);
         if (Number.isNaN(id)) return;
 
-        // id가 0이면 빈 상태이므로 조회하지 않음
         if (id === 0) return;
 
         const teamInfo = await teamDetailInfo(id);
@@ -49,81 +51,87 @@ const GroupScreen = ({}: GroupScreenProps) => {
     };
 
     init();
-  }, [teamId, teams]);
+  }, [teamId, teams, route]);
 
   const handlePressStart = () => {
     route.navigate("/teams/check");
   };
 
+  const handlePressTeamName = () => {
+    setIsOpenSidebar(true);
+  };
+
   const handlePressAlarm = () => {};
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={[styles.row, styles.layout]}>
-        <NemoText level="h3" style={{ color: globalGray400 }}>
-          아직 소속된 그룹이 없어요
-        </NemoText>
-        <View style={{ margin: "auto" }} />
-        <Pressable onPress={handlePressAlarm}>
-          <Feather
-            name="bell"
-            size={20}
-            color={globalGray700}
-            style={{ marginRight: 12 }}
-          />
+      {isOpenSidebar && (
+        <SideModal
+          teams={teams ?? []}
+          closeModal={() => setIsOpenSidebar(false)}
+        />
+      )}
+
+      <View style={[styles.header, styles.layout]}>
+        <Pressable onPress={handlePressTeamName}>
+          <MenuIcon />
         </Pressable>
+
+        <View style={{ margin: "auto" }} />
       </View>
+
       <View style={[styles.layout, styles.main]}>
-        <View style={[styles.content]}>
-          <View>
-            <NemoText
-              level="h3"
-              style={{ color: globalGray900, textAlign: "center" }}
-            >
-              아직 시작한 프로젝트가 없어요
-            </NemoText>
-            <NemoText
-              level="body3"
-              style={{
-                color: globalGray900,
-                textAlign: "center",
-                marginTop: 8,
-              }}
-            >
-              Nemonemo에서는 일정과 할 일을 프로젝트 단위로 관리할 수 있어요
-            </NemoText>
-            <NemoText
-              level="body3"
-              style={{ color: globalGray900, textAlign: "center" }}
-            >
-              혼자라면 새로 만들고, 팀이 있다면 참여해서 바로 시작해보세요
-            </NemoText>
-          </View>
-          <CtaButton
-            label="프로젝트 시작하기"
-            onPress={handlePressStart}
-            isActive
-          />
-        </View>
+        <Image
+          source={require("@/assets/images/calendar.png")}
+          style={{ width: 450, height: 130 }}
+        />
+
+        <NemoText
+          level="h3"
+          style={{ color: globalGray900, textAlign: "center" }}
+        >
+          새 프로젝트를 시작해 보세요
+        </NemoText>
+        <NemoText
+          level="body3"
+          style={{
+            color: globalGray700,
+            textAlign: "center",
+            marginTop: 8,
+          }}
+        >
+          Nemonemo에서는 일정과 할 일을 프로젝트 단위로 관리할 수 있어요
+        </NemoText>
+        <NemoText
+          level="body3"
+          style={{ color: globalGray700, textAlign: "center" }}
+        >
+          혼자라면 새로 만들고, 팀이 있다면 참여해서 바로 시작해 보세요
+        </NemoText>
+      </View>
+
+      <View style={styles.cta}>
+        <CtaButton label="시작하기" onPress={handlePressStart} isActive />
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  row: {
+  header: {
     flexDirection: "row",
+    height: 56,
   },
   layout: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    marginHorizontal: 20,
   },
   main: {
     flex: 1,
   },
-  content: {
-    margin: "auto",
-    gap: 30,
+  cta: {
+    marginBottom: 20,
   },
 });
 
