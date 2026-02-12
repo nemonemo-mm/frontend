@@ -257,10 +257,10 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
         // 해체한 팀이 아닌 다른 팀(첫 번째 팀)으로 이동
         const nextTeam =
           updatedTeams.find((t) => t.teamId !== teamId) || updatedTeams[0];
-        router.replace(`/(tabs)/${nextTeam.teamId}/calendar`);
+        router.replace(`/${nextTeam.teamId}/calendar`);
       } else {
         // 팀이 하나도 없으면 명시적으로 팀이 없는 상태의 경로로 이동
-        router.replace("/(tabs)/home");
+        router.replace("/0");
       }
     } catch (error) {
       console.log(error);

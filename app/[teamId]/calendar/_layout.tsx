@@ -195,7 +195,7 @@ export default function CalendarTodosScreen() {
 
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   // 사이드바 연동
-  const { data: teams = [] } = useTeamList();
+  const { data: teams = [] } = useTeamList(teamId as string);
 
   useEffect(() => {
     prefetchImageUris([
@@ -311,6 +311,7 @@ export default function CalendarTodosScreen() {
           <View style={styles.content}>
             <View style={styles.noticeInput}>
               <ModalEditableField
+                disabled={!isTeamOwner}
                 title="공지 작성"
                 description="공유할 내용을 25자 이내로 입력해 주세요"
                 placeholder="아직 작성된 공지가 없어요"

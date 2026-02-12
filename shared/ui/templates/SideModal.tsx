@@ -46,7 +46,7 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
     await AsyncStorage.setItem("currentTeam", JSON.stringify(teamInfo));
     closeModal();
     requestAnimationFrame(() => {
-      route.push(`/(tabs)/${id}/calendar`);
+      route.push(`/${id}/calendar`);
     });
   };
   const insets = useSafeAreaInsets();

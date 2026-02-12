@@ -26,22 +26,34 @@ const PersonPositionModal = ({
     closeModal();
   };
   return (
-    <Modal backdropColor={globalGray700 + "20"} animationType="slide">
-      <BottomModal.Container>
-        <BottomModal.Header>
-          <BottomModal.LeftButton onPress={closeModal}>
-            <AntDesign name="close" size={20} color={globalGray700} />
-          </BottomModal.LeftButton>
-          <BottomModal.RightButton onPress={handleConfirmModal}>
-            <AntDesign name="check" size={20} color={globalGreen700} />
-          </BottomModal.RightButton>
-        </BottomModal.Header>
-        <View style={{ minHeight: 260 }}>
-          <Chips texts={contents} handler={handleChips} />
-        </View>
-      </BottomModal.Container>
+    <Modal
+      transparent
+      backdropColor={globalGray700 + "20"}
+      animationType="slide"
+    >
+      <View style={style.backdrop}>
+        <BottomModal.Container>
+          <BottomModal.Header>
+            <BottomModal.LeftButton onPress={closeModal}>
+              <AntDesign name="close" size={20} color={globalGray700} />
+            </BottomModal.LeftButton>
+            <BottomModal.RightButton onPress={handleConfirmModal}>
+              <AntDesign name="check" size={20} color={globalGreen700} />
+            </BottomModal.RightButton>
+          </BottomModal.Header>
+          <View style={{ minHeight: 260 }}>
+            <Chips texts={contents} handler={handleChips} />
+          </View>
+        </BottomModal.Container>
+      </View>
     </Modal>
   );
 };
-const style = StyleSheet.create({});
+const style = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
+  },
+});
 export default PersonPositionModal;

@@ -117,80 +117,87 @@ const CalendarDetailModal = ({
     [panResponder]
   );
   return (
-    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ minHeight: 660 }}>
-        <BottomModal.Header {...indicatorHandlers}>
-          <BottomModal.LeftButton onPress={handleDeleteButton}>
-            <Ionicons name="trash-outline" size={20} color={globalGray700} />
-          </BottomModal.LeftButton>
-          <BottomModal.Indicator />
-          <BottomModal.RightButton
-            onPress={() => {
-              setIsOpenEditModal(true);
-            }}
-          >
-            <Feather name="edit-2" size={20} color={globalGray700} />
-          </BottomModal.RightButton>
-        </BottomModal.Header>
-        <View>
-          <View style={styles.row}>
-            <View
-              style={{
-                backgroundColor: data.representativeColorHex,
-                width: 1,
-                marginRight: 4,
+    <Modal transparent animationType="slide" onRequestClose={closeModal}>
+      <View style={styles.backdrop}>
+        <BottomModal.Container style={{ minHeight: 660 }}>
+          <BottomModal.Header {...indicatorHandlers}>
+            <BottomModal.LeftButton onPress={handleDeleteButton}>
+              <Ionicons name="trash-outline" size={20} color={globalGray700} />
+            </BottomModal.LeftButton>
+            <BottomModal.Indicator />
+            <BottomModal.RightButton
+              onPress={() => {
+                setIsOpenEditModal(true);
               }}
-            />
-            <NemoText level="h2">{title}</NemoText>
+            >
+              <Feather name="edit-2" size={20} color={globalGray700} />
+            </BottomModal.RightButton>
+          </BottomModal.Header>
+          <View>
+            <View style={styles.row}>
+              <View
+                style={{
+                  backgroundColor: data.representativeColorHex,
+                  width: 1,
+                  marginRight: 4,
+                }}
+              />
+              <NemoText level="h2">{title}</NemoText>
+            </View>
+            <CalendarFormContext.Provider
+              value={{
+                readonly: true,
+                state,
+                dispatch,
+                teamId: parseInt(teamId),
+              }}
+            >
+              {type == "schedule" ? (
+                <CalendarScheduleForm />
+              ) : (
+                <CalendarTodoForm />
+              )}
+            </CalendarFormContext.Provider>
           </View>
-          <CalendarFormContext.Provider
-            value={{
-              readonly: true,
-              state,
-              dispatch,
-              teamId: parseInt(teamId),
-            }}
-          >
-            {type == "schedule" ? (
-              <CalendarScheduleForm />
-            ) : (
-              <CalendarTodoForm />
-            )}
-          </CalendarFormContext.Provider>
-        </View>
-      </BottomModal.Container>
-      {isOpenEditModal && (
-        <CalendarModal
-          teamId={parseInt(teamId)}
-          type={type}
-          data={data}
-          closeModal={() => setIsOpenEditModal(false)}
-          confirmModal={onPatch}
-          selectedDate={selectedDate}
-        />
-      )}
-      {isClickedDeleteButton && (
-        <AlertModal
-          visible={isClickedDeleteButton}
-          onClose={() => setIsClickedDeleteButton(false)}
-        >
-          <AlertModal.Title>스케줄 삭제</AlertModal.Title>
-          <AlertModal.Text>현재 스케줄을 삭제하시겠어요?</AlertModal.Text>
-          <AlertModal.Actions
-            type="double"
-            cancelLabel="취소하기"
-            onCancel={() => setIsClickedDeleteButton(false)}
-            confirmLabel="삭제하기"
-            onConfirm={handleConfirmDelete}
+        </BottomModal.Container>
+        {isOpenEditModal && (
+          <CalendarModal
+            teamId={parseInt(teamId)}
+            type={type}
+            data={data}
+            closeModal={() => setIsOpenEditModal(false)}
+            confirmModal={onPatch}
+            selectedDate={selectedDate}
           />
-        </AlertModal>
-      )}
+        )}
+        {isClickedDeleteButton && (
+          <AlertModal
+            visible={isClickedDeleteButton}
+            onClose={() => setIsClickedDeleteButton(false)}
+          >
+            <AlertModal.Title>스케줄 삭제</AlertModal.Title>
+            <AlertModal.Text>현재 스케줄을 삭제하시겠어요?</AlertModal.Text>
+            <AlertModal.Actions
+              type="double"
+              cancelLabel="취소하기"
+              onCancel={() => setIsClickedDeleteButton(false)}
+              confirmLabel="삭제하기"
+              onConfirm={handleConfirmDelete}
+            />
+          </AlertModal>
+        )}
+      </View>
     </Modal>
   );
 };
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
+  },
+  backdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
   },
 });
 export default CalendarDetailModal;

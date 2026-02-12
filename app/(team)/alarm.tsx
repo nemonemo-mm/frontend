@@ -28,7 +28,7 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
   const handlePressAlert =
     (alertId: number, teamId: number, read: boolean) => () => {
       if (!read) markAsRead.mutate(alertId);
-      route.push(`/(tabs)/${teamId}/calendar`);
+      route.push(`/${teamId}/calendar`);
     };
   return (
     <SafeAreaView>

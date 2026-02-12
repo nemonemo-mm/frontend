@@ -9,7 +9,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
 import BottomModal from "../organisms/BottomModal";
 
@@ -20,7 +19,7 @@ interface PositionListModalProps {
 }
 
 const AnimatedBottomModalContainer = Animated.createAnimatedComponent(
-  BottomModal.Container,
+  BottomModal.Container
 );
 
 const PositionListModal = ({
@@ -61,12 +60,12 @@ const PositionListModal = ({
           }).start();
         }
       },
-    }),
+    })
   ).current;
 
   const indicatorHandlers = useMemo(
     () => panResponder.panHandlers,
-    [panResponder],
+    [panResponder]
   );
 
   // 각 아이템 높이 48px + marginBottom 8px = 56px
@@ -75,13 +74,12 @@ const PositionListModal = ({
   const HEADER_HEIGHT = 60;
   const modalHeight = Math.min(
     Math.max(HEADER_HEIGHT + positionList.length * ITEM_HEIGHT, 150),
-    400,
+    400
   );
 
   return (
     <Modal transparent animationType="slide" onRequestClose={onPointerDown}>
-      <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onPointerDown} />
+      <View style={styles.backdrop}>
         <AnimatedBottomModalContainer
           style={{
             height: modalHeight + 24,
@@ -115,8 +113,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: `${globalGray700}20`,
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#00000040",
   },
   positionName: {
     height: 48,

@@ -27,7 +27,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { globalGray700, globalGray900 } from "..";
+import { globalGray900 } from "..";
 import Checkbox from "../atoms/Checkbox";
 import NemoText from "../atoms/NemoText";
 import { WeekDayType } from "../molecules/NemoDayButton";
@@ -323,80 +323,91 @@ const ScheduleListModal = ({
     [panResponder]
   );
   return (
-    <Modal backdropColor={globalGray700 + "40"} animationType="slide">
-      <BottomModal.Container style={{ minHeight: 660 }}>
-        <BottomModal.Header {...indicatorHandlers}>
-          <BottomModal.Indicator />
-        </BottomModal.Header>
-        <View>
-          <NemoText
-            level="h1"
-            style={{ color: globalGray900, marginBottom: 16 }}
-          >
-            {formattedDate}
-          </NemoText>
-          <Segments
-            level="l"
-            texts={segmentTexts}
-            handler={handleModalSegments}
-          />
-          <FlatList
-            data={filteredFlatData}
-            contentContainerStyle={{ marginTop: 20 }}
-            keyExtractor={(item) => `${item.type}-${item.id}`}
-            renderItem={({ item }) => {
-              if (item.type === "schedule") {
-                const s = item.data;
-                const isAllDay = s.isAllDay;
+    <Modal
+      transparent
+      animationType="slide"
+      statusBarTranslucent
+      onRequestClose={closeModal}
+    >
+      <View style={styles.overlay}>
+        <Pressable style={styles.backdrop} onPress={closeModal} />
+        <BottomModal.Container style={{ minHeight: 660 }}>
+          <BottomModal.Header {...indicatorHandlers}>
+            <BottomModal.Indicator />
+          </BottomModal.Header>
+          <View>
+            <NemoText
+              level="h1"
+              style={{ color: globalGray900, marginBottom: 16 }}
+            >
+              {formattedDate}
+            </NemoText>
+            <Segments
+              level="l"
+              texts={segmentTexts}
+              handler={handleModalSegments}
+            />
+            <FlatList
+              data={filteredFlatData}
+              contentContainerStyle={{ marginTop: 20 }}
+              keyExtractor={(item) => `${item.type}-${item.id}`}
+              renderItem={({ item }) => {
+                if (item.type === "schedule") {
+                  const s = item.data;
+                  const isAllDay = s.isAllDay;
+
+                  return (
+                    <Pressable
+                      style={styles.row}
+                      onPress={handlePressSchedule(s)}
+                    >
+                      <View
+                        style={[
+                          styles.border,
+                          {
+                            backgroundColor:
+                              s.representativeColorHex ?? "#BDBDBD",
+                          },
+                        ]}
+                      />
+                      <NemoText level="body1">{s.title}</NemoText>
+                      <View style={{ marginLeft: "auto" }} />
+                      <NemoText level="body3">
+                        {isAllDay
+                          ? "종일"
+                          : `~ ${formatDate(new Date(s.endAt))}`}
+                      </NemoText>
+                    </Pressable>
+                  );
+                }
+
+                // todo
+                const t = item.data;
 
                 return (
-                  <Pressable
-                    style={styles.row}
-                    onPress={handlePressSchedule(s)}
-                  >
+                  <Pressable style={styles.row} onPress={handlePressTodo(t)}>
                     <View
                       style={[
                         styles.border,
                         {
                           backgroundColor:
-                            s.representativeColorHex ?? "#BDBDBD",
+                            t.representativeColorHex ?? "#BDBDBD",
                         },
                       ]}
                     />
-                    <NemoText level="body1">{s.title}</NemoText>
+                    <NemoText level="body1">{t.title}</NemoText>
                     <View style={{ marginLeft: "auto" }} />
-                    <NemoText level="body3">
-                      {isAllDay ? "종일" : `~ ${formatDate(new Date(s.endAt))}`}
-                    </NemoText>
+                    <Checkbox
+                      value={t.status == "DONE"}
+                      handler={handleCheckTodo(t.id)}
+                    />
                   </Pressable>
                 );
-              }
-
-              // todo
-              const t = item.data;
-
-              return (
-                <Pressable style={styles.row} onPress={handlePressTodo(t)}>
-                  <View
-                    style={[
-                      styles.border,
-                      {
-                        backgroundColor: t.representativeColorHex ?? "#BDBDBD",
-                      },
-                    ]}
-                  />
-                  <NemoText level="body1">{t.title}</NemoText>
-                  <View style={{ marginLeft: "auto" }} />
-                  <Checkbox
-                    value={t.status == "DONE"}
-                    handler={handleCheckTodo(t.id)}
-                  />
-                </Pressable>
-              );
-            }}
-          />
-        </View>
-      </BottomModal.Container>
+              }}
+            />
+          </View>
+        </BottomModal.Container>
+      </View>
       {selectedItem && (
         <CalendarDetailModal
           data={selectedItem}
