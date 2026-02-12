@@ -10,12 +10,6 @@ const style = StyleSheet.create({
   container: {
     position: "relative",
     alignItems: "center",
-    maxWidth: 355,
-  },
-  btn: {
-    position: "absolute",
-    top: 4,
-    right: 8,
   },
 });
 export default CalendarContainer;
