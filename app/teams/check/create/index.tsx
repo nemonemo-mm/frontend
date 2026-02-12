@@ -10,9 +10,11 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProfileSetupScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [form, setForm] = useState<{
     teamName: string;
@@ -83,6 +85,11 @@ export default function ProfileSetupScreen() {
           imageUrl: localTeamImageUri,
         }),
       });
+
+      // `teamList`는 staleTime이 길어서(5분) 팀 생성 직후에도 캐시가 그대로일 수 있음.
+      // 사이드바에서 즉시 새 팀이 보이도록 생성 성공 시점에 갱신한다.
+      await queryClient.invalidateQueries({ queryKey: ["teamList"] });
+      await queryClient.refetchQueries({ queryKey: ["teamList"] });
 
       router.replace(`/${response.teamId}/calendar`);
     } catch (error: any) {
