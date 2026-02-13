@@ -21,7 +21,7 @@ const Info = () => {
       content: (
         <NemoText level="body3" style={styles.nemonemo}>
           Nemonemo는 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」
-          등 관련 법령을 준수합니다.{"\n"}본 개인정보 처리방침은 Nemonemo 서비스
+          등 관련 법령을 준수합니다. 본 개인정보 처리방침은 Nemonemo 서비스
           이용과 관련하여 이용자의 개인정보가 어떻게 수집·이용·보관·파기되는지를
           설명합니다.
         </NemoText>
@@ -35,13 +35,18 @@ const Info = () => {
           <NemoText level="body3" style={styles.nemonemoContainer}>
             1) 수집하는 개인정보 항목
           </NemoText>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            Nemonemo는 서비스 제공을 위해 아래의 개인정보를 수집할 수 있습니다.
+          </NemoText>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            필수 수집 항목
+          </NemoText>
           <Ulist style={styles.os}>
             <ListItem>이메일 주소 (로그인 및 계정 식별)</ListItem>
             <ListItem>닉네임 또는 사용자 이름</ListItem>
             <ListItem>서비스 이용 기록 (일정, 투두 등)</ListItem>
             <ListItem>기기 정보 (OS, 앱 버전)</ListItem>
           </Ulist>
-
           <NemoText level="body3" style={styles.nemonemoContainer}>
             선택 수집 항목
           </NemoText>
@@ -51,6 +56,18 @@ const Info = () => {
             <ListItem>일정 참여자 정보</ListItem>
             <ListItem>알림 설정 정보</ListItem>
           </Ulist>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            ※ Nemonemo는 주민등록번호, 금융정보 등 민감한 개인정보를 수집하지
+            않습니다.
+          </NemoText>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            2) 개인정보 수집 방법{" "}
+          </NemoText>
+          <Ulist style={styles.os}>
+            <ListItem>회원가입 및 로그인 시 이용자가 직접 입력</ListItem>
+            <ListItem>서비스 이용 과정에서 자동 생성·수집</ListItem>
+            <ListItem>앱 내 설정 및 기능 사용 시</ListItem>
+          </Ulist>
         </>
       ),
     },
@@ -58,65 +75,103 @@ const Info = () => {
       id: "2",
       title: "2. 개인정보의 이용 목적",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>회원 식별 및 계정 관리</ListItem>
-          <ListItem>일정 및 투두 관리 기능 제공</ListItem>
-          <ListItem>그룹 및 협업 기능 제공</ListItem>
-          <ListItem>알림 및 일정 리마인드 제공</ListItem>
-          <ListItem>서비스 품질 개선</ListItem>
-          <ListItem>고객 문의 대응</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            Nemonemo는 수집한 개인정보를 다음 목적에 한하여 이용합니다.
+          </NemoText>
+
+          <Ulist style={styles.os}>
+            <ListItem>회원 식별 및 계정 관리</ListItem>
+            <ListItem>일정 및 투두 관리 기능 제공</ListItem>
+            <ListItem>그룹 및 협업 기능 제공</ListItem>
+            <ListItem>알림 및 일정 리마인드 제공</ListItem>
+            <ListItem>서비스 품질 개선</ListItem>
+            <ListItem>고객 문의 대응</ListItem>
+          </Ulist>
+        </>
       ),
     },
     {
       id: "3",
       title: "3. 개인정보의 보유 및 이용 기간",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>회원 탈퇴 시: 즉시 파기</ListItem>
-          <ListItem>법령에 따른 보관 필요 시: 해당 기간 보관</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            Nemonemo는 개인정보 수집 및 이용 목적이 달성된 후에는 해당 정보를
+            지체 없이 파기합니다.
+          </NemoText>
+          <Ulist style={styles.os}>
+            <ListItem>회원 탈퇴 시: 즉시 파기</ListItem>
+            <ListItem>법령에 따른 보관 필요 시: 해당 기간 보관</ListItem>
+          </Ulist>
+        </>
       ),
     },
     {
       id: "4",
       title: "4. 개인정보의 제3자 제공",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>이용자 사전 동의가 있는 경우</ListItem>
-          <ListItem>법령에 의해 요구되는 경우</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            Nemonemo는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.
+            다만, 아래의 경우에는 예외로 합니다.
+          </NemoText>
+          <Ulist style={styles.os}>
+            <ListItem>이용자 사전 동의가 있는 경우</ListItem>
+            <ListItem>법령에 의해 요구되는 경우</ListItem>
+          </Ulist>
+        </>
       ),
     },
     {
       id: "5",
       title: "5. 개인정보 처리 위탁",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>서버 및 데이터 보관 (클라우드)</ListItem>
-          <ListItem>푸시 알림 발송 서비스</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            Nemonemo는 서비스 운영을 위해 일부 업무를 외부에 위탁할 수 있습니다.
+          </NemoText>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            예시:{" "}
+          </NemoText>
+          <Ulist style={styles.os}>
+            <ListItem>서버 및 데이터 보관 (클라우드 서비스)</ListItem>
+            <ListItem>푸시 알림 발송 서비스</ListItem>
+          </Ulist>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            위탁 시, 개인정보가 안전하게 관리될 수 있도록 관련 법령에 따라
+            필요한 조치를 취합니다.
+          </NemoText>
+        </>
       ),
     },
     {
       id: "6",
       title: "6. 이용자의 권리와 행사 방법",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>개인정보 열람 및 수정 요청</ListItem>
-          <ListItem>개인정보 삭제 요청</ListItem>
-          <ListItem>회원 탈퇴 요청</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            이용자는 언제든지 다음 권리를 행사할 수 있습니다.
+          </NemoText>
+          <Ulist style={styles.os}>
+            <ListItem>개인정보 열람 및 수정 요청</ListItem>
+            <ListItem>개인정보 삭제 요청</ListItem>
+            <ListItem>회원 탈퇴 요청</ListItem>
+          </Ulist>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            요청은 앱 내 설정 또는 고객 문의를 통해 가능합니다.
+          </NemoText>
+        </>
       ),
     },
     {
       id: "7",
       title: "7. 개인정보의 파기 절차 및 방법",
       content: (
-        <NemoText level="body3" style={styles.nemonemoContainer}>
-          전자적 파일: 복구 불가능한 방법으로 삭제{"\n"}
-          종이 문서: 분쇄 또는 소각
-        </NemoText>
+        <Ulist style={styles.os}>
+          <ListItem> 전자적 파일: 복구 불가능한 방법으로 삭제</ListItem>
+          <ListItem>종이 문서(해당 시): 분쇄 또는 소각</ListItem>
+        </Ulist>
       ),
     },
     {
@@ -136,8 +191,8 @@ const Info = () => {
       title: "9. 개인정보 보호책임자",
       content: (
         <Ulist style={styles.os}>
-          <ListItem>책임자: Nemonemo 운영팀</ListItem>
-          <ListItem>이메일: support@nemonemo.app</ListItem>
+          <ListItem>책임자: Nemonemo</ListItem>
+          <ListItem>이메일: js4848cc@gmail.com</ListItem>
         </Ulist>
       ),
     },
@@ -145,9 +200,16 @@ const Info = () => {
       id: "10",
       title: "10. 개인정보 처리방침 변경",
       content: (
-        <Ulist style={styles.os}>
-          <ListItem>시행일자: 2026년 1월 1일</ListItem>
-        </Ulist>
+        <>
+          <NemoText level="body3" style={styles.nemonemoContainer}>
+            본 개인정보 처리방침은 법령 또는 서비스 변경에 따라 수정될 수
+            있으며, 변경 시 앱 내 공지 또는 별도 안내를 통해 고지합니다.
+          </NemoText>
+
+          <Ulist style={styles.os}>
+            <ListItem>시행일자: 2026년 1월 1일</ListItem>
+          </Ulist>
+        </>
       ),
     },
   ];

@@ -17,9 +17,10 @@ import ProfileImage from "@/shared/ui/atoms/ProfileImage";
 import AlertModal from "@/shared/ui/organisms/AlertModal";
 import { AntDesign } from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Linking, Platform, Pressable, StyleSheet, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -50,8 +51,12 @@ const MyScreen = ({}: MyScreenProps) => {
     logoutMutation.mutate();
     setIsOpenModal(false);
   };
+  const handleOpenDeviceSettings = () => {
+    Linking.openSettings();
+  };
 
   const insets = useSafeAreaInsets();
+  const appVersion = Constants.expoConfig?.version ?? "1.0.0";
 
   return (
     <SafeAreaView
@@ -100,24 +105,52 @@ const MyScreen = ({}: MyScreenProps) => {
                 level="h2"
                 style={{ color: globalGray900, textAlign: "center" }}
               >
-                팀 알림 설정
+                알림 설정
+              </NemoText>
+              <AntDesign name="right" size={16} color={globalGray700} />
+            </Pressable>
+            <View style={styles.border} />
+            <Pressable style={styles.link} onPress={handleOpenDeviceSettings}>
+              <NemoText
+                level="h2"
+                style={{ color: globalGray900, textAlign: "center" }}
+              >
+                알림 권한 설정
               </NemoText>
               <AntDesign name="right" size={16} color={globalGray700} />
             </Pressable>
           </View>
-          <Pressable
-            style={[styles.linkContainer, styles.link]}
-            onPress={() => route.push("/info")}
-          >
-            <NemoText
-              level="h2"
-              style={{ color: globalGray900, textAlign: "center" }}
+          <View style={[styles.linkContainer]}>
+            <Pressable
+              style={[styles.link]}
+              onPress={() => route.push("/info")}
             >
-              개인정보 처리방침
-            </NemoText>
-            <AntDesign name="right" size={16} color={globalGray700} />
-          </Pressable>
+              <NemoText
+                level="h2"
+                style={{ color: globalGray900, textAlign: "center" }}
+              >
+                개인정보 처리방침
+              </NemoText>
+              <AntDesign name="right" size={16} color={globalGray700} />
+            </Pressable>
+            <View style={styles.border} />
+            <View style={[styles.link]}>
+              <NemoText
+                level="h2"
+                style={{ color: globalGray900, textAlign: "center" }}
+              >
+                버전정보
+              </NemoText>
 
+              <View style={{ margin: "auto" }} />
+              <NemoText
+                level="body3"
+                style={{ color: globalGray700, textAlign: "center" }}
+              >
+                {appVersion}
+              </NemoText>
+            </View>
+          </View>
           <Pressable
             style={[styles.linkContainer, styles.link]}
             onPress={() => setIsOpenModal(true)}
