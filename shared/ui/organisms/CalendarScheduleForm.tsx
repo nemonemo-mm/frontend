@@ -1,5 +1,6 @@
 import { CalendarFormContext } from "@/shared/hooks/useCalendarForm";
 import { formatAlarm, formatRepeat } from "@/shared/utils/format";
+import { EvilIcons } from "@expo/vector-icons";
 import { useContext, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import {
@@ -132,10 +133,22 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
         </View>
         <View style={[styles.optionContainer, { borderBottomWidth: 0 }]}>
           <NemoTextLabel disabled={readonly}>반복</NemoTextLabel>
-          <Pressable onPress={() => !readonly && setIsOpenRepeatModal(true)}>
+          <Pressable
+            style={styles.row}
+            onPress={() => !readonly && setIsOpenRepeatModal(true)}
+          >
             <NemoText level="body3" style={{ color: globalGray700 }}>
               {repeatLabel}
             </NemoText>
+            {repeatLabel !== "지정없음" && (
+              <Pressable
+                style={styles.repeatResetButton}
+                disabled={readonly}
+                onPress={() => dispatch({ type: "SET_REPEAT", payload: null })}
+              >
+                <EvilIcons name="close-o" size={16} color={globalGray700} />
+              </Pressable>
+            )}
           </Pressable>
         </View>
       </View>
@@ -252,6 +265,9 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+  },
+  repeatResetButton: {
+    marginLeft: 4,
   },
 });
 export default CalendarScheduleForm;
