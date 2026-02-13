@@ -317,7 +317,7 @@ const CalendarModal = ({
                   onChangeText={(text: string) =>
                     dispatch({ type: "SET_TITLE", payload: text })
                   }
-                  placeholder={"제목을 입력하세요"}
+                  placeholder={"제목을 입력하세요(30자 이내)"}
                   style={[style.input]}
                 />
               </View>
