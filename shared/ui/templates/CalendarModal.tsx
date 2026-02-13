@@ -15,8 +15,8 @@ import { AntDesign, EvilIcons } from "@expo/vector-icons";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
   Animated,
-  KeyboardAvoidingView,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -328,6 +328,7 @@ const CalendarModal = ({
                     }
                     placeholder={"제목을 입력하세요(30자 이내)"}
                     style={[style.input]}
+                    maxLength={30}
                   />
                 </View>
               </View>
