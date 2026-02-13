@@ -275,7 +275,7 @@ const CalendarModal = ({
           style={style.keyboardAvoidingContainer}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <BottomModal.Container style={{ height: 780 }}>
+          <BottomModal.Container style={style.modalContainer}>
             <BottomModal.Header>
               <BottomModal.LeftButton onPress={closeModal}>
                 <AntDesign name="close" size={20} color={globalGray700} />
@@ -290,8 +290,11 @@ const CalendarModal = ({
               handler={handleModalSegments}
             />
             <ScrollView
+              style={style.formScroll}
+              contentContainerStyle={style.formScrollContent}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
+              automaticallyAdjustKeyboardInsets
             >
               <View style={style.container}>
                 <Pressable
@@ -424,7 +427,14 @@ const style = StyleSheet.create({
     backgroundColor: "#00000040",
   },
   keyboardAvoidingContainer: {
-    width: "100%",
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  formScroll: {
+    flex: 1,
+  },
+  formScrollContent: {
+    paddingBottom: 20,
   },
   container: {
     borderRadius: globalSpacingXs,
@@ -494,7 +504,7 @@ const style = StyleSheet.create({
     paddingBottom: 40,
   },
   modalContainer: {
-    width: "90%",
+    height: "90%",
     backgroundColor: globalGray0,
     borderRadius: globalSpacingSm,
     overflow: "hidden",
