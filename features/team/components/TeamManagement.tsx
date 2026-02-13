@@ -1,5 +1,6 @@
 import ChevronRightIcon from "@/assets/icons/chevron-right";
 import CopyIcon from "@/assets/icons/copy";
+import CopyCheckIcon from "@/assets/icons/copy-check";
 import EditIcon from "@/assets/icons/edit";
 import GroupIcon from "@/assets/icons/group";
 import {
@@ -26,7 +27,7 @@ import axios from "axios";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   NativeSyntheticEvent,
@@ -60,7 +61,19 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
     null
   );
   const [isIntroductionMultiline, setIsIntroductionMultiline] = useState(false);
+  const [isInviteCodeCopied, setIsInviteCodeCopied] = useState(false);
+  const inviteCodeCopiedTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return () => {
+      if (inviteCodeCopiedTimeoutRef.current) {
+        clearTimeout(inviteCodeCopiedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 팀 상세 정보 조회
   const {
@@ -87,6 +100,14 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const handleCopyInviteCode = async () => {
     if (teamDetail?.inviteCode) {
       await Clipboard.setStringAsync(teamDetail.inviteCode);
+      setIsInviteCodeCopied(true);
+
+      if (inviteCodeCopiedTimeoutRef.current) {
+        clearTimeout(inviteCodeCopiedTimeoutRef.current);
+      }
+      inviteCodeCopiedTimeoutRef.current = setTimeout(() => {
+        setIsInviteCodeCopied(false);
+      }, 1500);
     }
   };
 
@@ -504,7 +525,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
               label="팀 초대 코드"
               value={teamDetail.inviteCode}
               editable={false}
-              rightIcon={<CopyIcon />}
+              rightIcon={isInviteCodeCopied ? <CopyCheckIcon /> : <CopyIcon />}
               onPressRightIcon={handleCopyInviteCode}
             />
           </View>
