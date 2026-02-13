@@ -1,5 +1,6 @@
 import ChevronRightIcon from "@/assets/icons/chevron-right";
 import CopyIcon from "@/assets/icons/copy";
+import CopyCheckIcon from "@/assets/icons/copy-check";
 import EditIcon from "@/assets/icons/edit";
 import GroupIcon from "@/assets/icons/group";
 import {
@@ -26,12 +27,15 @@ import axios from "axios";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  NativeSyntheticEvent,
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
+  TextLayoutEventData,
   View,
 } from "react-native";
 import { teamDisband } from "../api/delete";
@@ -56,7 +60,20 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const [localTeamImageUri, setLocalTeamImageUri] = useState<string | null>(
     null
   );
+  const [isIntroductionMultiline, setIsIntroductionMultiline] = useState(false);
+  const [isInviteCodeCopied, setIsInviteCodeCopied] = useState(false);
+  const inviteCodeCopiedTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return () => {
+      if (inviteCodeCopiedTimeoutRef.current) {
+        clearTimeout(inviteCodeCopiedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 팀 상세 정보 조회
   const {
@@ -83,6 +100,14 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const handleCopyInviteCode = async () => {
     if (teamDetail?.inviteCode) {
       await Clipboard.setStringAsync(teamDetail.inviteCode);
+      setIsInviteCodeCopied(true);
+
+      if (inviteCodeCopiedTimeoutRef.current) {
+        clearTimeout(inviteCodeCopiedTimeoutRef.current);
+      }
+      inviteCodeCopiedTimeoutRef.current = setTimeout(() => {
+        setIsInviteCodeCopied(false);
+      }, 1500);
     }
   };
 
@@ -429,27 +454,49 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
             />
           </View>
 
-          {teamDetail.description && (
-            <View>
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/(team)/edit-Introduction",
-                    params: { teamId: String(teamId) },
-                  })
-                }
+          <View>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(team)/edit-Introduction",
+                  params: { teamId: String(teamId) },
+                })
+              }
+              style={styles.introductionField}
+            >
+              <View style={styles.introductionLabelContainer}>
+                <Text style={styles.introductionLabel}>팀 소개</Text>
+              </View>
+              <View
+                style={[
+                  styles.introductionTextContainer,
+                  isIntroductionMultiline
+                    ? styles.introductionTextContainerMultiline
+                    : styles.introductionTextContainerSingleLine,
+                ]}
               >
-                <Input
-                  placeholder="팀 소개"
-                  label="팀 소개"
-                  value={teamDetail.description}
-                  editable={false}
-                  containerPointerEvents="none"
-                  rightIcon={<ChevronRightIcon size={16} />}
-                />
-              </Pressable>
-            </View>
-          )}
+                <Text
+                  numberOfLines={2}
+                  onTextLayout={(
+                    e: NativeSyntheticEvent<TextLayoutEventData>
+                  ) => {
+                    const next = e.nativeEvent.lines.length > 1;
+                    if (next !== isIntroductionMultiline) {
+                      setIsIntroductionMultiline(next);
+                    }
+                  }}
+                  style={[
+                    styles.introductionText,
+                    !teamDetail.description &&
+                      styles.introductionPlaceholderText,
+                  ]}
+                >
+                  {teamDetail.description || "팀을 소개할 글을 입력해 주세요"}
+                </Text>
+                <ChevronRightIcon size={16} />
+              </View>
+            </Pressable>
+          </View>
 
           {/* 팀 내 포지션 */}
           {positions && (
@@ -478,7 +525,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
               label="팀 초대 코드"
               value={teamDetail.inviteCode}
               editable={false}
-              rightIcon={<CopyIcon />}
+              rightIcon={isInviteCodeCopied ? <CopyCheckIcon /> : <CopyIcon />}
               onPressRightIcon={handleCopyInviteCode}
             />
           </View>
@@ -602,6 +649,46 @@ const styles = StyleSheet.create({
   },
   inviteCodeContainer: {
     marginTop: 16,
+  },
+  introductionField: {
+    gap: 12,
+  },
+  introductionLabelContainer: {
+    minHeight: 16,
+    justifyContent: "center",
+  },
+  introductionLabel: {
+    fontFamily: "Pretendard-Regular",
+    lineHeight: 16,
+    fontWeight: "500",
+    fontSize: 14,
+  },
+  introductionTextContainer: {
+    minHeight: 54,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  introductionTextContainerSingleLine: {
+    paddingVertical: 0,
+  },
+  introductionTextContainerMultiline: {
+    paddingVertical: 11,
+  },
+  introductionText: {
+    flex: 1,
+    marginRight: 8,
+    fontFamily: "Pretendard-Regular",
+    fontWeight: "400",
+    fontSize: 14,
+    lineHeight: 16,
+  },
+  introductionPlaceholderText: {
+    color: globalGray700,
   },
   footer: {
     alignItems: "center",
