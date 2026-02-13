@@ -6,7 +6,13 @@ import ModalButton from "@/shared/ui/molecules/ModalButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import {
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EditIntroductionScreen() {
@@ -38,33 +44,41 @@ export default function EditIntroductionScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Pressable
-          onPress={() => router.back()}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            height: 56,
-          }}
-        >
-          <ChevronLeftIcon size={16} />
-          <NemoText level="h3">팀 소개 수정</NemoText>
-        </Pressable>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.container}>
+          <Pressable
+            onPress={() => router.back()}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+              height: 56,
+            }}
+          >
+            <ChevronLeftIcon size={16} />
+            <NemoText level="h3">팀 소개 수정</NemoText>
+          </Pressable>
 
-        <View style={styles.inputContainer}>
-          <Input
-            placeholder="팀 소개 입력"
-            multiline
-            numberOfLines={6}
-            style={styles.introductionInput}
-            textAlignVertical="top"
-            value={introduction}
-            maxLength={20}
-            onChangeText={setIntroduction}
-          />
+          <View style={styles.inputContainer}>
+            <Input
+              placeholder="팀 소개 입력"
+              multiline
+              numberOfLines={2}
+              scrollEnabled={false}
+              returnKeyType="done"
+              blurOnSubmit={true}
+              onSubmitEditing={Keyboard.dismiss}
+              style={styles.introductionInput}
+              textAlignVertical="top"
+              value={introduction}
+              maxLength={50}
+              onChangeText={(text) =>
+                setIntroduction(text.replace(/\r?\n/g, " "))
+              }
+            />
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
 
       <View>
         <ModalButton
@@ -89,7 +103,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   introductionInput: {
-    height: 140,
+    height: 60,
     paddingTop: 12,
     paddingBottom: 12,
   },
