@@ -126,14 +126,14 @@ export default function PermissionsScreen() {
                 <Text style={styles.text_h3}>
                   사진/미디어 저장소 권한(선택)
                 </Text>
-                <Text style={styles.text_body1}>프로필 변경 및/사진 첨부</Text>
+                <Text style={styles.text_body1}>프로필 변경 및 사진 첨부</Text>
               </View>
             </View>
           </View>
 
           <Text style={styles.text_body3}>
-            접근 권한에 동의하지 않아도 서비스 이용은 가능하나, 일부 기능 사용에
-            제한이 있을 수 있습니다.
+            접근 권한에 동의하지 않아도 서비스를 이용할 수 있으나, 일부 기능
+            사용에 제한이 있을 수 있습니다.
           </Text>
 
           <View style={styles.divider} />
