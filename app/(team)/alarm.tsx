@@ -13,7 +13,7 @@ import {
 import NemoText from "@/shared/ui/atoms/NemoText";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { FlatList, Pressable, StyleSheet } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface AlarmScreenProps {}
@@ -31,15 +31,22 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
       route.push(`/${teamId}/calendar`);
     };
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Pressable style={styles.header} onPress={() => route.back()}>
         <AntDesign name="left" size={16} color={globalGray700} />
         <NemoText level="h2">알림</NemoText>
       </Pressable>
       <FlatList
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={styles.listContent}
         data={alarms}
         keyExtractor={(item) => `alarm-${item.id}`}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <NemoText level="body2" style={{ color: globalGray900 }}>
+              아직 새로운 알림이 없어요
+            </NemoText>
+          </View>
+        )}
         renderItem={({ item }) => (
           <Pressable
             style={styles.alarmContainer}
@@ -70,6 +77,9 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
     height: 56,
     flexDirection: "row",
@@ -84,6 +94,15 @@ const styles = StyleSheet.create({
     padding: globalSpacingXs,
     gap: globalSpacingXs,
     marginBottom: 8,
+  },
+  listContent: {
+    padding: 20,
+    flexGrow: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
