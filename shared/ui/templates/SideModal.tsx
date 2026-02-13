@@ -1,4 +1,6 @@
+import CloseIcon from "@/assets/icons/close";
 import GroupIcon from "@/assets/icons/group";
+import SettingIcon from "@/assets/icons/setting";
 import { teamDetailInfo } from "@/features/team/api/detail";
 import { TeamList } from "@/features/team/types/team.model";
 import { useUser } from "@/features/users/hooks/useUser";
@@ -75,16 +77,33 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
       <View style={styles.overlay}>
         <View style={{ flexDirection: "row", flex: 1 }}>
           <View
-            style={[styles.sideContainer, { paddingVertical: insets.top + 56 }]}
+            style={[
+              styles.sideContainer,
+              {
+                paddingTop: insets.top + 16,
+                paddingBottom: insets.bottom + 16,
+              },
+            ]}
           >
-            <View>
+            <View style={styles.sideContent}>
               <View style={styles.profileSection}>
-                <Pressable onPress={handleSettingScreen}>
+                <View style={styles.navButton}>
+                  <Pressable onPress={handleSettingScreen}>
+                    <SettingIcon />
+                  </Pressable>
+
+                  <Pressable onPress={closeModal}>
+                    <CloseIcon />
+                  </Pressable>
+                </View>
+
+                <View style={{ marginTop: 20 }}>
                   <ProfileImage size={64} uri={user?.userImageUrl} />
-                  <NemoText level="body1" style={styles.profileName}>
-                    {user?.userName}
-                  </NemoText>
-                </Pressable>
+                </View>
+
+                <NemoText level="body1" style={styles.profileName}>
+                  {user?.userName}
+                </NemoText>
               </View>
               <View style={styles.border} />
               <View style={styles.groupContainer}>
@@ -120,30 +139,45 @@ const SideModal = ({ teams, closeModal }: SideModalProps) => {
                       </View>
                     </Pressable>
                   )}
-                  ListFooterComponent={() => (
-                    <Pressable
-                      style={styles.group}
-                      onPress={handlePressCreateTeam}
-                    >
-                      <View style={styles.selectBox}>
-                        <Ionicons name="add" size={20} color={globalGray250} />
-                      </View>
-                      <NemoText
-                        level="h3"
-                        style={{
-                          color: globalGray900,
-                          fontFamily: "PretendardRegular",
-                        }}
-                      >
-                        그룹 추가하기
-                      </NemoText>
-                    </Pressable>
-                  )}
+                  ListFooterComponent={
+                    teams.length >= 5
+                      ? null
+                      : () => (
+                          <Pressable
+                            style={styles.group}
+                            onPress={handlePressCreateTeam}
+                          >
+                            <View style={styles.selectBox}>
+                              <Ionicons
+                                name="add"
+                                size={20}
+                                color={globalGray250}
+                              />
+                            </View>
+                            <NemoText
+                              level="h3"
+                              style={{
+                                color: globalGray900,
+                                fontFamily: "PretendardRegular",
+                              }}
+                            >
+                              그룹 추가하기
+                            </NemoText>
+                          </Pressable>
+                        )
+                  }
                 />
               </View>
               <View style={styles.border} />
+
+              <View style={styles.footer}>
+                <NemoText level="caption">
+                  © 2026 Nemonemo. All rights reserved.
+                </NemoText>
+              </View>
             </View>
           </View>
+
           <Pressable
             style={styles.backgroundContainer}
             onPress={handleCloseModal}
@@ -168,15 +202,25 @@ const styles = StyleSheet.create({
     minWidth: 160,
     flex: 1,
   },
+  sideContent: {
+    flex: 1,
+  },
   groupContainer: {
     paddingHorizontal: globalSpacingLg,
     gap: 8,
     maxHeight: 600,
   },
+  navButton: {
+    flexDirection: "row",
+    alignSelf: "flex-end",
+    alignItems: "center",
+    gap: 8,
+    paddingRight: 12,
+    paddingTop: 4,
+  },
   profileSection: {
     alignItems: "center",
-    gap: 12,
-    marginBottom: 30,
+    marginBottom: 24,
   },
   profileName: {
     textAlign: "center",
@@ -202,6 +246,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: globalSpacingXs,
     borderColor: globalGray250,
+  },
+  footer: {
+    marginTop: "auto",
+    alignItems: "center",
   },
 });
 export default SideModal;
