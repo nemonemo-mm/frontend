@@ -29,9 +29,12 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  NativeSyntheticEvent,
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
+  TextLayoutEventData,
   View,
 } from "react-native";
 import { teamDisband } from "../api/delete";
@@ -56,6 +59,7 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
   const [localTeamImageUri, setLocalTeamImageUri] = useState<string | null>(
     null
   );
+  const [isIntroductionMultiline, setIsIntroductionMultiline] = useState(false);
   const queryClient = useQueryClient();
 
   // 팀 상세 정보 조회
@@ -437,15 +441,39 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
                   params: { teamId: String(teamId) },
                 })
               }
+              style={styles.introductionField}
             >
-              <Input
-                placeholder="팀을 소개할 글을 입력해 주세요"
-                label="팀 소개"
-                value={teamDetail.description}
-                editable={false}
-                containerPointerEvents="none"
-                rightIcon={<ChevronRightIcon size={16} />}
-              />
+              <View style={styles.introductionLabelContainer}>
+                <Text style={styles.introductionLabel}>팀 소개</Text>
+              </View>
+              <View
+                style={[
+                  styles.introductionTextContainer,
+                  isIntroductionMultiline
+                    ? styles.introductionTextContainerMultiline
+                    : styles.introductionTextContainerSingleLine,
+                ]}
+              >
+                <Text
+                  numberOfLines={2}
+                  onTextLayout={(
+                    e: NativeSyntheticEvent<TextLayoutEventData>
+                  ) => {
+                    const next = e.nativeEvent.lines.length > 1;
+                    if (next !== isIntroductionMultiline) {
+                      setIsIntroductionMultiline(next);
+                    }
+                  }}
+                  style={[
+                    styles.introductionText,
+                    !teamDetail.description &&
+                      styles.introductionPlaceholderText,
+                  ]}
+                >
+                  {teamDetail.description || "팀을 소개할 글을 입력해 주세요"}
+                </Text>
+                <ChevronRightIcon size={16} />
+              </View>
             </Pressable>
           </View>
 
@@ -600,6 +628,46 @@ const styles = StyleSheet.create({
   },
   inviteCodeContainer: {
     marginTop: 16,
+  },
+  introductionField: {
+    gap: 12,
+  },
+  introductionLabelContainer: {
+    minHeight: 16,
+    justifyContent: "center",
+  },
+  introductionLabel: {
+    fontFamily: "Pretendard-Regular",
+    lineHeight: 16,
+    fontWeight: "500",
+    fontSize: 14,
+  },
+  introductionTextContainer: {
+    minHeight: 54,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  introductionTextContainerSingleLine: {
+    paddingVertical: 0,
+  },
+  introductionTextContainerMultiline: {
+    paddingVertical: 11,
+  },
+  introductionText: {
+    flex: 1,
+    marginRight: 8,
+    fontFamily: "Pretendard-Regular",
+    fontWeight: "400",
+    fontSize: 14,
+    lineHeight: 16,
+  },
+  introductionPlaceholderText: {
+    color: globalGray700,
   },
   footer: {
     alignItems: "center",
