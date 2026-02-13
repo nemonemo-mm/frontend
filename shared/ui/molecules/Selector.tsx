@@ -32,7 +32,12 @@ const BaseSelector = ({ level, title, direction, handler }: SelectorProps) => {
   if (direction == "row") buttonDirection = horizontal;
   if (direction == "column") buttonDirection = vertical;
   return (
-    <View style={[direction == "row" ? style.horizontal : style.vertical]}>
+    <View
+      style={[
+        direction == "row" ? style.horizontal : style.vertical,
+        { margin: 2 },
+      ]}
+    >
       <Pressable style={style.selector} onPress={() => handlePress(-1)}>
         <AntDesign name={buttonDirection[0]} size={16} color={globalGray700} />
       </Pressable>
