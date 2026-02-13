@@ -60,7 +60,7 @@ export default function EditIntroductionScreen() {
             style={styles.introductionInput}
             textAlignVertical="top"
             value={introduction}
-            maxLength={20}
+            maxLength={50}
             onChangeText={setIntroduction}
           />
         </View>
