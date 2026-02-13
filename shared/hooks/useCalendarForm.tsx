@@ -31,13 +31,15 @@ export const CalendarFormContext = createContext<{
 } | null>(null);
 
 export const createInitialState = ({
+  teamId,
   data,
   type,
   persons,
   positions,
   selectedDate,
 }: {
-  data: SchedulesResponse | TodoResponse | undefined;
+  teamId: number;
+  data?: SchedulesResponse | TodoResponse;
   type: "schedule" | "todo";
   persons: MemberChip[];
   positions: PositionChip[];
@@ -45,19 +47,18 @@ export const createInitialState = ({
 }): InitialCalendarState => {
   // 기본값
   const base: InitialCalendarState = {
-    teamId: 0,
+    teamId: teamId,
     isAllDay: false,
     start: selectedDate,
     end: selectedDate,
-    person: persons ?? [],
-    position: positions ?? [],
+    person: persons,
+    position: positions,
     repeat: null,
     alarm: null,
     title: "",
     description: "",
     url: "",
   };
-
   if (!data) return base;
   // schedule 편집
   if (type === "schedule") {

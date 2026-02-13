@@ -165,7 +165,11 @@ const CalendarModal = ({
   const members = personQuery.data?.members?.map((member) =>
     toMemberChip(member)
   );
+  const isReady =
+    selectedTeamId && personQuery.isSuccess && positionQuery.isSuccess;
+
   const initialState = createInitialState({
+    teamId,
     data,
     type,
     persons: members ?? [],
@@ -208,6 +212,7 @@ const CalendarModal = ({
     dispatch({
       type: "RESET",
       payload: createInitialState({
+        teamId: selectedTeamId,
         data,
         type,
         positions: positionQuery.data ?? [],
@@ -215,7 +220,7 @@ const CalendarModal = ({
         selectedDate,
       }),
     });
-  }, [selectedTeamId]);
+  }, [selectedTeamId, isReady]);
 
   const [isTitleWritten, setIsTitleWritten] = useState(true);
 

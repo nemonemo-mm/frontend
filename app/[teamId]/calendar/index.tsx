@@ -259,6 +259,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
             confirmModal={handleConfirmListModal}
           />
         )}
+
         {isOpenAddScheduleModal && (
           <CalendarModal
             teamId={teamId}
