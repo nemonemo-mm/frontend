@@ -211,6 +211,7 @@ const CalendarScheduleForm = ({}: CalendarScheduleFormProps) => {
       {isOpenRepeatModal && (
         <RepeatModal
           initialValue={repeat}
+          initialDate={start}
           closeModal={() => setIsOpenRepeatModal(false)}
           confirmModal={(repeatState) => {
             dispatch({ type: "SET_REPEAT", payload: repeatState });

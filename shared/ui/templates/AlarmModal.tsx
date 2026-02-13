@@ -1,6 +1,13 @@
 import { AntDesign } from "@expo/vector-icons";
 import { useReducer } from "react";
-import { Modal, StyleSheet, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Checkbox from "../atoms/Checkbox";
 import NemoText from "../atoms/NemoText";
@@ -66,35 +73,41 @@ const AlarmModal = ({
   return (
     <Modal transparent animationType="slide" onRequestClose={closeModal}>
       <View style={style.backdrop}>
-        <BottomModal.Container style={{ paddingBottom: 35 }}>
-          <BottomModal.Header>
-            <BottomModal.LeftButton onPress={closeModal}>
-              <AntDesign name="close" size={20} color={globalGray700} />
-            </BottomModal.LeftButton>
-            <BottomModal.Title>알림</BottomModal.Title>
-            <BottomModal.RightButton onPress={handleConfirmModal}>
-              <AntDesign name="check" size={20} color={globalGreen700} />
-            </BottomModal.RightButton>
-          </BottomModal.Header>
-          <View>
-            <View style={style.checkboxContainer}>
-              <NemoText level="body2">10분</NemoText>
-              <Checkbox value={ten} handler={() => handleAlarmState(10)} />
+        <Pressable style={{ flex: 1 }} onPress={closeModal} />
+        <KeyboardAvoidingView
+          style={style.keyboardAvoidingContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <BottomModal.Container style={{ paddingBottom: 35 }}>
+            <BottomModal.Header>
+              <BottomModal.LeftButton onPress={closeModal}>
+                <AntDesign name="close" size={20} color={globalGray700} />
+              </BottomModal.LeftButton>
+              <BottomModal.Title>알림</BottomModal.Title>
+              <BottomModal.RightButton onPress={handleConfirmModal}>
+                <AntDesign name="check" size={20} color={globalGreen700} />
+              </BottomModal.RightButton>
+            </BottomModal.Header>
+            <View>
+              <View style={style.checkboxContainer}>
+                <NemoText level="body2">10분</NemoText>
+                <Checkbox value={ten} handler={() => handleAlarmState(10)} />
+              </View>
+              <View style={style.checkboxContainer}>
+                <NemoText level="body2">30분</NemoText>
+                <Checkbox value={thirty} handler={() => handleAlarmState(30)} />
+              </View>
+              <View style={style.checkboxContainer}>
+                <NemoText level="body2">1시간</NemoText>
+                <Checkbox value={sixty} handler={() => handleAlarmState(60)} />
+              </View>
+              <View style={style.checkboxContainer}>
+                <NemoText level="body2">끔</NemoText>
+                <Checkbox value={off} handler={() => handleAlarmState("off")} />
+              </View>
             </View>
-            <View style={style.checkboxContainer}>
-              <NemoText level="body2">30분</NemoText>
-              <Checkbox value={thirty} handler={() => handleAlarmState(30)} />
-            </View>
-            <View style={style.checkboxContainer}>
-              <NemoText level="body2">1시간</NemoText>
-              <Checkbox value={sixty} handler={() => handleAlarmState(60)} />
-            </View>
-            <View style={style.checkboxContainer}>
-              <NemoText level="body2">끔</NemoText>
-              <Checkbox value={off} handler={() => handleAlarmState("off")} />
-            </View>
-          </View>
-        </BottomModal.Container>
+          </BottomModal.Container>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
@@ -104,6 +117,9 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: globalGray700 + "20",
+  },
+  keyboardAvoidingContainer: {
+    width: "100%",
   },
   checkboxContainer: {
     height: 48,
