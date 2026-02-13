@@ -48,6 +48,7 @@ const packSchedulesIntoLanes = (items: ReturnType<typeof getWeekSchedules>) => {
 
 const LANE_HEIGHT = 16;
 const LANE_GAP = 4;
+const DATES_HEIGHT = 18;
 
 /* ---------- props ---------- */
 interface CalendarSchedulesProps {
@@ -78,8 +79,7 @@ const CalendarWeek = ({
   }
 
   const { selectedDate } = calendarContext;
-  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value\
-  const DATES_HEIGHT = height / (MAX_LANES * 5);
+  const MAX_LANES = height > 1200 ? 6 : 4;
   const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
@@ -125,8 +125,7 @@ const CalendarWeekDates = ({
   const { width, height } = useWindowDimensions();
   const WEEK_WIDTH = width - 40;
   const DAY_WIDTH = WEEK_WIDTH / 7;
-  const MAX_LANES = height > 600 ? 6 : 4; // Replace 600 with the appropriate threshold value
-  const DATES_HEIGHT = height / (MAX_LANES * 5);
+  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value
 
   const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
   return (
@@ -142,7 +141,7 @@ const CalendarWeekDates = ({
               isSelected && styles.selectedDate,
               {
                 width: DAY_WIDTH,
-                height: totalHeight - LANE_HEIGHT - LANE_GAP,
+                height: totalHeight,
               },
             ]}
           >
@@ -173,7 +172,7 @@ const CalendarWeekSchedules = ({
     );
   }
   const { width, height } = useWindowDimensions();
-  const MAX_LANES = height > 600 ? 6 : 4; // Replace 600 with the appropriate threshold value
+  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value
 
   const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
 
