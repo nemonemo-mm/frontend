@@ -1,7 +1,14 @@
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 
-import { Modal, StyleSheet, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { globalGray200, globalGray700, globalGreen700 } from "..";
 import BottomModal from "../organisms/BottomModal";
 import Wheel from "../organisms/Wheel";
@@ -56,24 +63,30 @@ const DateModal = ({
       animationType="slide"
     >
       <View style={style.backdrop}>
-        <BottomModal.Container>
-          <BottomModal.Header>
-            <BottomModal.LeftButton onPress={closeModal}>
-              <AntDesign name="close" size={20} color={globalGray700} />
-            </BottomModal.LeftButton>
-            <BottomModal.Title>날짜</BottomModal.Title>
-            <BottomModal.RightButton onPress={handleConfirmModal}>
-              <AntDesign name="check" size={20} color={globalGreen700} />
-            </BottomModal.RightButton>
-          </BottomModal.Header>
-          <View style={{ flexDirection: "row" }}>
-            <Wheel data={years} value={year} onChange={setYear} />
-            <View style={style.divider} />
-            <Wheel data={months} value={month} onChange={setMonth} />
-            <View style={style.divider} />
-            <Wheel data={dates} value={date} onChange={setDate} />
-          </View>
-        </BottomModal.Container>
+        <Pressable style={{ flex: 1 }} onPress={closeModal} />
+        <KeyboardAvoidingView
+          style={style.keyboardAvoidingContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <BottomModal.Container>
+            <BottomModal.Header>
+              <BottomModal.LeftButton onPress={closeModal}>
+                <AntDesign name="close" size={20} color={globalGray700} />
+              </BottomModal.LeftButton>
+              <BottomModal.Title>날짜</BottomModal.Title>
+              <BottomModal.RightButton onPress={handleConfirmModal}>
+                <AntDesign name="check" size={20} color={globalGreen700} />
+              </BottomModal.RightButton>
+            </BottomModal.Header>
+            <View style={{ flexDirection: "row" }}>
+              <Wheel data={years} value={year} onChange={setYear} />
+              <View style={style.divider} />
+              <Wheel data={months} value={month} onChange={setMonth} />
+              <View style={style.divider} />
+              <Wheel data={dates} value={date} onChange={setDate} />
+            </View>
+          </BottomModal.Container>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
@@ -90,6 +103,9 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "#00000040",
+  },
+  keyboardAvoidingContainer: {
+    width: "100%",
   },
 });
 

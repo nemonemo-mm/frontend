@@ -16,7 +16,9 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -165,7 +167,11 @@ const CalendarModal = ({
   const members = personQuery.data?.members?.map((member) =>
     toMemberChip(member)
   );
+  const isReady =
+    selectedTeamId && personQuery.isSuccess && positionQuery.isSuccess;
+
   const initialState = createInitialState({
+    teamId,
     data,
     type,
     persons: members ?? [],
@@ -208,6 +214,7 @@ const CalendarModal = ({
     dispatch({
       type: "RESET",
       payload: createInitialState({
+        teamId: selectedTeamId,
         data,
         type,
         positions: positionQuery.data ?? [],
@@ -215,7 +222,7 @@ const CalendarModal = ({
         selectedDate,
       }),
     });
-  }, [selectedTeamId]);
+  }, [selectedTeamId, isReady]);
 
   const [isTitleWritten, setIsTitleWritten] = useState(true);
 
@@ -264,75 +271,84 @@ const CalendarModal = ({
   return (
     <Modal transparent animationType="slide" onRequestClose={closeModal}>
       <View style={style.backdrop}>
-        <BottomModal.Container style={{ height: 780 }}>
-          <BottomModal.Header>
-            <BottomModal.LeftButton onPress={closeModal}>
-              <AntDesign name="close" size={20} color={globalGray700} />
-            </BottomModal.LeftButton>
-            <BottomModal.RightButton onPress={handleConfirmModal}>
-              <EvilIcons name="plus" size={30} color={globalGreen700} />
-            </BottomModal.RightButton>
-          </BottomModal.Header>
-          <Segments
-            level="l"
-            texts={segmentTexts}
-            handler={handleModalSegments}
-          />
-          <ScrollView>
-            <View style={style.container}>
-              <Pressable
-                onPress={handleToggleTeamList}
-                style={style.optionContainer}
-              >
-                {selectedTeamId ? (
-                  <NemoText level="body2" style={{ color: globalGray900 }}>
-                    {
-                      teamLists?.find((list) => list.teamId == selectedTeamId)
-                        ?.teamName
-                    }
-                  </NemoText>
-                ) : (
-                  <NemoText level="body2" style={{ color: globalGray600 }}>
-                    팀을 선택해주세요
-                  </NemoText>
-                )}
-                <Animated.View style={animatedStyle}>
-                  <AntDesign name="down" size={16} color={globalGray700} />
-                </Animated.View>
-              </Pressable>
-            </View>
-            <View style={style.container}>
-              <View style={style.optionContainer}>
-                <TextInput
-                  editable={!!selectedTeamId}
-                  placeholderTextColor={
-                    !selectedTeamId ? globalGray400 : globalGray600
-                  }
-                  value={state.title}
-                  onChangeText={(text: string) =>
-                    dispatch({ type: "SET_TITLE", payload: text })
-                  }
-                  placeholder={"제목을 입력하세요"}
-                  style={[style.input]}
-                />
-              </View>
-            </View>
-            <CalendarFormContext.Provider
-              value={{
-                state,
-                dispatch,
-                readonly: !selectedTeamId,
-                teamId: selectedTeamId,
-              }}
+        <KeyboardAvoidingView
+          style={style.keyboardAvoidingContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <BottomModal.Container style={{ height: 780 }}>
+            <BottomModal.Header>
+              <BottomModal.LeftButton onPress={closeModal}>
+                <AntDesign name="close" size={20} color={globalGray700} />
+              </BottomModal.LeftButton>
+              <BottomModal.RightButton onPress={handleConfirmModal}>
+                <EvilIcons name="plus" size={30} color={globalGreen700} />
+              </BottomModal.RightButton>
+            </BottomModal.Header>
+            <Segments
+              level="l"
+              texts={segmentTexts}
+              handler={handleModalSegments}
+            />
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
             >
-              {currentSegment == "schedule" ? (
-                <CalendarScheduleForm />
-              ) : (
-                <CalendarTodoForm />
-              )}
-            </CalendarFormContext.Provider>
-          </ScrollView>
-        </BottomModal.Container>
+              <View style={style.container}>
+                <Pressable
+                  onPress={handleToggleTeamList}
+                  style={style.optionContainer}
+                >
+                  {selectedTeamId ? (
+                    <NemoText level="body2" style={{ color: globalGray900 }}>
+                      {
+                        teamLists?.find((list) => list.teamId == selectedTeamId)
+                          ?.teamName
+                      }
+                    </NemoText>
+                  ) : (
+                    <NemoText level="body2" style={{ color: globalGray600 }}>
+                      팀을 선택해주세요
+                    </NemoText>
+                  )}
+                  <Animated.View style={animatedStyle}>
+                    <AntDesign name="down" size={16} color={globalGray700} />
+                  </Animated.View>
+                </Pressable>
+              </View>
+              <View style={style.container}>
+                <View style={style.optionContainer}>
+                  <TextInput
+                    editable={!!selectedTeamId}
+                    placeholderTextColor={
+                      !selectedTeamId ? globalGray400 : globalGray600
+                    }
+                    value={state.title}
+                    onChangeText={(text: string) =>
+                      dispatch({ type: "SET_TITLE", payload: text })
+                    }
+                    placeholder={"제목을 입력하세요(30자 이내)"}
+                    style={[style.input]}
+                    maxLength={30}
+                  />
+                </View>
+              </View>
+              <CalendarFormContext.Provider
+                value={{
+                  state,
+                  dispatch,
+                  readonly: !selectedTeamId,
+                  teamId: selectedTeamId,
+                }}
+              >
+                {currentSegment == "schedule" ? (
+                  <CalendarScheduleForm />
+                ) : (
+                  <CalendarTodoForm />
+                )}
+              </CalendarFormContext.Provider>
+            </ScrollView>
+          </BottomModal.Container>
+        </KeyboardAvoidingView>
         {isOpenTeamList && (
           <Modal
             transparent
@@ -406,6 +422,9 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "#00000040",
+  },
+  keyboardAvoidingContainer: {
+    width: "100%",
   },
   container: {
     borderRadius: globalSpacingXs,

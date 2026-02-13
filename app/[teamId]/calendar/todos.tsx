@@ -14,7 +14,7 @@ import {
   TodoRequest,
   TodoResponse,
 } from "@/features/calendar/types/todo.model";
-import { TeamDetail } from "@/features/team/types/team.model";
+import { useTeamDetail } from "@/features/team/hooks/useTeamDetail";
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { InitialCalendarState } from "@/shared/hooks/useCalendarForm";
 import Checkbox from "@/shared/ui/atoms/Checkbox";
@@ -25,9 +25,8 @@ import { WeekDayType } from "@/shared/ui/molecules/NemoDayButton";
 import CalendarModal from "@/shared/ui/templates/CalendarModal";
 import { RepeatPeriod } from "@/shared/ui/templates/RepeatModal";
 import { getWeekByDate } from "@/shared/utils/getWeekByDate";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
 interface TodosProps {}
@@ -57,7 +56,6 @@ const formatDateString = (date: string): string => {
 
 const Todos = ({}: TodosProps) => {
   const calendarContext = useContext(CalendarContext);
-  const today = new Date(Date.now());
   const { teamId, openModal } = useLocalSearchParams();
 
   const [isOpenAddScheduleModal, setIsOpenAddScheduleModal] =
@@ -65,14 +63,8 @@ const Todos = ({}: TodosProps) => {
   if (!calendarContext) {
     throw new Error("CalendarContext is undefined. Ensure it is provided.");
   }
-  const [info, setInfo] = useState<TeamDetail | null>(null);
-  useEffect(() => {
-    const init = async () => {
-      const data = await AsyncStorage.getItem("currentTeam");
-      if (data) setInfo(JSON.parse(data) as TeamDetail);
-    };
-    init();
-  }, [teamId]);
+  const teamDetailQuery = useTeamDetail(parseInt(teamId as string));
+  const info = teamDetailQuery.data;
 
   const {
     selectedDate,

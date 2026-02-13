@@ -1,5 +1,5 @@
 import { CalendarDate, CalendarSchedule } from "@/shared/types/Calendar";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import NemoDate from "../atoms/NemoDate";
 
 interface CalendarDatesProps {
@@ -9,10 +9,13 @@ interface CalendarDatesProps {
 //issue #51
 
 const CalendarDates = ({ dates, schedules }: CalendarDatesProps) => {
+  const { width } = useWindowDimensions();
+  const WEEK_WIDTH = width - 40;
+  const DAY_WIDTH = WEEK_WIDTH / 7;
   return (
-    <View style={style.container}>
+    <View style={[style.container, { maxWidth: WEEK_WIDTH }]}>
       {dates.map((date) => (
-        <View style={style.dates}>
+        <View style={[style.dates, { width: DAY_WIDTH }]}>
           <NemoDate date={date.date} isCurrentMonth={date.isCurrentMonth} />
 
           {/* {schedules
@@ -29,10 +32,8 @@ const style = StyleSheet.create({
   container: {
     flexDirection: "row",
     flexWrap: "wrap",
-    maxWidth: 355,
   },
   dates: {
-    flexBasis: `${100 / 7}%`,
     minHeight: 91,
   },
 });

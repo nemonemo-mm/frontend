@@ -51,6 +51,7 @@ const CalendarDetailModal = ({
     toMemberChip(member)
   );
   const initialState = createInitialState({
+    teamId: Number(teamId),
     data,
     type,
     persons: members ?? [],

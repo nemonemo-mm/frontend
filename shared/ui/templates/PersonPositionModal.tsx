@@ -1,6 +1,6 @@
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
-import { Modal, StyleSheet, View } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { globalGray700, globalGreen700 } from "..";
 import Chips, { ChipText } from "../molecules/Chips";
 import BottomModal from "../organisms/BottomModal";
@@ -32,6 +32,7 @@ const PersonPositionModal = ({
       animationType="slide"
     >
       <View style={style.backdrop}>
+        <Pressable style={{ flex: 1 }} onPress={closeModal} />
         <BottomModal.Container>
           <BottomModal.Header>
             <BottomModal.LeftButton onPress={closeModal}>

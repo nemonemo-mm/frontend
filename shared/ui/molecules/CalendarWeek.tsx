@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { globalGray150 } from "..";
 import NemoDate from "../atoms/NemoDate";
@@ -44,14 +45,9 @@ const packSchedulesIntoLanes = (items: ReturnType<typeof getWeekSchedules>) => {
 };
 
 /* ---------- constants ---------- */
-const WEEK_WIDTH = 355;
-const DAY_WIDTH = WEEK_WIDTH / 7;
-const DATES_HEIGHT = 18;
 
 const LANE_HEIGHT = 16;
 const LANE_GAP = 4;
-
-const MAX_LANES = 4;
 
 /* ---------- props ---------- */
 interface CalendarSchedulesProps {
@@ -64,13 +60,16 @@ interface CalendarSchedulesProps {
 
 /* ---------- CalendarWeek ---------- */
 const CalendarWeek = ({
-  maxLanes = MAX_LANES,
+  maxLanes = 4,
   dates,
   schedules,
   onSelectDate,
   onLongSelectDate,
 }: CalendarSchedulesProps) => {
   const calendarContext = useContext(CalendarContext);
+  const { width, height } = useWindowDimensions();
+  const WEEK_WIDTH = width - 40;
+  const DAY_WIDTH = WEEK_WIDTH / 7;
 
   if (!calendarContext) {
     throw new Error(
@@ -79,8 +78,9 @@ const CalendarWeek = ({
   }
 
   const { selectedDate } = calendarContext;
-
-  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
+  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value\
+  const DATES_HEIGHT = height / (MAX_LANES * 5);
+  const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
     const { locationX } = event.nativeEvent;
@@ -90,7 +90,7 @@ const CalendarWeek = ({
 
   return (
     <Pressable
-      style={[styles.week, { height: totalHeight }]}
+      style={{ height: totalHeight, width: WEEK_WIDTH }}
       onPress={handleWeekPress}
       onLongPress={onLongSelectDate}
     >
@@ -114,7 +114,7 @@ export default CalendarWeek;
 
 /* ---------- Dates ---------- */
 const CalendarWeekDates = ({
-  maxLanes = MAX_LANES,
+  maxLanes = 4,
   dates,
   selectedDate,
 }: {
@@ -122,7 +122,13 @@ const CalendarWeekDates = ({
   dates: CalendarDate[];
   selectedDate: Date;
 }) => {
-  const totalHeight = DATES_HEIGHT + maxLanes * (LANE_HEIGHT + LANE_GAP);
+  const { width, height } = useWindowDimensions();
+  const WEEK_WIDTH = width - 40;
+  const DAY_WIDTH = WEEK_WIDTH / 7;
+  const MAX_LANES = height > 600 ? 6 : 4; // Replace 600 with the appropriate threshold value
+  const DATES_HEIGHT = height / (MAX_LANES * 5);
+
+  const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
   return (
     <View style={[styles.datesContainer, { height: totalHeight }]}>
       {dates.map((d) => {
@@ -131,7 +137,14 @@ const CalendarWeekDates = ({
         return (
           <View
             key={d.fullDate.toISOString()}
-            style={[styles.dateCell, isSelected && styles.selectedDate]}
+            style={[
+              styles.dateCell,
+              isSelected && styles.selectedDate,
+              {
+                width: DAY_WIDTH,
+                height: totalHeight - LANE_HEIGHT - LANE_GAP,
+              },
+            ]}
           >
             <NemoDate
               style={{ marginBottom: "auto" }}
@@ -150,7 +163,7 @@ const CalendarWeekDates = ({
 const CalendarWeekSchedules = ({
   dates,
   schedules,
-  maxLanes = MAX_LANES,
+  maxLanes = 4,
 }: CalendarSchedulesProps) => {
   const calendarContext = useContext(CalendarContext);
 
@@ -159,21 +172,26 @@ const CalendarWeekSchedules = ({
       "CalendarContext is undefined. Ensure the provider is set."
     );
   }
+  const { width, height } = useWindowDimensions();
+  const MAX_LANES = height > 600 ? 6 : 4; // Replace 600 with the appropriate threshold value
 
   const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
 
   const packedLanes = packSchedulesIntoLanes(weekSchedules);
-  const visibleLanes = packedLanes.slice(0, maxLanes);
-  const hasOverflow = packedLanes.length >= maxLanes;
+  const visibleLanes = packedLanes.slice(0, MAX_LANES);
+  const hasOverflow = packedLanes.length >= MAX_LANES;
+
+  const WEEK_WIDTH = width - 40;
+  const DAY_WIDTH = WEEK_WIDTH / 7;
   return (
     <View
       style={[
         styles.schedulesOverlay,
-        { height: maxLanes * (LANE_HEIGHT + LANE_GAP) },
+        { height: MAX_LANES * (LANE_HEIGHT + LANE_GAP), top: 18 },
       ]}
     >
       {visibleLanes.map((lane, rowIndex) => {
-        const isLastLane = rowIndex === maxLanes - 1;
+        const isLastLane = rowIndex === MAX_LANES - 1;
 
         return lane.map((s, idx) => {
           // 마지막 레인 + 초과 일정이 있으면 ...만 표시
@@ -259,7 +277,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   dateCell: {
-    width: DAY_WIDTH,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 6,
@@ -268,9 +285,6 @@ const styles = StyleSheet.create({
     backgroundColor: globalGray150,
   },
 
-  week: {
-    width: WEEK_WIDTH,
-  },
   weekInner: {
     position: "relative",
     overflow: "visible",
@@ -280,7 +294,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    top: DATES_HEIGHT,
   },
 
   scheduleWrapper: {
