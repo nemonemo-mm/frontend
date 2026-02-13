@@ -429,27 +429,25 @@ export default function TeamManagement({ teamId }: TeamManagementProps) {
             />
           </View>
 
-          {teamDetail.description && (
-            <View>
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/(team)/edit-Introduction",
-                    params: { teamId: String(teamId) },
-                  })
-                }
-              >
-                <Input
-                  placeholder="팀 소개"
-                  label="팀 소개"
-                  value={teamDetail.description}
-                  editable={false}
-                  containerPointerEvents="none"
-                  rightIcon={<ChevronRightIcon size={16} />}
-                />
-              </Pressable>
-            </View>
-          )}
+          <View>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(team)/edit-Introduction",
+                  params: { teamId: String(teamId) },
+                })
+              }
+            >
+              <Input
+                placeholder="팀을 소개할 글을 입력해 주세요"
+                label="팀 소개"
+                value={teamDetail.description}
+                editable={false}
+                containerPointerEvents="none"
+                rightIcon={<ChevronRightIcon size={16} />}
+              />
+            </Pressable>
+          </View>
 
           {/* 팀 내 포지션 */}
           {positions && (
