@@ -1,10 +1,12 @@
 import { globalGray50 } from "@/shared/ui";
+import { getAlertNavigationTarget } from "@/shared/utils/alertNavigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   addNotificationResponseReceivedListener,
   useLastNotificationResponse,
 } from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 const queryClient = new QueryClient();
@@ -13,16 +15,18 @@ export default function RootLayout() {
   const lastNotificationResponse = useLastNotificationResponse();
 
   const handleRouting = (data: any) => {
-    if (!data?.type) return;
+    const target = getAlertNavigationTarget({
+      type: data?.type,
+      teamId: data?.teamId,
+    });
+    if (!target) return;
 
-    switch (data.type) {
-      case "SCHEDULE_ASSIGNEE_ADDED":
-        router.push(`/${data.teamId}`);
-        break;
-
-      default:
-        break;
+    if (target.method === "replace") {
+      router.replace(target.href as Href);
+      return;
     }
+
+    router.push(target.href as Href);
   };
 
   // 🔹 앱이 종료 상태였다가 켜진 경우 처리

@@ -13,8 +13,10 @@ import {
 } from "@/shared/ui";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Tab from "@/shared/ui/atoms/Tab";
+import { getAlertNavigationTarget } from "@/shared/utils/alertNavigation";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -60,9 +62,18 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
   };
 
   const handlePressAlert =
-    (alertId: number, teamId: number, read: boolean) => () => {
+    (alertId: number, type: string, teamId: number, read: boolean) => () => {
       if (!read) markAsRead.mutate(alertId);
-      route.push(`/${teamId}/calendar`);
+
+      const target = getAlertNavigationTarget({ type, teamId });
+      if (!target) return;
+
+      if (target.method === "replace") {
+        route.replace(target.href as Href);
+        return;
+      }
+
+      route.push(target.href as Href);
     };
   return (
     <SafeAreaView style={[filteredAlarms.length == 0 && styles.container]}>
@@ -98,7 +109,12 @@ const AlarmScreen = ({}: AlarmScreenProps) => {
         renderItem={({ item }) => (
           <Pressable
             style={styles.alarmContainer}
-            onPress={handlePressAlert(item.id, item.teamId, item.isRead)}
+            onPress={handlePressAlert(
+              item.id,
+              item.type,
+              item.teamId,
+              item.isRead
+            )}
           >
             <NemoText
               level="body2"
