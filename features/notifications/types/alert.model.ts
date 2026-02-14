@@ -1,6 +1,8 @@
+import type { AlertType } from "@/shared/utils/alertNavigation";
+
 export interface AlertResponse {
   id: number;
-  type: string;
+  type: AlertType;
   teamId: number;
   teamName: string;
   content: string;

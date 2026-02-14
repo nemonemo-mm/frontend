@@ -79,7 +79,7 @@ const CalendarWeek = ({
   }
 
   const { selectedDate } = calendarContext;
-  const MAX_LANES = height > 1200 ? 6 : 4;
+  const MAX_LANES = height > 1200 ? maxLanes + 2 : maxLanes;
   const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
@@ -125,7 +125,7 @@ const CalendarWeekDates = ({
   const { width, height } = useWindowDimensions();
   const WEEK_WIDTH = width - 40;
   const DAY_WIDTH = WEEK_WIDTH / 7;
-  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value
+  const MAX_LANES = height > 1200 ? maxLanes + 2 : maxLanes; // Replace 600 with the appropriate threshold value
 
   const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
   return (
@@ -172,7 +172,7 @@ const CalendarWeekSchedules = ({
     );
   }
   const { width, height } = useWindowDimensions();
-  const MAX_LANES = height > 1200 ? 6 : 4; // Replace 600 with the appropriate threshold value
+  const MAX_LANES = height > 1200 ? maxLanes + 2 : maxLanes; // Replace 600 with the appropriate threshold value
 
   const weekSchedules = getWeekSchedules(dates, schedules); // maxVisible 쓰면 여기서 자르세요
 

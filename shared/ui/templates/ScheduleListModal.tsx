@@ -434,9 +434,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 4,
     marginVertical: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   border: {
     width: 3,
+    height: 16,
     borderRadius: 2,
   },
 });
