@@ -138,8 +138,9 @@ const CalendarDetailModal = ({
             <View style={styles.row}>
               <View
                 style={{
-                  backgroundColor: data.representativeColorHex,
-                  width: 1,
+                  backgroundColor: data.representativeColorHex ?? "#BDBDBD",
+                  width: 3,
+                  borderRadius: 2,
                   marginRight: 4,
                 }}
               />
