@@ -135,6 +135,7 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
   const handlePressTeam = (teamId: number) => () => {
     const team = teamLists.find((t) => t.teamId === teamId);
     if (!team) return;
+    animateIcon(!isOpenTeamList ? 1 : 0);
 
     setCurrentTeam(team);
     setSettings(null); // 새로운 팀 선택 시 이전 설정 초기화 (로딩 표시 유도)

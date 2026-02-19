@@ -1,7 +1,7 @@
 import { CalendarContext } from "@/shared/hooks/useCalendarAPI";
 import { CalendarDate, CalendarSchedule } from "@/shared/types/Calendar";
 import getWeekSchedules from "@/shared/utils/getWeekSchedules";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import {
   GestureResponderEvent,
   Pressable,
@@ -49,6 +49,7 @@ const packSchedulesIntoLanes = (items: ReturnType<typeof getWeekSchedules>) => {
 const LANE_HEIGHT = 16;
 const LANE_GAP = 4;
 const DATES_HEIGHT = 18;
+const DOUBLE_TAP_DELAY_MS = 280;
 
 /* ---------- props ---------- */
 interface CalendarSchedulesProps {
@@ -81,18 +82,40 @@ const CalendarWeek = ({
   const { selectedDate } = calendarContext;
   const MAX_LANES = height > 1200 ? maxLanes + 2 : maxLanes;
   const totalHeight = DATES_HEIGHT + MAX_LANES * (LANE_HEIGHT + LANE_GAP);
+  const lastTapRef = useRef<{ time: number; index: number } | null>(null);
 
   const handleWeekPress = (event: GestureResponderEvent) => {
     const { locationX } = event.nativeEvent;
-    const index = Math.floor(locationX / DAY_WIDTH);
-    onSelectDate?.(dates[index].fullDate);
+    const index = Math.min(6, Math.max(0, Math.floor(locationX / DAY_WIDTH)));
+    const tappedDate = dates[index].fullDate;
+    const now = Date.now();
+    const lastTap = lastTapRef.current;
+
+    onSelectDate?.(tappedDate);
+
+    if (isSameDay(tappedDate, selectedDate)) {
+      onLongSelectDate?.();
+      lastTapRef.current = null;
+      return;
+    }
+
+    if (
+      lastTap &&
+      now - lastTap.time <= DOUBLE_TAP_DELAY_MS &&
+      lastTap.index === index
+    ) {
+      onLongSelectDate?.();
+      lastTapRef.current = null;
+      return;
+    }
+
+    lastTapRef.current = { time: now, index };
   };
 
   return (
     <Pressable
       style={{ height: totalHeight, width: WEEK_WIDTH }}
       onPress={handleWeekPress}
-      onLongPress={onLongSelectDate}
     >
       <View pointerEvents="none" style={styles.weekInner}>
         <CalendarWeekDates
