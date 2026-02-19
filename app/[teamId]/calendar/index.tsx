@@ -203,14 +203,15 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   const activePositionIds = currentPosition
     .filter((p) => p.isActive)
     .map((p) => p.id);
-  const filteredSchedules = schedules.filter((s) =>
-    s.positionIds?.some((id) => activePositionIds.includes(id))
-  );
+  const filteredSchedules = schedules.filter((s) => {
+    if (!s.positionIds?.length) return true;
+    return s.positionIds.some((id) => activePositionIds.includes(id));
+  });
 
-  const filteredTodos = todos.filter((t) =>
-    t.positionIds?.some((id) => activePositionIds.includes(id))
-  );
-
+  const filteredTodos = todos.filter((t) => {
+    if (!t.positionIds?.length) return true;
+    return t.positionIds.some((id) => activePositionIds.includes(id));
+  });
   return (
     <View>
       <View>

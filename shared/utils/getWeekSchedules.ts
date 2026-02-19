@@ -10,13 +10,11 @@ const getWeekSchedules = (
   maxVisible?: number
 ): WeekSchedule[] => {
   if (weekDates.length === 0) return [];
+  const weekStart = startOfDay(weekDates[0].fullDate);
+  const weekEnd = endOfDay(weekDates[6].fullDate);
 
   const value = schedules
-    .filter(
-      (s) =>
-        s.startDate <= weekDates[6].fullDate &&
-        s.endDate >= weekDates[0].fullDate
-    )
+    .filter((s) => s.startDate <= weekEnd && s.endDate >= weekStart)
     .map((s) => {
       const findDateIndex = (date: Date) =>
         weekDates.findIndex((d) => isSameDay(d.fullDate, date));
@@ -47,6 +45,20 @@ const getWeekSchedules = (
 
   return value;
 };
+
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, -1);
+
+const endOfDay = (date: Date) =>
+  new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
 
 const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() &&
