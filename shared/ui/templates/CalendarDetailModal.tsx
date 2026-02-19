@@ -120,7 +120,7 @@ const CalendarDetailModal = ({
   return (
     <Modal transparent animationType="slide" onRequestClose={closeModal}>
       <View style={styles.backdrop}>
-        <BottomModal.Container style={{ minHeight: 660 }}>
+        <BottomModal.Container style={{ height: "90%" }}>
           <BottomModal.Header {...indicatorHandlers}>
             <BottomModal.LeftButton onPress={handleDeleteButton}>
               <Ionicons name="trash-outline" size={20} color={globalGray700} />
@@ -135,7 +135,9 @@ const CalendarDetailModal = ({
             </BottomModal.RightButton>
           </BottomModal.Header>
           <View>
-            <View style={styles.row}>
+            <View
+              style={[styles.row, { marginVertical: 16, paddingHorizontal: 8 }]}
+            >
               <View
                 style={{
                   backgroundColor: data.representativeColorHex ?? "#BDBDBD",
