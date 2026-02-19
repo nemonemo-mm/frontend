@@ -1,8 +1,8 @@
 import {
   getTeamNotificationSettings,
-  TeamNotificationSettings,
   updateTeamNotificationSettings,
 } from "@/features/notifications/api/notification";
+import { TeamNotificationSettings } from "@/features/notifications/types/notification.model";
 import { teamListUp } from "@/features/team/api/list";
 import { TeamList } from "@/features/team/types/team.model";
 import {
@@ -54,10 +54,10 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
   const queryClient = useQueryClient();
   const [isOpenTeamList, setIsOpenTeamList] = useState(false);
   const [currentTeam, setCurrentTeam] = useState<TeamList | undefined>(
-    undefined,
+    undefined
   );
   const [settings, setSettings] = useState<TeamNotificationSettings | null>(
-    null,
+    null
   );
   const [isOpenScheduleModal, setIsOpenScheduleModal] = useState(false);
   const [isOpenTodoModal, setIsOpenTodoModal] = useState(false);
@@ -87,7 +87,7 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
     onSuccess: (updatedSettings) => {
       queryClient.setQueryData(
         ["teamNotificationSettings", currentTeam?.teamId],
-        updatedSettings,
+        updatedSettings
       );
     },
   });
@@ -100,17 +100,17 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
 
   const updateSettings = (
     updater: (
-      prevSettings: TeamNotificationSettings,
-    ) => TeamNotificationSettings,
+      prevSettings: TeamNotificationSettings
+    ) => TeamNotificationSettings
   ) => {
     if (!currentTeam || !settings) return;
 
-    setSettings((prev) => {
+    setSettings((prev: TeamNotificationSettings | null) => {
       if (!prev) return null;
-      const nextSettings = updater(prev);
+      const nextSettings: TeamNotificationSettings = updater(prev);
 
       updateMutation.mutate({
-        teamId: currentTeam.teamId,
+        teamId: currentTeam!.teamId,
         settings: nextSettings,
       });
 
@@ -151,12 +151,11 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
   };
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Pressable onPress={() => route.back()}>
-          <AntDesign name="left" size={16} color={globalGray700} />
-        </Pressable>
+      <Pressable style={styles.header} onPress={() => route.back()}>
+        <AntDesign name="left" size={16} color={globalGray700} />
+
         <NemoText level="h3">팀 알림 설정</NemoText>
-      </View>
+      </Pressable>
       <View style={styles.main}>
         <Pressable onPress={handleToggleTeamList}>
           <View style={[styles.linkContainer, styles.link]}>
@@ -274,7 +273,7 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                     }}
                   >
                     {formatAlarm(
-                      toAlarmState(settings.schedulePreNotificationMinutes),
+                      toAlarmState(settings.schedulePreNotificationMinutes)
                     )}
                   </NemoText>
                 </Pressable>
@@ -328,7 +327,7 @@ const TeamAlarm = ({}: TeamAlarmProps) => {
                     }}
                   >
                     {formatAlarm(
-                      toAlarmState(settings.todoDeadlineNotificationMinutes),
+                      toAlarmState(settings.todoDeadlineNotificationMinutes)
                     )}
                   </NemoText>
                 </Pressable>

@@ -227,12 +227,10 @@ const Info = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, overflow: "scroll" }}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <AntDesign name="left" size={16} color={globalGray700} />
-        </Pressable>
+      <Pressable style={styles.header} onPress={() => router.back()}>
+        <AntDesign name="left" size={16} color={globalGray700} />
         <NemoText level="h3">개인 정보 처리 방침</NemoText>
-      </View>
+      </Pressable>
 
       <FlatList
         data={SECTIONS}
