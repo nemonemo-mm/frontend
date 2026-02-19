@@ -179,7 +179,6 @@ const CalendarWeekSchedules = ({
   const packedLanes = packSchedulesIntoLanes(weekSchedules);
   const visibleLanes = packedLanes.slice(0, MAX_LANES);
   const hasOverflow = packedLanes.length >= MAX_LANES;
-
   const WEEK_WIDTH = width - 40;
   const DAY_WIDTH = WEEK_WIDTH / 7;
   return (
