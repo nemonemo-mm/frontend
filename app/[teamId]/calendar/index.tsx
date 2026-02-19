@@ -29,7 +29,7 @@ const convertPositions = (
   return positions.map((pos, index) => ({
     id: pos.positionId ?? index,
     content: pos.positionName ?? "",
-    isActive: true,
+    isActive: false,
   }));
 };
 const CalendarScreen = ({}: CalendarScreenProps) => {
@@ -172,19 +172,31 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   };
 
   const handlePositionChip = (id: number) => () => {
-    setIsAll(false);
-    setCurrentPositions((prev) =>
-      prev.map((chip) =>
+    setCurrentPositions((prev) => {
+      if (isAll) {
+        setIsAll(false);
+        return prev.map((chip) => ({
+          ...chip,
+          isActive: chip.id === id,
+        }));
+      }
+
+      const next = prev.map((chip) =>
         chip.id === id ? { ...chip, isActive: !chip.isActive } : chip
-      )
-    );
+      );
+
+      const activeCount = next.filter((chip) => chip.isActive).length;
+      const shouldBackToAll = activeCount === 0 || activeCount === next.length;
+      if (shouldBackToAll) {
+        setIsAll(true);
+        return next.map((chip) => ({ ...chip, isActive: false }));
+      }
+
+      return next;
+    });
     callSchedules();
     callTodos();
   };
-
-  useEffect(() => {
-    setIsAll(currentPosition.every((v) => v.isActive));
-  }, [currentPosition]);
   const handleConfirmListModal = (date: Date) => {
     selectDate(date);
     setIsOpenAddScheduleModal(true);
@@ -195,7 +207,7 @@ const CalendarScreen = ({}: CalendarScreenProps) => {
   const [isAll, setIsAll] = useState(true);
   const handlePressIsAll = () => {
     setIsAll(true);
-    setCurrentPositions((prev) => prev.map((p) => ({ ...p, isActive: true })));
+    setCurrentPositions((prev) => prev.map((p) => ({ ...p, isActive: false })));
     callSchedules();
     callTodos();
   };
