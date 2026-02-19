@@ -114,7 +114,10 @@ export default function PermissionsScreen() {
               <NotificationIcon />
               <View style={styles.rowText}>
                 <Text style={styles.text_h3}>알림(선택)</Text>
-                <Text style={styles.text_body1}>메시지 및 알림 수신</Text>
+                <Text style={styles.text_body1}>
+                  팀 초대 및 공지 변경 등의 정보를 안내하기 위해 필요한
+                  권한입니다.
+                </Text>
               </View>
             </View>
           </View>
@@ -126,27 +129,29 @@ export default function PermissionsScreen() {
                 <Text style={styles.text_h3}>
                   사진/미디어 저장소 권한(선택)
                 </Text>
-                <Text style={styles.text_body1}>프로필 변경 및 사진 첨부</Text>
+                <Text style={styles.text_body1}>
+                  팀 프로필 및 개인 프로필 사진을 설정하거나 변경하기 위해
+                  필요한 권한입니다. 선택한 이미지는 프로필 이미 지로만
+                  사용됩니다.
+                </Text>
               </View>
             </View>
           </View>
-
+          <View style={styles.divider} />
           <Text style={styles.text_body3}>
             접근 권한에 동의하지 않아도 서비스를 이용할 수 있으나, 일부 기능
             사용에 제한이 있을 수 있습니다.
           </Text>
 
-          <View style={styles.divider} />
-
           <Text style={styles.text_body2}>선택적 접근권한 철회 방법</Text>
           <Text style={styles.text_body3}>
-            설정 {`>`} 개인정보보호 {`>`} 해당 접근권한 {`>`} 접근권한 철회
+            설정 {`>`} Nemonemo 에서 접근 허용을 변경하실 수 있습니다
           </Text>
         </View>
       </View>
 
       <CtaButton
-        label={isSubmitting ? "처리 중..." : "동의하기"}
+        label={isSubmitting ? "처리 중..." : "확인"}
         onPress={handleComplete}
         isActive={canSubmit}
       />

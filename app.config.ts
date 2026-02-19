@@ -29,11 +29,11 @@ export default {
   ios: {
     infoPlist: {
       NSCameraUsageDescription:
-        "프로필 사진 촬영/업로드를 위해 카메라 접근 권한이 필요합니다.",
+        "프로필 사진 또는 팀 활동 이미지를 직접 촬영해 등록하려면 카메라 접근 권한이 필요합니다. 촬영한 이미지에만 접근하며, 권한을 허용하지 않아도 다른 기능은 사용할 수 있습니다.",
       NSPhotoLibraryUsageDescription:
-        "프로필 사진 선택/업로드를 위해 사진 보관함 접근 권한이 필요합니다.",
+        "프로필 사진 또는 팀 활동 이미지로 사용할 사진을 선택하려면 사진 보관함 접근 권한이 필요합니다. 사용자가 선택한 사진만 업로드되며, 전체 보관함을 임의로 수집하지 않습니다.",
       NSPhotoLibraryAddUsageDescription:
-        "프로필 사진 저장을 위해 사진 보관함 접근 권한이 필요합니다.",
+        "촬영하거나 편집한 이미지를 기기 사진 보관함에 저장하려면 저장 권한이 필요합니다. 저장 기능 외 다른 목적에는 사용되지 않습니다.",
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true,
       },
@@ -91,7 +91,8 @@ export default {
     [
       "expo-image-picker",
       {
-        photosPermission: "“Nemonemo” would like to access the camera.",
+        photosPermission:
+          "프로필 사진 및 팀 활동 이미지를 등록하거나 변경하려면 사진 보관함 접근 권한이 필요합니다. 선택한 사진만 앱에 업로드되며, 동의하지 않아도 다른 기능은 계속 사용할 수 있습니다.",
       },
     ],
     "expo-secure-store",
