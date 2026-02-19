@@ -15,6 +15,7 @@ import { globalGray150, globalGray700, globalSpacingMd } from "@/shared/ui";
 
 import GalleryIcon from "@/assets/icons/gallery";
 import NotificationIcon from "@/assets/icons/notification";
+import ListItem from "@/shared/ui/atoms/ListItem";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
 import { getExpoPushDeviceToken } from "@/shared/utils/getExpoPushDeviceToken";
 import { useRouter } from "expo-router";
@@ -106,47 +107,52 @@ export default function PermissionsScreen() {
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       <View style={styles.container}>
         <View style={styles.card}>
-          <Text style={[styles.text_h1, { marginBottom: 24 }]}>
-            ‘Nemonemo’ 서비스 이용을 위한{`\n`}앱 권한 안내
+          <Text
+            style={[styles.text_h1, { marginBottom: 12, textAlign: "center" }]}
+          >
+            앱 접근 권한 안내
           </Text>
-          <View style={styles.row}>
-            <View style={styles.rowIcon}>
-              <NotificationIcon />
-              <View style={styles.rowText}>
-                <Text style={styles.text_h3}>알림(선택)</Text>
-                <Text style={styles.text_body1}>
-                  팀 초대 및 공지 변경 등의 정보를 안내하기 위해 필요한
-                  권한입니다.
-                </Text>
+          <Text style={styles.text_body1}>
+            Nemonemo 서비스 이용을 위해 다음 권한을 확인해 주시길 바랍니다.
+          </Text>
+          <View style={styles.divider} />
+          <View style={styles.textContainer}>
+            <View style={styles.row}>
+              <View style={styles.rowIcon}>
+                <NotificationIcon />
+                <View style={styles.rowText}>
+                  <Text style={styles.text_h3}>알림(선택)</Text>
+                  <Text style={styles.text_body1}>
+                    팀 초대 및 공지 변경 등의 정보를 안내하기 위해 필요한
+                    권한입니다.
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={styles.rowIcon}>
-              <GalleryIcon />
-              <View style={styles.rowText}>
-                <Text style={styles.text_h3}>
-                  사진/미디어 저장소 권한(선택)
-                </Text>
-                <Text style={styles.text_body1}>
-                  팀 프로필 및 개인 프로필 사진을 설정하거나 변경하기 위해
-                  필요한 권한입니다. 선택한 이미지는 프로필 이미 지로만
-                  사용됩니다.
-                </Text>
+            <View style={styles.row}>
+              <View style={styles.rowIcon}>
+                <GalleryIcon />
+                <View style={styles.rowText}>
+                  <Text style={styles.text_h3}>
+                    사진/미디어 저장소 권한(선택)
+                  </Text>
+                  <Text style={styles.text_body1}>
+                    팀 프로필 및 개인 프로필 사진을 설정하거나 변경하기 위해
+                    필요한 권한입니다. 선택한 이미지는 프로필 이미지로만
+                    사용됩니다.
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
           <View style={styles.divider} />
-          <Text style={styles.text_body3}>
+          <ListItem style={styles.text_body3}>
             접근 권한에 동의하지 않아도 서비스를 이용할 수 있으나, 일부 기능
             사용에 제한이 있을 수 있습니다.
-          </Text>
-
-          <Text style={styles.text_body2}>선택적 접근권한 철회 방법</Text>
-          <Text style={styles.text_body3}>
+          </ListItem>
+          <ListItem style={styles.text_body3}>
             설정 {`>`} Nemonemo 에서 접근 허용을 변경하실 수 있습니다
-          </Text>
+          </ListItem>
         </View>
       </View>
 
@@ -165,6 +171,11 @@ const styles = StyleSheet.create({
     marginTop: 134,
     marginHorizontal: 20,
     gap: globalSpacingMd,
+  },
+  textContainer: {
+    padding: 20,
+    marginVertical: 30,
+    gap: 20,
   },
   card: {
     borderRadius: 12,
@@ -212,5 +223,5 @@ const styles = StyleSheet.create({
   },
   rowIcon: { flexDirection: "row", alignItems: "center", gap: 12 },
   rowText: { flex: 1, gap: 4 },
-  divider: { height: 1, backgroundColor: globalGray150 },
+  divider: { height: 1, backgroundColor: globalGray150, marginVertical: 16 },
 });
