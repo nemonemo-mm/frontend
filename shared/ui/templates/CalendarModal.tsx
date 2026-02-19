@@ -363,7 +363,7 @@ const CalendarModal = ({
               style={style.modalBackdrop}
               onPress={() => setIsOpenTeamList(false)}
             >
-              <View style={style.modalContainer}>
+              <View style={style.teamModalContainer}>
                 <FlatList
                   data={teamLists}
                   keyExtractor={(item) => item.teamId.toString()}
@@ -502,6 +502,17 @@ const style = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     paddingBottom: 40,
+  },
+  teamModalContainer: {
+    width: "90%",
+    backgroundColor: globalGray0,
+    borderRadius: globalSpacingSm,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   modalContainer: {
     height: "90%",
