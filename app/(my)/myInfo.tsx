@@ -105,12 +105,10 @@ const MyInfo = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Pressable onPress={() => route.back()}>
-          <AntDesign name="left" size={16} color={globalGray700} />
-        </Pressable>
+      <Pressable style={styles.header} onPress={() => route.back()}>
+        <AntDesign name="left" size={16} color={globalGray700} />
         <NemoText level="h3">내 정보관리</NemoText>
-      </View>
+      </Pressable>
       <View style={styles.main}>
         <Pressable
           style={styles.profileSection}
