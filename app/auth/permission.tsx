@@ -156,11 +156,13 @@ export default function PermissionsScreen() {
         </View>
       </View>
 
-      <CtaButton
-        label={isSubmitting ? "처리 중..." : "다음으로"}
-        onPress={handleComplete}
-        isActive={canSubmit}
-      />
+      <View style={{ marginBottom: 20 }}>
+        <CtaButton
+          label={isSubmitting ? "처리 중..." : "다음으로"}
+          onPress={handleComplete}
+          isActive={canSubmit}
+        />
+      </View>
     </SafeAreaView>
   );
 }
