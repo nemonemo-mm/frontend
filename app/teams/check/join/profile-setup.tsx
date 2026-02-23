@@ -4,6 +4,7 @@ import { Position } from "@/features/team/types/team.model";
 import NemoText from "@/shared/ui/atoms/NemoText";
 import Chips, { ChipText } from "@/shared/ui/molecules/Chips";
 import CtaButton from "@/shared/ui/molecules/CtaButton";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -11,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileSetupScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const params = useLocalSearchParams<{
     teamId?: string;
     inviteCode: string;
@@ -23,7 +25,7 @@ export default function ProfileSetupScreen() {
     : [];
 
   const [selectedPositionId, setSelectedPositionId] = useState<number | null>(
-    null
+    null,
   );
 
   const [chipData, setChipData] = useState<ChipText[]>(
@@ -31,7 +33,7 @@ export default function ProfileSetupScreen() {
       id: position.positionId,
       content: position.positionName,
       isActive: false,
-    }))
+    })),
   );
 
   const handlePositionSelect = (items: ChipText[]) => {
@@ -67,6 +69,11 @@ export default function ProfileSetupScreen() {
         inviteCode: params.inviteCode,
         positionId: selectedPositionId,
       });
+
+      // teamList staleTime이 길어서 참가 직후 캐시가 그대로일 수 있음.
+      // 사이드바에서 즉시 새 팀이 보이도록 참가 성공 시점에 갱신한다.
+      await queryClient.invalidateQueries({ queryKey: ["teamList"] });
+      await queryClient.refetchQueries({ queryKey: ["teamList"] });
 
       const joinedTeamId = Number(params.teamId);
       if (Number.isFinite(joinedTeamId) && joinedTeamId > 0) {

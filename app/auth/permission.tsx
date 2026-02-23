@@ -38,7 +38,7 @@ export default function PermissionsScreen() {
       if (!pending) {
         Alert.alert(
           "오류",
-          "로그인 정보가 만료되었습니다. 다시 로그인해 주세요."
+          "로그인 정보가 만료되었습니다. 다시 로그인해 주세요.",
         );
         router.replace("/auth");
         return;
@@ -112,7 +112,7 @@ export default function PermissionsScreen() {
           >
             앱 접근 권한 안내
           </Text>
-          <Text style={styles.text_body1}>
+          <Text style={styles.text_h4}>
             Nemonemo 서비스 이용을 위해 다음 권한을 확인해 주시길 바랍니다.
           </Text>
           <View style={styles.divider} />
@@ -156,11 +156,13 @@ export default function PermissionsScreen() {
         </View>
       </View>
 
-      <CtaButton
-        label={isSubmitting ? "처리 중..." : "확인"}
-        onPress={handleComplete}
-        isActive={canSubmit}
-      />
+      <View style={{ marginBottom: 20 }}>
+        <CtaButton
+          label={isSubmitting ? "처리 중..." : "다음으로"}
+          onPress={handleComplete}
+          isActive={canSubmit}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -169,17 +171,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 134,
-    marginHorizontal: 20,
     gap: globalSpacingMd,
   },
   textContainer: {
-    padding: 20,
-    marginVertical: 30,
+    marginHorizontal: 20,
     gap: 20,
   },
   card: {
     borderRadius: 12,
-    padding: 16,
     gap: 12,
   },
   row: {
@@ -189,21 +188,29 @@ const styles = StyleSheet.create({
   text_h1: {
     fontSize: 22,
     fontWeight: "700",
-    lineHeight: 27,
-    fontFamily: "Pretendard-Regular",
+    lineHeight: 24,
+    fontFamily: "Pretendard-Bold",
     color: "#2B2B2B",
   },
   text_h3: {
-    fontSize: 19,
+    fontSize: 16,
     fontWeight: "500",
-    lineHeight: 27,
-    fontFamily: "Pretendard-Regular",
+    lineHeight: 18,
+    fontFamily: "Pretendard-Bold",
     color: "#2B2B2B",
   },
-  text_body1: {
+  text_h4: {
     fontSize: 16,
-    fontWeight: "200",
-    lineHeight: 27,
+    fontWeight: "400",
+    lineHeight: 20,
+    fontFamily: "Pretendard-Regular",
+    color: "#2B2B2B",
+    marginHorizontal: 20,
+  },
+  text_body1: {
+    fontSize: 14,
+    fontWeight: "300",
+    lineHeight: 20,
     fontFamily: "Pretendard-Regular",
     color: globalGray700,
   },
@@ -216,10 +223,11 @@ const styles = StyleSheet.create({
   },
   text_body3: {
     fontSize: 12,
-    fontWeight: "200",
-    lineHeight: 17,
+    fontWeight: "300",
+    lineHeight: 18,
     fontFamily: "Pretendard-Regular",
-    color: globalGray700,
+    marginHorizontal: 20,
+    color: "#5F5F5F",
   },
   rowIcon: { flexDirection: "row", alignItems: "center", gap: 12 },
   rowText: { flex: 1, gap: 4 },
