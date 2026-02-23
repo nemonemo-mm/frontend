@@ -7,7 +7,6 @@
 <p align="center">사이드 프로젝트 팀을 위한 체계적인 일정 관리 앱, 함께 만들고 함께 확인하는 협업 공간.</p> 
 </div>
 
-
 <p align="center">
 <img width="600" height="700" alt="1" src="https://github.com/user-attachments/assets/10a49cf0-b1b7-40de-9937-9943f1efa38d" />
 <img width="600" height="1000" alt="2" src="https://github.com/user-attachments/assets/16e2256c-333a-4df5-9037-5bec776d5e2d" />
@@ -32,15 +31,6 @@
 <br/>
 
 팀 프로젝트를 더 체계적으로 관리해보세요.
-
----
-
-## 트러블 슈팅
-- SafeAreaView 플랫폼 별 여백 이슈
-- 플랫폼 별 키보드 이슈
-- 모달 위에 모달 위에 모달 이슈
-- 팀 리스트 바로 안 불러와지는 것
-- 중복 리프레쉬 토큰 재발급 인터셉터로 해결
 
 ---
 
