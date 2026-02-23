@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Selector from "./Selector";
 
 interface CalendarHeaderProps {
@@ -9,18 +9,18 @@ interface CalendarHeaderProps {
 
 const CalendarHeader = ({ year, month, goMonth }: CalendarHeaderProps) => {
   return (
-    <Text style={style.container}>
+    <View style={style.container}>
       <Selector.Horizontal
         level="h2"
         title={`${year}년 ${month}월`}
         handler={(dir) => goMonth(dir)}
       />
-    </Text>
+    </View>
   );
 };
 const style = StyleSheet.create({
   container: {
-    textAlign: "center",
+    alignItems: "center",
     marginBottom: 14,
   },
 });
