@@ -1,6 +1,7 @@
 import GroupIcon from "@/assets/icons/group";
 import SquaredPlusIcon from "@/assets/icons/squaredPlus";
 import TeamSetting from "@/assets/icons/teamSetting";
+import BellIcon from "@/assets/icons/bell";
 import {
   useLatestNotice,
   useNoticeMutations,
@@ -25,7 +26,6 @@ import NemoText from "@/shared/ui/atoms/NemoText";
 import Tabs, { TabsText } from "@/shared/ui/molecules/Tabs";
 import ModalEditableField from "@/shared/ui/organisms/ModalEditableField";
 import SideModal from "@/shared/ui/templates/SideModal";
-import { Feather } from "@expo/vector-icons";
 import { Image as ExpoImage } from "expo-image";
 import {
   Slot,
@@ -296,12 +296,7 @@ export default function CalendarTodosScreen() {
             </Pressable>
             <View style={styles.spacer} />
             <Pressable onPress={handlePressAlarm}>
-              <Feather
-                name="bell"
-                size={20}
-                color={globalGray700}
-                style={{ marginRight: 12 }}
-              />
+              <BellIcon size={20} color={globalGray700} style={{ marginRight: 12 }} />
             </Pressable>
             <Pressable onPress={handlePressTeamSettings}>
               <TeamSetting size={24} color={globalGray700} />

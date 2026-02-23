@@ -12,7 +12,7 @@ import {
   InitialCalendarState,
 } from "@/shared/hooks/useCalendarForm";
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
@@ -158,24 +158,25 @@ const CalendarModal = ({
   confirmModal,
   closeModal,
 }: CalendarModalProps) => {
+  const safeTeamId = Number.isFinite(teamId) && teamId > 0 ? teamId : null;
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
-    data?.teamId ?? teamId
+    data?.teamId ?? safeTeamId
   );
   const positionQuery = usePositions(selectedTeamId);
 
   const personQuery = useTeamMembers(selectedTeamId);
-  const members = personQuery.data?.members?.map((member) =>
-    toMemberChip(member)
+  const members = useMemo(
+    () => personQuery.data?.members?.map((member) => toMemberChip(member)) ?? [],
+    [personQuery.data?.members]
   );
-  const isReady =
-    selectedTeamId && personQuery.isSuccess && positionQuery.isSuccess;
+  const positions = useMemo(() => positionQuery.data ?? [], [positionQuery.data]);
 
   const initialState = createInitialState({
-    teamId,
+    teamId: safeTeamId ?? data?.teamId ?? 0,
     data,
     type,
-    persons: members ?? [],
-    positions: positionQuery.data ?? [],
+    persons: members,
+    positions,
     selectedDate,
   });
   const segmentTexts = [
@@ -217,12 +218,12 @@ const CalendarModal = ({
         teamId: selectedTeamId,
         data,
         type,
-        positions: positionQuery.data ?? [],
-        persons: members ?? [],
+        positions,
+        persons: members,
         selectedDate,
       }),
     });
-  }, [selectedTeamId, isReady]);
+  }, [selectedTeamId, data, type, positions, members, selectedDate]);
 
   const [isTitleWritten, setIsTitleWritten] = useState(true);
 

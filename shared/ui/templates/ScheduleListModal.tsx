@@ -210,7 +210,7 @@ const ScheduleListModal = ({
     0,
     0,
     0,
-    -1
+    0
   ).toISOString();
   const end = new Date(
     selectedDate.getFullYear(),

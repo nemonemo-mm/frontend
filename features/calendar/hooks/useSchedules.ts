@@ -1,5 +1,6 @@
 import {
   QueryClient,
+  QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
@@ -97,6 +98,16 @@ const shouldIncludeOccurrence = (
   candidate <= paramsEnd &&
   candidate <= repeatEnd;
 
+const isScheduleOverlappingRange = (
+  schedule: SchedulesResponse,
+  paramsStart: Date,
+  paramsEnd: Date
+) => {
+  const scheduleStart = new Date(schedule.startAt);
+  const scheduleEnd = new Date(schedule.endAt);
+  return scheduleStart <= paramsEnd && scheduleEnd >= paramsStart;
+};
+
 const generateRepeatOccurrences = (
   schedule: SchedulesResponse,
   params: ScheduleQueryParams
@@ -192,8 +203,21 @@ const expandSchedulesWithRepeats = (
   schedules: SchedulesResponse[],
   params: ScheduleQueryParams
 ) => {
+  const queryStart = new Date(params.start);
+  const queryEnd = new Date(params.end);
+
   return schedules
-    .flatMap((schedule) => [schedule, ...generateRepeatOccurrences(schedule, params)])
+    .flatMap((schedule) => {
+      const normalizedType = (schedule.repeatType ?? "NONE").toUpperCase();
+      if (normalizedType === "NONE" || !schedule.repeatEndDate) {
+        return [schedule];
+      }
+
+      return generateRepeatOccurrences(schedule, params);
+    })
+    .filter((schedule) =>
+      isScheduleOverlappingRange(schedule, queryStart, queryEnd)
+    )
     .sort(
       (a, b) =>
         new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
@@ -243,6 +267,112 @@ type DeleteSchedulePayload = {
   teamId?: number | null;
 };
 
+type ScheduleCacheSnapshot = Array<[QueryKey, SchedulesResponse[] | undefined]>;
+
+const snapshotScheduleCaches = (queryClient: QueryClient) => ({
+  team: queryClient.getQueriesData<SchedulesResponse[]>({
+    queryKey: ["teams"],
+    exact: false,
+    predicate: (query) => query.queryKey.includes("schedules"),
+  }),
+  me: queryClient.getQueriesData<SchedulesResponse[]>({
+    queryKey: ["me", "schedules"],
+    exact: false,
+  }),
+});
+
+const restoreScheduleCaches = (
+  queryClient: QueryClient,
+  snapshot?: { team: ScheduleCacheSnapshot; me: ScheduleCacheSnapshot }
+) => {
+  if (!snapshot) return;
+
+  [...snapshot.team, ...snapshot.me].forEach(([key, data]) => {
+    queryClient.setQueryData(key, data);
+  });
+};
+
+const patchScheduleInCache = (
+  data: SchedulesResponse[] | undefined,
+  scheduleId: number,
+  body: ScheduleRequest
+) => {
+  if (!data) return data;
+
+  return data.map((schedule) =>
+    schedule.id === scheduleId || schedule.parentScheduleId === scheduleId
+      ? {
+          ...schedule,
+          title: body.title,
+          description: body.description,
+          startAt: body.startAt,
+          endAt: body.endAt,
+          isAllDay: body.isAllDay,
+          place: body.place,
+          url: body.url,
+          repeatType: body.repeatType,
+          repeatInterval: body.repeatInterval,
+          repeatWeekDays: body.repeatWeekDays,
+          repeatUseDate: body.repeatUseDate,
+          repeatEndDate: body.repeatEndDate,
+          positionIds: body.positionIds,
+          attendeeMemberIds: body.attendeeMemberIds,
+          notificationMinutes: body.notificationMinutes,
+        }
+      : schedule
+  );
+};
+
+const removeScheduleFromCache = (
+  data: SchedulesResponse[] | undefined,
+  scheduleId: number
+) => {
+  if (!data) return data;
+  return data.filter(
+    (schedule) =>
+      schedule.id !== scheduleId && schedule.parentScheduleId !== scheduleId
+  );
+};
+
+const optimisticallyUpdateScheduleCaches = (
+  queryClient: QueryClient,
+  scheduleId: number,
+  body: ScheduleRequest
+) => {
+  queryClient.setQueriesData<SchedulesResponse[]>(
+    {
+      queryKey: ["teams"],
+      exact: false,
+      predicate: (query) => query.queryKey.includes("schedules"),
+    },
+    (old) => patchScheduleInCache(old, scheduleId, body)
+  );
+
+  queryClient.setQueriesData<SchedulesResponse[]>(
+    { queryKey: ["me", "schedules"], exact: false },
+    (old) => patchScheduleInCache(old, scheduleId, body)
+  );
+};
+
+const optimisticallyDeleteScheduleCaches = (
+  queryClient: QueryClient,
+  scheduleId: number
+) => {
+  queryClient.setQueriesData<SchedulesResponse[]>(
+    {
+      queryKey: ["teams"],
+      exact: false,
+      predicate: (query) => query.queryKey.includes("schedules"),
+    },
+    (old) => removeScheduleFromCache(old, scheduleId)
+  );
+
+  queryClient.setQueriesData<SchedulesResponse[]>(
+    { queryKey: ["me", "schedules"], exact: false },
+    (old) => removeScheduleFromCache(old, scheduleId)
+  );
+};
+
 function invalidateScheduleQueries(
   queryClient: QueryClient,
   teamId?: number | null
@@ -278,7 +408,29 @@ export function useScheduleMutations() {
   const updateSchedule = useMutation({
     mutationFn: (payload: UpdateSchedulePayload) =>
       changeSchedule(payload.scheduleId, payload.body),
-    onSuccess: (_, variables) => {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({
+        queryKey: ["teams"],
+        exact: false,
+        predicate: (query) => query.queryKey.includes("schedules"),
+      });
+      await queryClient.cancelQueries({
+        queryKey: ["me", "schedules"],
+        exact: false,
+      });
+
+      const snapshot = snapshotScheduleCaches(queryClient);
+      optimisticallyUpdateScheduleCaches(
+        queryClient,
+        variables.scheduleId,
+        variables.body
+      );
+      return { snapshot };
+    },
+    onError: (_, __, context) => {
+      restoreScheduleCaches(queryClient, context?.snapshot);
+    },
+    onSettled: (_, __, variables) => {
       invalidateScheduleQueries(queryClient, variables.body.teamId);
     },
   });
@@ -286,7 +438,25 @@ export function useScheduleMutations() {
   const deleteScheduleMutation = useMutation({
     mutationFn: (payload: DeleteSchedulePayload) =>
       deleteScheduleRequest(payload.scheduleId),
-    onSuccess: (_, variables) => {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({
+        queryKey: ["teams"],
+        exact: false,
+        predicate: (query) => query.queryKey.includes("schedules"),
+      });
+      await queryClient.cancelQueries({
+        queryKey: ["me", "schedules"],
+        exact: false,
+      });
+
+      const snapshot = snapshotScheduleCaches(queryClient);
+      optimisticallyDeleteScheduleCaches(queryClient, variables.scheduleId);
+      return { snapshot };
+    },
+    onError: (_, __, context) => {
+      restoreScheduleCaches(queryClient, context?.snapshot);
+    },
+    onSettled: (_, __, variables) => {
       invalidateScheduleQueries(queryClient, variables.teamId);
     },
   });
