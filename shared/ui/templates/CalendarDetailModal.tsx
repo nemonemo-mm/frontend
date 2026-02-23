@@ -14,7 +14,7 @@ import {
 } from "@/shared/hooks/useCalendarForm";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Animated, Modal, PanResponder, StyleSheet, View } from "react-native";
 import { globalGray700 } from "..";
 import NemoText from "../atoms/NemoText";
@@ -43,22 +43,42 @@ const CalendarDetailModal = ({
   onPatch,
 }: CalendarDetailModalProps) => {
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
-  const positions = usePositions(parseInt(teamId)).data;
+  const parsedTeamId = Number(teamId);
+  const safeTeamId =
+    Number.isFinite(parsedTeamId) && parsedTeamId > 0
+      ? parsedTeamId
+      : data.teamId;
+  const positions = usePositions(safeTeamId).data;
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
 
-  const personQuery = useTeamMembers(parseInt(teamId));
-  const members = personQuery.data?.members?.map((member) =>
-    toMemberChip(member)
+  const personQuery = useTeamMembers(safeTeamId);
+  const members = useMemo(
+    () => personQuery.data?.members?.map((member) => toMemberChip(member)) ?? [],
+    [personQuery.data?.members]
   );
+  const positionChips = useMemo(() => positions ?? [], [positions]);
   const initialState = createInitialState({
-    teamId: Number(teamId),
+    teamId: safeTeamId,
     data,
     type,
-    persons: members ?? [],
-    positions: positions ?? [],
+    persons: members,
+    positions: positionChips,
     selectedDate,
   });
   const [state, dispatch] = useReducer(reducer, initialState);
+  useEffect(() => {
+    dispatch({
+      type: "RESET",
+      payload: createInitialState({
+        teamId: safeTeamId,
+        data,
+        type,
+        persons: members,
+        positions: positionChips,
+        selectedDate,
+      }),
+    });
+  }, [safeTeamId, data, type, members, positionChips, selectedDate]);
   const { title } = state;
   const { deleteSchedule } = useScheduleMutations();
   const { deleteTodo } = useTodoMutations();
@@ -153,7 +173,7 @@ const CalendarDetailModal = ({
                 readonly: true,
                 state,
                 dispatch,
-                teamId: parseInt(teamId),
+                teamId: safeTeamId,
               }}
             >
               {type == "schedule" ? (
@@ -166,7 +186,7 @@ const CalendarDetailModal = ({
         </BottomModal.Container>
         {isOpenEditModal && (
           <CalendarModal
-            teamId={parseInt(teamId)}
+            teamId={safeTeamId}
             type={type}
             data={data}
             closeModal={() => setIsOpenEditModal(false)}
