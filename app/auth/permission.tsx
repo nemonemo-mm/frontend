@@ -157,7 +157,7 @@ export default function PermissionsScreen() {
       </View>
 
       <CtaButton
-        label={isSubmitting ? "처리 중..." : "확인"}
+        label={isSubmitting ? "처리 중..." : "다음으로"}
         onPress={handleComplete}
         isActive={canSubmit}
       />
