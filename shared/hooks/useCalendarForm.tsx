@@ -63,13 +63,15 @@ export const createInitialState = ({
   // schedule 편집
   if (type === "schedule") {
     const s = data as SchedulesResponse;
-    const person = persons
-      .filter((per) => (s.attendeeMemberIds ?? []).includes(per.memberId))
-      .map((per) => ({ ...per, isActive: true }));
+    const person = persons.map((per) => ({
+      ...per,
+      isActive: (s.attendeeMemberIds ?? []).includes(per.memberId),
+    }));
 
-    const position = positions
-      .filter((pos) => data.positionIds.includes(pos.positionId))
-      .map((pos) => ({ ...pos, isActive: true }));
+    const position = positions.map((pos) => ({
+      ...pos,
+      isActive: (data.positionIds ?? []).includes(pos.positionId),
+    }));
     const {
       repeatType,
       repeatEndDate,
